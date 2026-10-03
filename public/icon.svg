@@ -1,0 +1,83 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" width="512" height="512">
+  <defs>
+    <linearGradient id="bgGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#0b1e3d"/>
+      <stop offset="50%" stop-color="#142c54"/>
+      <stop offset="100%" stop-color="#1a3668"/>
+    </linearGradient>
+    <linearGradient id="goldGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#f59e0b"/>
+      <stop offset="50%" stop-color="#d97706"/>
+      <stop offset="100%" stop-color="#b45309"/>
+    </linearGradient>
+    <linearGradient id="greenGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#34d399"/>
+      <stop offset="100%" stop-color="#059669"/>
+    </linearGradient>
+  </defs>
+
+  <!-- Base Circle / Shield Canvas -->
+  <rect width="512" height="512" rx="108" fill="url(#bgGrad)"/>
+
+  <!-- Border accent ring -->
+  <rect x="16" y="16" width="480" height="480" rx="92" fill="none" stroke="#d97706" stroke-width="4" stroke-opacity="0.35"/>
+
+  <!-- Subtle Kenyan geometric border pattern top & bottom -->
+  <g fill="#f59e0b" opacity="0.4">
+    <polygon points="40,36 56,24 72,36 56,48"/>
+    <polygon points="88,36 104,24 120,36 104,48"/>
+    <polygon points="136,36 152,24 168,36 152,48"/>
+    <polygon points="344,36 360,24 376,36 360,48"/>
+    <polygon points="392,36 408,24 424,36 408,48"/>
+    <polygon points="440,36 456,24 472,36 456,48"/>
+
+    <polygon points="40,476 56,464 72,476 56,488"/>
+    <polygon points="88,476 104,464 120,476 104,488"/>
+    <polygon points="136,476 152,464 168,476 152,488"/>
+    <polygon points="344,476 360,464 376,476 360,488"/>
+    <polygon points="392,476 408,464 424,476 408,488"/>
+    <polygon points="440,476 456,464 472,476 456,488"/>
+  </g>
+
+  <!-- Open Book of Constitution / Knowledge -->
+  <g transform="translate(106, 260)">
+    <!-- Book pages -->
+    <path d="M150,120 C90,80 20,85 0,95 L0,20 C30,12 90,6 150,45 C210,6 270,12 300,20 L300,95 C280,85 210,80 150,120 Z" fill="#ffffff" opacity="0.95"/>
+    <path d="M150,120 L150,45" stroke="#cbd5e1" stroke-width="4"/>
+    <!-- Page lines left -->
+    <line x1="30" y1="42" x2="120" y2="58" stroke="#94a3b8" stroke-width="3" stroke-linecap="round"/>
+    <line x1="30" y1="58" x2="115" y2="72" stroke="#94a3b8" stroke-width="3" stroke-linecap="round"/>
+    <line x1="30" y1="74" x2="105" y2="86" stroke="#94a3b8" stroke-width="3" stroke-linecap="round"/>
+    <!-- Page lines right -->
+    <line x1="180" y1="58" x2="270" y2="42" stroke="#94a3b8" stroke-width="3" stroke-linecap="round"/>
+    <line x1="185" y1="72" x2="270" y2="58" stroke="#94a3b8" stroke-width="3" stroke-linecap="round"/>
+    <line x1="195" y1="86" x2="270" y2="74" stroke="#94a3b8" stroke-width="3" stroke-linecap="round"/>
+  </g>
+
+  <!-- Civic Pillar / Scales of Justice & Beacon of Light -->
+  <g transform="translate(256, 175)">
+    <!-- Torch / Balance beam -->
+    <path d="M-80,-20 L80,-20" stroke="#f59e0b" stroke-width="8" stroke-linecap="round"/>
+    <circle cx="0" cy="-20" r="14" fill="url(#goldGrad)"/>
+    <line x1="0" y1="-6" x2="0" y2="90" stroke="#f59e0b" stroke-width="6"/>
+
+    <!-- Left scale pan (Law & Justice) -->
+    <line x1="-70" y1="-20" x2="-95" y2="25" stroke="#f59e0b" stroke-width="3"/>
+    <line x1="-70" y1="-20" x2="-45" y2="25" stroke="#f59e0b" stroke-width="3"/>
+    <path d="M-105,25 Q-70,45 -35,25 Z" fill="url(#goldGrad)"/>
+
+    <!-- Right scale pan (Citizens & Community) -->
+    <line x1="70" y1="-20" x2="45" y2="25" stroke="#f59e0b" stroke-width="3"/>
+    <line x1="70" y1="-20" x2="95" y2="25" stroke="#f59e0b" stroke-width="3"/>
+    <path d="M35,25 Q70,45 105,25 Z" fill="url(#goldGrad)"/>
+
+    <!-- Torch flame / Beacon of civic enlightenment -->
+    <path d="M0,-32 C16,-52 14,-78 0,-96 C-14,-78 -16,-52 0,-32 Z" fill="#ef4444"/>
+    <path d="M0,-36 C10,-50 8,-66 0,-80 C-8,-66 -10,-50 0,-36 Z" fill="url(#goldGrad)"/>
+    <circle cx="0" cy="-55" r="5" fill="#fef08a"/>
+  </g>
+
+  <!-- Civic olive branches (Participation & Devolution) -->
+  <path d="M120,240 C110,180 140,120 185,90" fill="none" stroke="url(#greenGrad)" stroke-width="6" stroke-linecap="round"/>
+  <path d="M392,240 C402,180 372,120 327,90" fill="none" stroke="url(#greenGrad)" stroke-width="6" stroke-linecap="round"/>
+</svg>

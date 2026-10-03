@@ -1,0 +1,8 @@
+{
+  "name": "The Samaritan",
+  "description": "Digital Civic Education and Government Literacy Platform by Kwale Focus Empowerment CBO (KFE). Know Your Government. Understand Your Rights. Shape Your Future.",
+  "requestFramePermissions": [],
+  "majorCapabilities": [
+    "MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"
+  ]
+}

@@ -1,0 +1,351 @@
+@import "tailwindcss";
+
+@custom-variant dark (&:where(.dark, .dark *));
+
+:root {
+  color-scheme: light;
+}
+
+html.dark {
+  color-scheme: dark;
+  background-color: #090d16;
+}
+
+@layer base {
+  :root {
+    --kfe-navy: #0b2545;
+    --kfe-blue: #133e87;
+    --kfe-gold: #d97706;
+    --kfe-green: #059669;
+    --ke-black: #0f172a;
+    --ke-red: #b91c1c;
+    --ke-green: #15803d;
+    --ke-white: #ffffff;
+  }
+
+  html,
+  body {
+    overflow-x: hidden;
+    -webkit-tap-highlight-color: transparent;
+    -webkit-text-size-adjust: 100%;
+    touch-action: manipulation;
+  }
+}
+
+/* Hide scrollbar for Chrome, Safari and Opera */
+.no-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+
+/* Hide scrollbar for IE, Edge and Firefox */
+.no-scrollbar {
+  -ms-overflow-style: none;  /* IE and Edge */
+  scrollbar-width: none;  /* Firefox */
+}
+
+/* Mobile Safe Area Inset Support */
+.pb-safe {
+  padding-bottom: env(safe-area-inset-bottom, 1rem);
+}
+
+.mb-safe {
+  margin-bottom: env(safe-area-inset-bottom, 0px);
+}
+
+/* Kenyan Flag Patriotic Ribbon */
+.kenya-ribbon {
+  background: linear-gradient(
+    to right,
+    #0f172a 0%,
+    #0f172a 32%,
+    #ffffff 32%,
+    #ffffff 35%,
+    #b91c1c 35%,
+    #b91c1c 65%,
+    #ffffff 65%,
+    #ffffff 68%,
+    #15803d 68%,
+    #15803d 100%
+  );
+  height: 4px;
+  width: 100%;
+}
+
+/* KFE Brand Gradient */
+.kfe-gradient {
+  background: linear-gradient(135deg, #0b2545 0%, #133e87 60%, #064e3b 100%);
+}
+
+.kfe-gold-gradient {
+  background: linear-gradient(135deg, #d97706 0%, #f59e0b 100%);
+}
+
+/* Subtle Maasai / Coastal beadwork pattern border */
+.african-pattern-border {
+  background-image: repeating-linear-gradient(
+    45deg,
+    #0b2545,
+    #0b2545 10px,
+    #b91c1c 10px,
+    #b91c1c 20px,
+    #15803d 20px,
+    #15803d 30px,
+    #d97706 30px,
+    #d97706 40px
+  );
+  height: 3px;
+}
+
+@media print {
+  @page {
+    size: auto;
+    margin: 6mm;
+  }
+
+  header,
+  footer,
+  nav,
+  .no-print,
+  [aria-label="Mobile Navigation"] {
+    display: none !important;
+  }
+
+  body {
+    background: white !important;
+    color: black !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    -webkit-print-color-adjust: exact !important;
+    print-color-adjust: exact !important;
+  }
+
+  /* Certificate Printing: Margin-to-margin, ZERO outside data */
+  body.printing-certificate {
+    background: white !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    overflow: visible !important;
+  }
+
+  body.printing-certificate * {
+    visibility: hidden !important;
+  }
+
+  body.printing-certificate .printable-certificate-target,
+  body.printing-certificate .printable-certificate-target * {
+    visibility: visible !important;
+  }
+
+  body.printing-certificate .printable-certificate-target {
+    position: fixed !important;
+    left: 0 !important;
+    top: 0 !important;
+    width: 100vw !important;
+    height: 100vh !important;
+    margin: 0 !important;
+    padding: 6mm 10mm !important;
+    box-sizing: border-box !important;
+    background: white !important;
+    z-index: 9999999 !important;
+    page-break-after: avoid !important;
+    page-break-before: avoid !important;
+    break-inside: avoid !important;
+    border: 8px double #b45309 !important;
+    display: flex !important;
+    flex-direction: column !important;
+    justify-content: space-between !important;
+  }
+
+  /* Document Printing: e.g. Citizen Action Memorandum, Office Comparison */
+  body.printing-document {
+    background: white !important;
+    margin: 0 !important;
+    padding: 0 !important;
+  }
+
+  body.printing-document * {
+    visibility: hidden !important;
+  }
+
+  body.printing-document .printable-document-target,
+  body.printing-document .printable-document-target * {
+    visibility: visible !important;
+    display: block !important;
+  }
+
+  body.printing-document .printable-document-target {
+    position: absolute !important;
+    left: 0 !important;
+    top: 0 !important;
+    width: 100% !important;
+    margin: 0 !important;
+    padding: 10mm !important;
+    box-sizing: border-box !important;
+    background: white !important;
+    z-index: 9999999 !important;
+  }
+}
+
+/* =========================================================================
+   High-Contrast Dark Mode for Low-Light Reading & Civic Studying
+   Tailored for optimal contrast (WCAG AAA readability, low glare)
+   ========================================================================= */
+
+html.dark {
+  color-scheme: dark;
+  background-color: #090d16;
+}
+
+html.dark body {
+  background-color: #090d16;
+  color: #f1f5f9;
+}
+
+/* Base structural containers in dark mode */
+html.dark .app-container {
+  background-color: #090d16 !important;
+  color: #f1f5f9 !important;
+}
+
+/* High contrast dark surfaces: slate-900 / slate-950 with crisp borders */
+html.dark .bg-white,
+html.dark .bg-stone-50,
+html.dark .bg-slate-50,
+html.dark .bg-gray-50 {
+  background-color: #0f172a !important;
+  color: #f1f5f9 !important;
+}
+
+html.dark .bg-slate-100,
+html.dark .bg-gray-100,
+html.dark .bg-stone-100 {
+  background-color: #1e293b !important;
+}
+
+html.dark .bg-slate-200,
+html.dark .bg-gray-200,
+html.dark .bg-stone-200 {
+  background-color: #334155 !important;
+}
+
+/* Text adjustments for high contrast low-light reading */
+html.dark .text-slate-950,
+html.dark .text-slate-900,
+html.dark .text-stone-900,
+html.dark .text-gray-900,
+html.dark .text-slate-800,
+html.dark .text-gray-800 {
+  color: #f8fafc !important;
+}
+
+html.dark .text-slate-700,
+html.dark .text-stone-700,
+html.dark .text-gray-700,
+html.dark .text-slate-600,
+html.dark .text-stone-600,
+html.dark .text-gray-600 {
+  color: #cbd5e1 !important;
+}
+
+html.dark .text-slate-500,
+html.dark .text-stone-500,
+html.dark .text-gray-500 {
+  color: #94a3b8 !important;
+}
+
+/* Crisp border contrast in dark mode */
+html.dark .border-slate-100,
+html.dark .border-slate-200,
+html.dark .border-stone-200,
+html.dark .border-gray-200 {
+  border-color: #1e293b !important;
+}
+
+html.dark .border-slate-300,
+html.dark .border-stone-300,
+html.dark .border-gray-300 {
+  border-color: #334155 !important;
+}
+
+/* Elevated cards, modals & panels in dark mode */
+html.dark .shadow-xs,
+html.dark .shadow-sm,
+html.dark .shadow-md,
+html.dark .shadow-lg,
+html.dark .shadow-xl {
+  box-shadow: 0 4px 20px -2px rgba(0, 0, 0, 0.7), 0 0 0 1px rgba(255, 255, 255, 0.08) !important;
+}
+
+/* Form inputs in dark mode */
+html.dark input,
+html.dark textarea,
+html.dark select {
+  background-color: #0b1120 !important;
+  color: #f8fafc !important;
+  border-color: #334155 !important;
+}
+
+html.dark input::placeholder,
+html.dark textarea::placeholder {
+  color: #64748b !important;
+}
+
+/* Light tint boxes adapted for high-contrast dark reading */
+html.dark .bg-blue-50,
+html.dark .bg-indigo-50 {
+  background-color: rgba(30, 58, 138, 0.25) !important;
+  border-color: rgba(96, 165, 250, 0.3) !important;
+}
+
+html.dark .bg-emerald-50,
+html.dark .bg-green-50 {
+  background-color: rgba(6, 78, 59, 0.25) !important;
+  border-color: rgba(52, 211, 153, 0.3) !important;
+}
+
+html.dark .bg-amber-50,
+html.dark .bg-yellow-50 {
+  background-color: rgba(120, 53, 15, 0.25) !important;
+  border-color: rgba(251, 191, 36, 0.3) !important;
+}
+
+html.dark .bg-red-50,
+html.dark .bg-rose-50 {
+  background-color: rgba(136, 19, 55, 0.25) !important;
+  border-color: rgba(248, 113, 113, 0.3) !important;
+}
+
+html.dark .text-blue-900,
+html.dark .text-blue-800,
+html.dark .text-indigo-900 {
+  color: #93c5fd !important;
+}
+
+html.dark .text-emerald-900,
+html.dark .text-emerald-800,
+html.dark .text-green-900 {
+  color: #6ee7b7 !important;
+}
+
+html.dark .text-amber-900,
+html.dark .text-amber-800,
+html.dark .text-yellow-900 {
+  color: #fde047 !important;
+}
+
+html.dark .text-red-900,
+html.dark .text-red-800 {
+  color: #fca5a5 !important;
+}
+
+/* Ensure header sticky stays dark and visible */
+html.dark header {
+  background-color: rgba(11, 17, 32, 0.95) !important;
+  border-bottom-color: #1e293b !important;
+}
+
+/* Ensure mobile nav bar remains distinct */
+html.dark [aria-label="Mobile Navigation"] {
+  background-color: #0b1120 !important;
+  border-top-color: #1e293b !important;
+}
