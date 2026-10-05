@@ -54,6 +54,8 @@ interface CivicCommunityFeedModalProps {
   language: Language;
   currentUser: AuthUser | null;
   onOpenAuthModal?: (mode: 'login' | 'register') => void;
+  initialPeer?: string | null;
+  initialTab?: 'feed' | 'following' | 'directory' | 'messages';
 }
 
 export const CivicCommunityFeedModal: React.FC<CivicCommunityFeedModalProps> = ({
@@ -62,6 +64,8 @@ export const CivicCommunityFeedModal: React.FC<CivicCommunityFeedModalProps> = (
   language,
   currentUser,
   onOpenAuthModal,
+  initialPeer,
+  initialTab,
 }) => {
   const [activeTab, setActiveTab] = useState<'feed' | 'following' | 'directory' | 'messages'>('directory');
   const [activities, setActivities] = useState<UserActivityRecord[]>([]);
@@ -102,6 +106,12 @@ export const CivicCommunityFeedModal: React.FC<CivicCommunityFeedModalProps> = (
 
   useEffect(() => {
     if (isOpen) {
+      if (initialPeer) {
+        setActiveChatPeer(initialPeer);
+        setActiveTab('messages');
+      } else if (initialTab) {
+        setActiveTab(initialTab);
+      }
       refreshData();
       const interval = setInterval(refreshData, 6000);
 

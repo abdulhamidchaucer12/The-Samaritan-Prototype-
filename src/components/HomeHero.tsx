@@ -36,6 +36,7 @@ interface HomeHeroProps {
   onSelectLesson: (lessonId: string) => void;
   currentUser?: AuthUser | null;
   onOpenCommunityFeed?: () => void;
+  onOpenOnlineModal?: () => void;
 }
 
 export const HomeHero: React.FC<HomeHeroProps> = ({
@@ -45,6 +46,7 @@ export const HomeHero: React.FC<HomeHeroProps> = ({
   onSelectLesson,
   currentUser,
   onOpenCommunityFeed,
+  onOpenOnlineModal,
 }) => {
   const [searchQuery, setSearchQuery] = useState('');
   const t = translations[language];
@@ -262,6 +264,7 @@ export const HomeHero: React.FC<HomeHeroProps> = ({
         currentUser={effectiveUser}
         language={language}
         onOpenCommunityFeed={onOpenCommunityFeed}
+        onOpenOnlineModal={onOpenOnlineModal}
       />
 
       {/* 4 Key Civic Fact Highlights */}

@@ -66,6 +66,8 @@ interface CivicQuestionsHubProps {
   onOpenAuthModal: (mode: 'login' | 'register') => void;
   onSelectOffice?: (officeId: string) => void;
   onNavigateToAdmin?: () => void;
+  onOpenOnlineModal?: () => void;
+  onOpenCommunityFeed?: () => void;
 }
 
 export const CivicQuestionsHub: React.FC<CivicQuestionsHubProps> = ({
@@ -75,6 +77,8 @@ export const CivicQuestionsHub: React.FC<CivicQuestionsHubProps> = ({
   onOpenAuthModal,
   onSelectOffice,
   onNavigateToAdmin,
+  onOpenOnlineModal,
+  onOpenCommunityFeed,
 }) => {
   const [questions, setQuestions] = useState<CivicQuestion[]>(() => getCivicQuestions());
   const [searchQuery, setSearchQuery] = useState('');
@@ -609,6 +613,8 @@ export const CivicQuestionsHub: React.FC<CivicQuestionsHubProps> = ({
       <OnlineUsersPresenceBar
         currentUser={currentUser}
         language={language}
+        onOpenCommunityFeed={onOpenCommunityFeed}
+        onOpenOnlineModal={onOpenOnlineModal}
       />
 
       {/* Success / Status notification banner */}

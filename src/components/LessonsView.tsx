@@ -28,6 +28,8 @@ import {
 import { markLessonCompleted, getUserProgress } from '../utils/storage';
 import { CourseQuizAndCertificate } from './CourseQuizAndCertificate';
 import { getCategoryLabel } from '../utils/categoryManagement';
+import { OnlineUsersPresenceBar } from './OnlineUsersPresenceBar';
+import { getCurrentAuthUser } from '../utils/authAndQuestions';
 
 interface LessonsViewProps {
   language: Language;
@@ -476,6 +478,14 @@ export const LessonsView: React.FC<LessonsViewProps> = ({
       ) : (
         /* ALL COURSES GRID VIEW */
         <div className="space-y-6">
+          {/* Real-time Online Users Presence Bar */}
+          <OnlineUsersPresenceBar
+            currentUser={getCurrentAuthUser()}
+            language={language}
+            onOpenOnlineModal={() => window.dispatchEvent(new CustomEvent('open_online_users_modal'))}
+            onOpenCommunityFeed={() => window.dispatchEvent(new CustomEvent('open_community_feed'))}
+          />
+
           {/* Filter Pills Bar */}
           <div className="flex flex-wrap items-center justify-between gap-3">
             <div className="flex flex-wrap items-center gap-2">

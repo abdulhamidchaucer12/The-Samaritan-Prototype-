@@ -35,6 +35,7 @@ interface MyLearningDashboardProps {
   onOpenTokensModal?: () => void;
   onOpenAuthModal?: (mode?: 'login' | 'register' | 'adminSettings') => void;
   onOpenCommunityFeed?: () => void;
+  onOpenOnlineModal?: () => void;
 }
 
 export const MyLearningDashboard: React.FC<MyLearningDashboardProps> = ({
@@ -50,6 +51,7 @@ export const MyLearningDashboard: React.FC<MyLearningDashboardProps> = ({
   onOpenTokensModal,
   onOpenAuthModal,
   onOpenCommunityFeed,
+  onOpenOnlineModal,
 }) => {
   const t = translations[language];
   const currentUser = getCurrentAuthUser();
@@ -140,6 +142,7 @@ export const MyLearningDashboard: React.FC<MyLearningDashboardProps> = ({
         currentUser={currentUser}
         language={language}
         onOpenCommunityFeed={onOpenCommunityFeed}
+        onOpenOnlineModal={onOpenOnlineModal}
       />
 
       {/* Metrics Row */}

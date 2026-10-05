@@ -343,19 +343,19 @@ export const AuthModal: React.FC<AuthModalProps> = ({
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/70 backdrop-blur-xs overflow-y-auto">
+    <div className="fixed inset-0 z-50 flex items-end sm:items-center justify-center p-0 sm:p-4 bg-slate-950/70 backdrop-blur-xs overflow-y-auto">
       <motion.div
-        initial={{ opacity: 0, scale: 0.94, y: 12 }}
+        initial={{ opacity: 0, scale: 0.96, y: 16 }}
         animate={{ opacity: 1, scale: 1, y: 0 }}
-        exit={{ opacity: 0, scale: 0.94, y: 12 }}
+        exit={{ opacity: 0, scale: 0.96, y: 16 }}
         transition={{ duration: 0.25, ease: 'easeOut' }}
-        className="bg-white rounded-2xl max-w-lg w-full shadow-2xl border border-slate-200 overflow-hidden relative my-8"
+        className="bg-white dark:bg-slate-900 rounded-t-3xl sm:rounded-2xl max-w-lg w-full shadow-2xl border border-slate-200 dark:border-slate-800 overflow-hidden relative my-0 sm:my-8 max-h-[92vh] sm:max-h-[90vh] flex flex-col"
       >
         {/* Top Kenyan Ribbon Accent */}
         <div className="h-1.5 kenya-ribbon" />
 
         {/* Modal Header */}
-        <div className="p-5 sm:p-6 border-b border-slate-100 flex items-center justify-between bg-slate-50/70">
+        <div className="p-4 sm:p-6 border-b border-slate-100 dark:border-slate-800 flex items-center justify-between bg-slate-50/70 dark:bg-slate-900/70 shrink-0">
           <div className="flex items-center gap-3">
             <div className="w-10 h-10 rounded-xl bg-blue-900 text-amber-400 flex items-center justify-center shadow-xs">
               {currentUser?.role === 'admin' ? (
@@ -365,7 +365,7 @@ export const AuthModal: React.FC<AuthModalProps> = ({
               )}
             </div>
             <div>
-              <h3 className="font-extrabold text-lg text-slate-900 font-serif">
+              <h3 className="font-extrabold text-lg text-slate-900 dark:text-slate-100 font-serif">
                 {currentUser
                   ? currentUser.role === 'admin'
                     ? language === 'en'
@@ -382,7 +382,7 @@ export const AuthModal: React.FC<AuthModalProps> = ({
                   ? 'Sign In / Admin Access'
                   : 'Ingia / Paneli ya Msimamizi'}
               </h3>
-              <p className="text-xs text-slate-500">
+              <p className="text-xs text-slate-500 dark:text-slate-400">
                 {currentUser
                   ? `Logged in as ${currentUser.username}`
                   : language === 'en'
@@ -392,17 +392,20 @@ export const AuthModal: React.FC<AuthModalProps> = ({
             </div>
           </div>
 
+          {/* Close X at the top right corner */}
           <button
             onClick={onClose}
-            className="w-8 h-8 rounded-lg text-slate-400 hover:text-slate-700 hover:bg-slate-200 flex items-center justify-center transition-colors"
+            className="w-9 h-9 rounded-xl text-slate-400 hover:text-slate-700 dark:hover:text-slate-200 hover:bg-slate-200/80 dark:hover:bg-slate-800 flex items-center justify-center transition-colors cursor-pointer shrink-0"
+            title={language === 'en' ? 'Close' : 'Funga'}
+            aria-label="Close"
           >
-            <X className="w-4 h-4" />
+            <X className="w-5 h-5" />
           </button>
         </div>
 
         {/* Logged in state view */}
         {currentUser ? (
-          <div className="p-6 space-y-6">
+          <div className="p-5 sm:p-6 space-y-6 overflow-y-auto flex-1">
             {/* User Details Banner */}
             <div className="p-4 rounded-xl bg-emerald-50 border border-emerald-200 flex items-center justify-between">
               <div className="flex items-center gap-3">
@@ -447,6 +450,10 @@ export const AuthModal: React.FC<AuthModalProps> = ({
               onOpenCommunityFeed={() => {
                 onClose();
                 if (onOpenCommunityFeed) onOpenCommunityFeed();
+              }}
+              onOpenOnlineModal={() => {
+                onClose();
+                window.dispatchEvent(new CustomEvent('open_online_users_modal'));
               }}
             />
 
@@ -783,6 +790,19 @@ export const AuthModal: React.FC<AuthModalProps> = ({
                 </form>
               </div>
             )}
+
+            {/* Dedicated Bottom Close Button */}
+            <div className="pt-2 border-t border-slate-200 dark:border-slate-800">
+              <button
+                type="button"
+                onClick={onClose}
+                className="w-full py-2.5 rounded-xl border border-slate-300 dark:border-slate-700 hover:bg-slate-100 dark:hover:bg-slate-800 text-slate-700 dark:text-slate-200 font-bold text-sm transition-colors cursor-pointer flex items-center justify-center gap-2 shadow-2xs"
+                title={language === 'en' ? 'Close profile' : 'Funga wasifu'}
+              >
+                <X className="w-4 h-4" />
+                <span>{language === 'en' ? 'Close Profile' : 'Funga Wasifu'}</span>
+              </button>
+            </div>
           </div>
         ) : (
           /* Authentication Forms: Login or Register */
@@ -1127,6 +1147,16 @@ export const AuthModal: React.FC<AuthModalProps> = ({
                 >
                   {language === 'en' ? 'Create Anonymous Account' : 'Fungua Akaunti ya Siri'}
                 </button>
+
+                <button
+                  type="button"
+                  onClick={onClose}
+                  className="w-full py-2.5 rounded-xl border border-slate-300 dark:border-slate-700 hover:bg-slate-100 dark:hover:bg-slate-800 text-slate-700 dark:text-slate-300 font-bold text-xs transition-colors cursor-pointer flex items-center justify-center gap-1.5"
+                  title={language === 'en' ? 'Close modal' : 'Funga dirisha'}
+                >
+                  <X className="w-3.5 h-3.5" />
+                  <span>{language === 'en' ? 'Close' : 'Funga'}</span>
+                </button>
               </form>
             ) : mode === 'login' ? (
               /* Login Form */
@@ -1174,6 +1204,16 @@ export const AuthModal: React.FC<AuthModalProps> = ({
                   className="w-full py-3 bg-blue-900 hover:bg-blue-950 text-white font-bold text-sm rounded-xl transition-all shadow-md cursor-pointer"
                 >
                   {language === 'en' ? 'Log In' : 'Ingia'}
+                </button>
+
+                <button
+                  type="button"
+                  onClick={onClose}
+                  className="w-full py-2.5 rounded-xl border border-slate-300 dark:border-slate-700 hover:bg-slate-100 dark:hover:bg-slate-800 text-slate-700 dark:text-slate-300 font-bold text-xs transition-colors cursor-pointer flex items-center justify-center gap-1.5"
+                  title={language === 'en' ? 'Close modal' : 'Funga dirisha'}
+                >
+                  <X className="w-3.5 h-3.5" />
+                  <span>{language === 'en' ? 'Close' : 'Funga'}</span>
                 </button>
 
                 <div className="pt-2 text-center">
@@ -1350,6 +1390,16 @@ export const AuthModal: React.FC<AuthModalProps> = ({
                   className="w-full py-3 bg-amber-600 hover:bg-amber-700 disabled:opacity-50 text-white font-bold text-sm rounded-xl transition-all shadow-md cursor-pointer"
                 >
                   {language === 'en' ? 'Set New Password & Restore Access' : 'Weka Nenosiri Jipya & Fungua'}
+                </button>
+
+                <button
+                  type="button"
+                  onClick={onClose}
+                  className="w-full py-2.5 rounded-xl border border-slate-300 dark:border-slate-700 hover:bg-slate-100 dark:hover:bg-slate-800 text-slate-700 dark:text-slate-300 font-bold text-xs transition-colors cursor-pointer flex items-center justify-center gap-1.5"
+                  title={language === 'en' ? 'Close modal' : 'Funga dirisha'}
+                >
+                  <X className="w-3.5 h-3.5" />
+                  <span>{language === 'en' ? 'Close' : 'Funga'}</span>
                 </button>
 
                 <div className="pt-2 text-center">

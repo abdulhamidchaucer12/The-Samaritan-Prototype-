@@ -40,6 +40,8 @@ import { CivicCommunityFeedModal } from './components/CivicCommunityFeedModal';
 import { FloatingCivicGuide } from './components/FloatingCivicGuide';
 import { BannedScreen } from './components/BannedScreen';
 import { FacilitatorTokensModal } from './components/FacilitatorTokensModal';
+import { OnlineUsersModal } from './components/OnlineUsersModal';
+import { LoginOnlineUsersToast } from './components/LoginOnlineUsersToast';
 import { Language, AuthUser, UserDirectNotification, Theme } from './types';
 import { officesData } from './data/officesData';
 import { translations } from './data/translations';
@@ -62,7 +64,7 @@ import {
   checkExpiredTemporaryAdminAppointments,
   sendDailyGuidanceNotificationToAdminIfOnline,
 } from './utils/adminManagement';
-import { recordUserHeartbeat } from './utils/userPresence';
+import { recordUserHeartbeat, getOtherOnlineUsers } from './utils/userPresence';
 import {
   recordUserDailyLogin,
   registerSessionVisitIfLoggedIn,
@@ -110,6 +112,9 @@ export default function App() {
   const [tokensModalRecipient, setTokensModalRecipient] = useState<string>('');
   const [notificationsDrawerOpen, setNotificationsDrawerOpen] = useState<boolean>(false);
   const [communityFeedOpen, setCommunityFeedOpen] = useState<boolean>(false);
+  const [communityFeedInitialPeer, setCommunityFeedInitialPeer] = useState<string | null>(null);
+  const [onlineUsersModalOpen, setOnlineUsersModalOpen] = useState<boolean>(false);
+  const [loginToastOpen, setLoginToastOpen] = useState<boolean>(false);
   const [userNotifications, setUserNotifications] = useState<UserDirectNotification[]>(() => {
     const user = getCurrentAuthUser();
     return getUserDirectNotifications(user?.username);
@@ -128,7 +133,7 @@ export default function App() {
     }
   }, []);
 
-  // Listen for direct notification events
+  // Listen for direct notification events & online modal triggers
   useEffect(() => {
     const handleNotifSent = () => {
       reloadUserNotifications();
@@ -138,11 +143,31 @@ export default function App() {
       if (e?.detail?.recipient) setTokensModalRecipient(e.detail.recipient);
       setTokensModalOpen(true);
     };
+    const handleOpenOnlineModal = () => {
+      setOnlineUsersModalOpen(true);
+    };
+    const handleOpenDirectChat = (e: any) => {
+      if (e?.detail?.peer) {
+        setCommunityFeedInitialPeer(e.detail.peer);
+        setCommunityFeedOpen(true);
+      }
+    };
+    const handleOpenFeed = () => {
+      setCommunityFeedInitialPeer(null);
+      setCommunityFeedOpen(true);
+    };
+
     window.addEventListener('the_samaritan_user_notification_sent', handleNotifSent);
     window.addEventListener('open_facilitator_tokens_modal', handleOpenTokens);
+    window.addEventListener('open_online_users_modal', handleOpenOnlineModal);
+    window.addEventListener('open_direct_chat_with_peer', handleOpenDirectChat);
+    window.addEventListener('open_community_feed', handleOpenFeed);
     return () => {
       window.removeEventListener('the_samaritan_user_notification_sent', handleNotifSent);
       window.removeEventListener('open_facilitator_tokens_modal', handleOpenTokens);
+      window.removeEventListener('open_online_users_modal', handleOpenOnlineModal);
+      window.removeEventListener('open_direct_chat_with_peer', handleOpenDirectChat);
+      window.removeEventListener('open_community_feed', handleOpenFeed);
     };
   }, [currentUser?.username]);
 
@@ -168,16 +193,21 @@ export default function App() {
     setCurrentUser(user);
     setCurrentAuthUser(user);
     recordUserDailyLogin(user.username);
+    recordUserHeartbeat('Citizen Home');
     if (user.role === 'admin' && user.username !== 'The_Samaritan') {
       sendDailyGuidanceNotificationToAdminIfOnline(user.username);
     }
     setUserNotifications(getUserDirectNotifications(user.username));
+    // Immediately show other online users welcome toast so the user sees who is online
+    setLoginToastOpen(true);
   };
 
   const handleLogout = () => {
     setCurrentUser(null);
     setCurrentAuthUser(null);
     setUserNotifications(getUserDirectNotifications());
+    setLoginToastOpen(false);
+    recordUserHeartbeat('Citizen Home');
   };
 
   // User progress state
@@ -316,6 +346,7 @@ export default function App() {
         onOpenNotifications={() => setNotificationsDrawerOpen(true)}
         unreadNotificationsCount={unreadNotifCount}
         onOpenCommunityFeed={() => setCommunityFeedOpen(true)}
+        onOpenOnlineUsersModal={() => setOnlineUsersModalOpen(true)}
         onOpenTokensModal={() => setTokensModalOpen(true)}
       />
 
@@ -337,6 +368,7 @@ export default function App() {
                 onSelectLesson={handleSelectLessonFromHome}
                 currentUser={currentUser}
                 onOpenCommunityFeed={() => setCommunityFeedOpen(true)}
+                onOpenOnlineModal={() => setOnlineUsersModalOpen(true)}
               />
             )}
 
@@ -389,6 +421,8 @@ export default function App() {
                 onOpenAuthModal={handleOpenAuthModal}
                 onSelectOffice={handleSelectOfficeFromHome}
                 onNavigateToAdmin={() => handleSelectTab('admin')}
+                onOpenOnlineModal={() => setOnlineUsersModalOpen(true)}
+                onOpenCommunityFeed={() => setCommunityFeedOpen(true)}
               />
             )}
 
@@ -431,6 +465,7 @@ export default function App() {
                 onOpenTokensModal={() => setTokensModalOpen(true)}
                 onOpenAuthModal={handleOpenAuthModal}
                 onOpenCommunityFeed={() => setCommunityFeedOpen(true)}
+                onOpenOnlineModal={() => setOnlineUsersModalOpen(true)}
               />
             )}
 
@@ -751,10 +786,43 @@ export default function App() {
       {/* Civic Community Activity & Follow Network Modal */}
       <CivicCommunityFeedModal
         isOpen={communityFeedOpen}
-        onClose={() => setCommunityFeedOpen(false)}
+        onClose={() => {
+          setCommunityFeedOpen(false);
+          setCommunityFeedInitialPeer(null);
+        }}
         currentUser={currentUser}
         language={language}
         onOpenAuthModal={(mode) => handleOpenAuthModal(mode)}
+        initialPeer={communityFeedInitialPeer}
+      />
+
+      {/* Online Citizens & Administrators Real-time Modal */}
+      <OnlineUsersModal
+        isOpen={onlineUsersModalOpen}
+        onClose={() => setOnlineUsersModalOpen(false)}
+        currentUser={currentUser}
+        language={language}
+        onOpenDirectChat={(targetUsername) => {
+          setCommunityFeedInitialPeer(targetUsername);
+          setCommunityFeedOpen(true);
+        }}
+        onOpenCommunityFeed={() => {
+          setCommunityFeedInitialPeer(null);
+          setCommunityFeedOpen(true);
+        }}
+      />
+
+      {/* Instant Login Online Welcome Toast Notification */}
+      <LoginOnlineUsersToast
+        isOpen={loginToastOpen}
+        onClose={() => setLoginToastOpen(false)}
+        currentUser={currentUser}
+        language={language}
+        onViewOnlineUsers={() => {
+          setLoginToastOpen(false);
+          setOnlineUsersModalOpen(true);
+        }}
+        otherOnlineUsers={getOtherOnlineUsers(currentUser?.username)}
       />
 
       {/* Anonymous Citizen Account & Admin Access Modal */}

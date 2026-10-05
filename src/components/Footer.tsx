@@ -11,7 +11,6 @@ import {
   Code,
   Calendar,
   Layers,
-  History,
   CheckCircle2,
 } from 'lucide-react';
 import { Language } from '../types';
@@ -51,27 +50,6 @@ export const Footer: React.FC<FooterProps> = ({ language, onSelectTab }) => {
                   Kwale Focus Empowerment CBO (KFE)
                 </div>
               </div>
-            </div>
-
-            <p className="text-xs sm:text-sm text-slate-400 leading-relaxed max-w-md">
-              {t.footer.aboutDesc}
-            </p>
-
-            {/* KFE Brief History & Mission */}
-            <div className="bg-slate-900/80 border border-slate-800 rounded-2xl p-3.5 text-xs text-slate-400 space-y-2">
-              <div className="flex items-center gap-2 text-amber-300 font-bold font-serif text-xs">
-                <History className="w-3.5 h-3.5 text-amber-400 shrink-0" />
-                <span>
-                  {language === 'en'
-                    ? 'Brief History of Kwale Focus Empowerment'
-                    : 'Historia Fupi ya Kwale Focus Empowerment'}
-                </span>
-              </div>
-              <p className="text-[11px] text-slate-400 leading-relaxed">
-                {language === 'en'
-                  ? 'Founded in Kwale County, Kwale Focus Empowerment CBO (KFE) emerged from grassroots community dialogues in Matuga, Kinango, Msambweni, and Lunga Lunga. Dedicated to constitutional literacy, devolution accountability, and human rights empowerment, KFE collaborates with citizen barazas, youth groups, and women councils to promote transparent governance.'
-                  : 'Ilianzishwa katika Kaunti ya Kwale, Shirika la Kijamii la Kwale Focus Empowerment (KFE) lilianza kutokana na mashauriano ya wananchi wa mashinani huko Matuga, Kinango, Msambweni, na Lunga Lunga. KFE imejitolea kuimarisha elimu ya kikatiba, uwajibikaji wa ugatuzi, na haki za binadamu kwa kushirikiana na mabaraza ya wananchi.'}
-              </p>
             </div>
 
             {/* KFE Organizational Metadata */}

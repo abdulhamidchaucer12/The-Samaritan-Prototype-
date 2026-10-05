@@ -15,6 +15,7 @@ import {
 import { recordUserDailyLogin } from './userDailyLogins';
 
 const AUTH_USER_KEY = 'the_samaritan_auth_user_v1';
+const SESSION_AUTH_USER_KEY = 'the_samaritan_session_auth_user_v1';
 const REGISTERED_USERS_KEY = 'the_samaritan_registered_users_v1';
 const ADMIN_CREDS_KEY = 'the_samaritan_admin_creds_v1';
 const QUESTIONS_KEY = 'the_samaritan_questions_v1';
@@ -594,6 +595,7 @@ export function setUserCounty(username: string, county: string, subCounty?: stri
       current.county = chosenCounty;
       current.subCounty = subCounty?.trim() || undefined;
       localStorage.setItem(AUTH_USER_KEY, JSON.stringify(current));
+      sessionStorage.setItem(SESSION_AUTH_USER_KEY, JSON.stringify(current));
     }
 
     window.dispatchEvent(
@@ -780,7 +782,8 @@ export function loginUser(usernameInput: string, passwordInput: string): { succe
 export function getCurrentAuthUser(): AuthUser | null {
   if (typeof window === 'undefined') return null;
   try {
-    const raw = localStorage.getItem(AUTH_USER_KEY);
+    const sessionRaw = sessionStorage.getItem(SESSION_AUTH_USER_KEY);
+    const raw = sessionRaw || localStorage.getItem(AUTH_USER_KEY);
     if (!raw) return null;
     const user: AuthUser = JSON.parse(raw);
     // Hydrate avatar if stored in avatars map
@@ -841,6 +844,7 @@ export function setUserAvatar(username: string, avatarDataUrl: string): boolean 
     if (current && current.username.trim().toLowerCase().replace(/^@/, '') === clean) {
       current.avatarUrl = avatarDataUrl;
       localStorage.setItem(AUTH_USER_KEY, JSON.stringify(current));
+      sessionStorage.setItem(SESSION_AUTH_USER_KEY, JSON.stringify(current));
     }
 
     // Dispatch global event for instantaneous real-time UI updates
@@ -887,13 +891,16 @@ export function removeUserAvatar(username: string): boolean {
 export function setCurrentAuthUser(user: AuthUser | null): void {
   if (typeof window === 'undefined') return;
   if (!user) {
+    sessionStorage.removeItem(SESSION_AUTH_USER_KEY);
     localStorage.removeItem(AUTH_USER_KEY);
   } else {
+    sessionStorage.setItem(SESSION_AUTH_USER_KEY, JSON.stringify(user));
     localStorage.setItem(AUTH_USER_KEY, JSON.stringify(user));
     if (user.role === 'admin') {
       recordAdminActivity(user.username);
     }
   }
+  window.dispatchEvent(new CustomEvent('the_samaritan_auth_changed', { detail: { user } }));
 }
 
 // ---------------- Admin Online Presence Tracking ---------------- //

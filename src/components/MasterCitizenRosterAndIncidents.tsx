@@ -120,7 +120,7 @@ export const MasterCitizenRosterAndIncidents: React.FC<MasterCitizenRosterAndInc
   const isUserOnline = (username: string) => {
     const clean = username.trim().toLowerCase().replace(/^@/, '');
     return activeSessions.some(
-      (s) => s.username.trim().toLowerCase().replace(/^@/, '') === clean
+      (s) => s.isOnline && s.username.trim().toLowerCase().replace(/^@/, '') === clean
     );
   };
 
