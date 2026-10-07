@@ -555,7 +555,7 @@ export const CivicCommunityFeedModal: React.FC<CivicCommunityFeedModalProps> = (
                       >
                         <div className="flex items-start justify-between gap-2">
                           <div>
-                            <UserBadge username={cit.username} size="sm" />
+                            <UserBadge username={cit.username} size="sm" currentUser={currentUser} />
                             <div className="flex items-center gap-1.5 text-xs text-slate-600 dark:text-slate-400 mt-1">
                               <MapPin className="w-3.5 h-3.5 text-slate-400 shrink-0" />
                               <span className="font-semibold">
@@ -736,7 +736,7 @@ export const CivicCommunityFeedModal: React.FC<CivicCommunityFeedModalProps> = (
                         >
                           <ArrowLeft className="w-4 h-4" />
                         </button>
-                        <UserBadge username={activeChatPeer} size="sm" />
+                        <UserBadge username={activeChatPeer} size="sm" currentUser={currentUser} />
                         <div>
                           <span className="font-black text-xs text-slate-900 dark:text-slate-100 block">
                             {activeChatPeer}
@@ -935,7 +935,7 @@ export const CivicCommunityFeedModal: React.FC<CivicCommunityFeedModalProps> = (
                           </div>
                           <div className="min-w-0">
                             <div className="flex items-center gap-2 flex-wrap">
-                              <UserBadge username={act.username} size="sm" />
+                              <UserBadge username={act.username} size="sm" currentUser={currentUser} />
                               <span className="text-[10px] text-slate-400 font-mono flex items-center gap-1">
                                 <Clock className="w-3 h-3" />
                                 {new Date(act.timestamp).toLocaleTimeString([], {

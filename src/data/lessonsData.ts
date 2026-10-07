@@ -635,8 +635,8 @@ export const lessonsData: CivicLesson[] = [
           sw: '2. Jinsi Vijana Wanavyoweza Kuongoza Kwenye Jamii',
         },
         content: {
-          en: 'Young people in Kwale and nationwide can register youth enterprises for AGPO certificates, contest elective positions, lead community vigilance groups, and actively monitor public bursary disbursements.',
-          sw: 'Vijana wa Kwale na kote nchini wanaweza kusajili makampuni na kupata vyeti vya AGPO, kugombea nafasi za uongozi, kuunda vikundi vya kutetea haki za jamii, na kufuatilia utoaji wa fedha za ufadhili wa masomo (bursary).',
+          en: 'Young people across The Republic of Kenya can register youth enterprises for AGPO certificates, contest elective positions, lead community vigilance groups, and actively monitor public bursary disbursements.',
+          sw: 'Vijana kote katika Jamhuri ya Kenya wanaweza kusajili makampuni na kupata vyeti vya AGPO, kugombea nafasi za uongozi, kuunda vikundi vya kutetea haki za jamii, na kufuatilia utoaji wa fedha za ufadhili wa masomo (bursary).',
         },
       },
     ],
@@ -652,6 +652,270 @@ export const lessonsData: CivicLesson[] = [
     citizenActionTip: {
       en: 'Form or join a registered youth or women\'s group in your ward. Apply for AGPO certification at the National Treasury or County Procurement Office to bid for local school renovation or supply tenders.',
       sw: 'Unda au jiunge na kikundi cha vijana au wanawake kilichosajiliwa kwenye wadi yako. Omba cheti cha AGPO katika ofisi za ununuzi za serikali ili muweze kushiriki zabuni za ndani.',
+    },
+  },
+
+  // Lesson 11: Human Rights Advocacy
+  {
+    id: 'lesson_11',
+    lessonNumber: 11,
+    title: {
+      en: 'Human Rights Advocacy: Community Monitoring, Rights Defense, and Citizen Empowerment',
+      sw: 'Utetezi wa Haki za Binadamu: Ufuatiliaji wa Jamii, Kulinda Haki na Uwezeshaji wa Wananchi',
+    },
+    summary: {
+      en: 'Master grassroots human rights advocacy under Chapter 4 of the Constitution. Learn how community paralegals and active citizens monitor violations, protect vulnerable groups, engage duty bearers, and petition the KNCHR and High Court.',
+      sw: 'Jifunze mbinu za kutetea haki za binadamu mashinani chini ya Sura ya 4 ya Katiba. Fahamu jinsi ya kufuatilia ukiukaji wa haki, kuwalinda wanyonge, kuwawajibisha wenye madaraka, na kuwasilisha maombi kwa KNCHR na Mahakama Kuu.',
+    },
+    category: 'human_rights',
+    readTimeMinutes: 8,
+    sections: [
+      {
+        title: {
+          en: '1. Constitutional Framework: Chapter 4 Bill of Rights & Article 22 Enforcement',
+          sw: '1. Muundo wa Kikatiba: Mswada wa Haki (Sura ya 4) na Utetezi chini ya Kifungu cha 22',
+        },
+        content: {
+          en: 'The Bill of Rights is an integral part of Kenya\'s democratic state and the framework for social, economic, and cultural policies. Under Article 21, the State has a mandatory obligation to respect, protect, promote, and fulfill fundamental freedoms. Article 22 guarantees that any citizen, acting in their own interest or on behalf of others or the public interest, has the right to institute High Court proceedings without excessive procedural technicalities.',
+          sw: 'Mswada wa Haki ni nguzo kuu ya taifa la kidemokrasia la Kenya na msingi wa sera zote. Chini ya Kifungu cha 21, Serikali ina wajibu wa lazima kuheshimu, kulinda, kuendeleza na kutimiza haki za kimsingi. Kifungu cha 22 kinampa kila mwananchi, akijitetea mwenyewe, kwa niaba ya wengine au kwa maslahi ya umma, haki ya kufungua kesi Mahakama Kuu bila vikwazo vizito vya kiutaratibu.',
+        },
+        callout: {
+          en: 'Article 22(1): "Every person has the right to institute court proceedings claiming that a right or fundamental freedom in the Bill of Rights has been denied, violated or infringed, or is threatened."',
+          sw: 'Kifungu cha 22(1): "Kila mtu ana haki ya kuanzisha kesi mahakamani akidai kwamba haki au uhuru wa kimsingi katika Mswada wa Haki umenyimwa, umekiukwa, au unatishiwa."',
+        },
+        bulletPoints: {
+          en: [
+            'No court filing fees can be used as a barrier to bar citizens from defending constitutional rights (Article 22(3)(b)).',
+            'Non-governmental organizations, paralegals, and community groups have full legal standing to represent victims.',
+            'Remedies available from the High Court include injunctions, declarations of invalidity, and financial compensation (Article 23).',
+          ],
+          sw: [
+            'Ada za mahakama haziwezi kutumika kama kizuizi cha kuwazuia wananchi kutetea haki zao za kikatiba.',
+            'Mashirika yasiyo ya kiserikali, watetezi wa haki na vikundi vya kijamii vina uwezo wa kisheria kuwawakilisha waathiriwa.',
+            'Maamuzi ya Mahakama Kuu yanajumuisha amri za kuzuia, kutangaza hatua haramu, na fidia ya fedha kwa muathiriwa.',
+          ],
+        },
+      },
+      {
+        title: {
+          en: '2. Practical Grassroots Advocacy Tools & Protection of Human Rights Defenders',
+          sw: '2. Mbinu za Kiutendaji za Utetezi Mashinani na Ulinzi wa Watetezi wa Haki',
+        },
+        content: {
+          en: 'Human rights advocacy requires evidence-based strategies, coalition building, and constructive engagement with duty bearers. Effective community defenders utilize established statutory human rights commissions and networks:',
+          sw: 'Utetezi wa haki za binadamu unahitaji mbinu zenye ushahidi thabiti, kuunda miungano, na kushirikisha wenye mamlaka kwa hekima na ujasiri:',
+        },
+        bulletPoints: {
+          en: [
+            'Kenya National Commission on Human Rights (KNCHR - Article 59): File complaints for state abuses, police brutality, and forced evictions.',
+            'Commission on Administrative Justice (CAJ / Ombudsman): Resolve maladministration, unlawful delays in government services, and abuse of public office.',
+            'Community Paralegal Support: Provide early legal aid, witness counseling, and safe referrals for survivors of gender-based violence (GBV) or land dispossessions.',
+            'Protection of Human Rights Defenders (HRDs): Use buddy systems, digital encrypted communications, and immediate emergency alerts to civil society networks (Defenders Coalition) when facing security threats.',
+          ],
+          sw: [
+            'Tume ya Kitaifa ya Haki za Binadamu (KNCHR): Wasilisha malalamiko ya ukiukaji wa haki, ukatili wa polisi na ubomoaji haramu.',
+            'Ofisi ya Ombudsman (CAJ): Tatua uzembe, ucheleweshaji wa huduma za umma na dhuluma za maafisa wa serikali.',
+            'Wasaidizi wa Kisheria Mashinani: Toa msaada wa awali wa kisheria na hifadhi salama kwa waathiriwa wa dhuluma za kijinsia au ardhi.',
+            'Ulinzi wa Watetezi wa Haki (HRDs): Tumia mawasiliano ya siri na mitandao ya dharura ya watetezi wa haki unapokabiliwa na vitisho.',
+          ],
+        },
+      },
+    ],
+    keyTerms: [
+      {
+        term: { en: 'Human Rights Defender (HRD)', sw: 'Mteteezi wa Haki za Binadamu' },
+        definition: {
+          en: 'Any person who, individually or in association with others, acts to promote or protect human rights peacefully.',
+          sw: 'Mtu yeyote ambaye, peke yake au kwa kushirikiana na wengine, anachukua hatua za amani kukuza na kulinda haki za binadamu.',
+        },
+      },
+      {
+        term: { en: 'Public Interest Litigation (PIL)', sw: 'Kesi kwa Maslahi ya Umma' },
+        definition: {
+          en: 'Legal action instituted in court to protect the constitutional rights of the broader public or disadvantaged groups rather than personal gain.',
+          sw: 'Kesi inayofunguliwa mahakamani kulinda haki za jamii nzima au makundi yaliyodhulumiwa badala ya maslahi binafsi.',
+        },
+      },
+    ],
+    citizenActionTip: {
+      en: 'Establish a ward human rights committee. When a rights violation occurs, document the incident factually and submit an official complaint to KNCHR (Toll-Free SMS 22359) or the High Court under Article 22.',
+      sw: 'Unda kamati ya haki za binadamu katika wodi yako. Ukiukaji wa haki unapotokea, andika ripoti yenye ushahidi na uwasilishe kwa KNCHR au Mahakama Kuu chini ya Kifungu cha 22.',
+    },
+  },
+
+  // Lesson 12: Using Social Media as a Narrative Tool for Peace
+  {
+    id: 'lesson_12',
+    lessonNumber: 12,
+    title: {
+      en: 'Using Social Media as a Narrative Tool for Peace & Digital Cohesion',
+      sw: 'Kutumia Mitandao ya Kijamii kama Chombo cha Amani na Mshikamano wa Kidijitali',
+    },
+    summary: {
+      en: 'Learn how to use social media (WhatsApp, X, Facebook, TikTok) as a constructive civic tool for peacebuilding. Understand Article 33 freedom of expression, boundaries on hate speech, countering propaganda, and narrative reframing for national cohesion.',
+      sw: 'Jifunze jinsi ya kutumia mitandao ya kijamii (WhatsApp, X, Facebook, TikTok) kujenga amani na mshikamano. Fahamu Kifungu cha 33 cha uhuru wa kujieleza, mipaka dhidi ya matamshi ya chuki, kukabili propaganda, na kueneza ukweli.',
+    },
+    category: 'participation',
+    readTimeMinutes: 7,
+    sections: [
+      {
+        title: {
+          en: '1. Article 33 Freedom of Expression & Constitutional Boundaries',
+          sw: '1. Kifungu cha 33 Uhuru wa Kujieleza na Mipaka ya Kikatiba',
+        },
+        content: {
+          en: 'The Constitution strongly safeguards the right to freedom of expression, digital communication, and artistic creativity under Article 33(1). However, the Constitution explicitly places strict boundaries on speech to preserve peace, human dignity, and national cohesion under Article 33(2).',
+          sw: 'Katiba inalinda kwa uthabiti haki ya uhuru wa kueleza maoni, mawasiliano ya kidijitali, na ubunifu chini ya Kifungu cha 33(1). Hata hivyo, Katiba inaweka mipaka mikali kulinda amani, utu na mshikamano wa kitaifa chini ya Kifungu cha 33(2).',
+        },
+        callout: {
+          en: 'Article 33(2): The right to freedom of expression does NOT extend to: (a) propaganda for war; (b) incitement to violence; (c) hate speech; or (d) advocacy of hatred that constitutes ethnic incitement or vilification of others.',
+          sw: 'Kifungu cha 33(2): Uhuru wa kujieleza HAUJUMUISHI: (a) propaganda za vita; (b) kuchochea ghasia; (c) matamshi ya chuki; au (d) kueneza chuki inayochochea ubaguzi wa kikabila au kidini.',
+        },
+        bulletPoints: {
+          en: [
+            'National Cohesion and Integration Act (Section 13 & 62): Criminalizes distributing ethnic slurs, inciting inter-community animosity, or running abusive digital bot networks.',
+            'Computer Misuse and Cybercrimes Act: Prohibits publishing knowingly false information calculated to cause panic, violence, or cyber harassment.',
+            'Every citizen has a civic responsibility under Article 10 to promote national unity, inclusiveness, and peaceful dialogue.',
+          ],
+          sw: [
+            'Sheria ya Mshikamano wa Kitaifa (NCIC): Inafanya kuwa kosa la jinai kusambaza matamshi ya chuki ya kikabila au kuchochea fujo mtandaoni.',
+            'Sheria ya Makosa ya Mitandao: Inakataza kusambaza habari za uongo kwa makusudi zinazosababisha taharuki au udhalilishaji.',
+            'Kila mwananchi ana wajibu wa kikatiba chini ya Kifungu cha 10 kuendeleza umoja, uwazi na amani.',
+          ],
+        },
+      },
+      {
+        title: {
+          en: '2. Constructive Digital Storytelling & Countering Online Misinformation',
+          sw: '2. Usambazaji wa Masimulizi Chanya ya Kidijitali na Kukabili Habari za Upotoshaji',
+        },
+        content: {
+          en: 'Social media platforms are modern community barazas. Instead of allowing digital spaces to be hijacked by divisive political propaganda, youth and community leaders can actively deploy peace narratives:',
+          sw: 'Mitandao ya kijamii ni mabaraza ya kisasa ya wananchi. Badala ya kuacha majukwaa haya yatekwe na propaganda za uchochezi, vijana na viongozi wa jamii wanaweza kueneza amani:',
+        },
+        bulletPoints: {
+          en: [
+            'Verify Before Forwarding: Apply the "Sift, Check Source, Cross-reference" rule before sharing breaking news on WhatsApp or TikTok.',
+            'Reframing Divisive Narratives: Highlight collaborative community initiatives where different ethnic and religious groups work together on water, health, or environmental projects.',
+            'Fact-Checking Public Accounts: Quote official auditor reports, budget figures, and gazette notices to demystify political falsehoods.',
+            'Safe Bystander Intervention: Calm tensions in heated comment sections by respectfully citing Article 10 national values and de-escalating provocative rhetoric.',
+          ],
+          sw: [
+            'Hakiki Kabla ya Kutuma: Chunguza chanzo na ukweli wa habari kabla ya kusambaza kwenye vikundi vya WhatsApp au TikTok.',
+            'Badili Simulizi Hasi: Tangaza miradi ya maendeleo ambapo jamii mbalimbali zinashirikiana kwa amani kupata maji, afya na elimu.',
+            'Kagua Ukweli wa Bajeti: Nukuu ripoti rasmi za Mkaguzi Mkuu na sheria ili kutofautisha ukweli na uongo wa kisiasa.',
+            'Tetea Amani kwa Ustaarabu: Tuliza hasira kwenye mitandao kwa kukumbusha maadili ya Kikatiba na kukataa uchochezi.',
+          ],
+        },
+      },
+    ],
+    keyTerms: [
+      {
+        term: { en: 'Digital Cohesion', sw: 'Mshikamano wa Kidijitali' },
+        definition: {
+          en: 'The intentional use of digital communication tools to foster social trust, mutual respect, and peaceful coexistence across diverse communities.',
+          sw: 'Matumizi ya makusudi ya mitandao ya kijamii kujenga uaminifu, kuheshimiana na kuishi kwa amani miongoni mwa jamii mbalimbali.',
+        },
+      },
+      {
+        term: { en: 'Misinformation vs Disinformation', sw: 'Upotoshaji wa Bahati Mbaya dhidi ya Upotoshaji wa Makusudi' },
+        definition: {
+          en: 'Misinformation is false information shared without harmful intent; disinformation is deliberately fabricated falsehood created to deceive and cause harm.',
+          sw: 'Misinformation ni habari ya uongo inayosambazwa bila nia mbaya; disinformation ni uzushi wa makusudi uliotungwa ili kudanganya na kuleta madhara.',
+        },
+      },
+    ],
+    citizenActionTip: {
+      en: 'Be a digital peace ambassador! When you encounter hate speech or inflammatory rumors in community groups, do not amplify them. Share verified factual constitutional resources and tag NCIC (@NCIC_Kenya) for severe violations.',
+      sw: 'Kuwa balozi wa amani kidijitali! Unapoona matamshi ya chuki au uvumi wa uchochezi, usiusambaze. Toa ukweli wa kisheria na kuripoti makosa makubwa kwa NCIC.',
+    },
+  },
+
+  // Lesson 13: How to Write an Incident Report
+  {
+    id: 'lesson_13',
+    lessonNumber: 13,
+    title: {
+      en: 'How to Write an Incident Report: Fact Documentation, Evidentiary Standards, and Citizen Accountability',
+      sw: 'Jinsi ya Kuandika Ripoti ya Tukio: Nyaraka za Ukweli, Viwango vya Ushahidi na Uwajibikaji',
+    },
+    summary: {
+      en: 'A step-by-step practical guide for citizens, paralegals, and monitors to draft legally robust incident reports. Master the 5 Ws, chronological logging, evidence preservation, chain of custody, and reporting to IPOA, EACC, and courts.',
+      sw: 'Mwongozo wa vitendo kwa wananchi na watetezi wa haki jinsi ya kuandika ripoti rasmi ya tukio yenye mashiko ya kisheria. Jifunze mpangilio wa matukio, kuhifadhi ushahidi wa picha na video, na kuwasilisha kwa IPOA, EACC, na mahakamani.',
+    },
+    category: 'integrity',
+    readTimeMinutes: 9,
+    sections: [
+      {
+        title: {
+          en: '1. The Anatomy of an Incident Report: The 5 Ws & Chronological Log',
+          sw: '1. Muundo wa Ripoti ya Tukio: Mambo 5 Makuu (5 Ws) na Mpangilio wa Matukio',
+        },
+        content: {
+          en: 'An incident report is an objective, factual record of an occurrence involving human rights violations, abuse of power, police misconduct, public property destruction, or bribery. Under the Evidence Act (Cap 80), courts and oversight bodies give immense weight to contemporaneous notes compiled immediately when an event happens.',
+          sw: 'Ripoti ya tukio ni kumbukumbu rasmi, sahihi na isiyo na upendeleo inayoelezea ukiukaji wa haki, matumizi mabaya ya mamlaka, ukatili wa polisi, uharibifu wa mali ya umma au rushwa. Chini ya Sheria ya Ushahidi, mahakama na vyombo vya uchunguzi vinathamini sana maelezo yaliyoandikwa papo hapo tukio linapotokea.',
+        },
+        bulletPoints: {
+          en: [
+            'Who: Full names, official designations, uniform service numbers (police badge numbers), or detailed physical descriptions of all persons involved (both perpetrators and victims).',
+            'What: Specific, observable actions. Use direct quotes for words spoken; describe physical actions plainly without emotional hyperbole.',
+            'When: Exact date and precise timestamps (e.g., "14:15 hrs", not just "in the afternoon").',
+            'Where: Exact physical location, landmarks, ward, sub-county, and GPS coordinates if available.',
+            'Why / How: The trigger or stated pretext given by officers, and the sequence of steps that occurred.',
+          ],
+          sw: [
+            'Nani (Who): Majina kamili, nyadhifa, nambari za sare za polisi (force numbers), au maelezo bayana ya sura na mavazi ya waliohusika.',
+            'Nini (What): Vitendo halisi vilivyoshuhudiwa. Nukuu maneno halisi yaliyosemwa bila kuongeza chumvi au hisia binafsi.',
+            'Lini (When): Tarehe halisi na muda kamili kwa saa na dakika (mfano: "Saa 8:15 mchana").',
+            'Wapi (Where): Mahali kamili, alama za eneo, kijiji, wodi na kuratibu za ramani (GPS).',
+            'Vipi / Sababu (Why / How): Chanzo cha tukio, sababu zilizodaiwa, na mlolongo wa jinsi mambo yalivyotokea.',
+          ],
+        },
+      },
+      {
+        title: {
+          en: '2. Evidentiary Standards, Preserving Chain of Custody, and Filing with Oversight Organs',
+          sw: '2. Viwango vya Ushahidi, Kulinda Mnyororo wa Ushahidi na Kuwasilisha Kwenye Vyombo vya Sheria',
+        },
+        content: {
+          en: 'To ensure an incident report leads to successful prosecution, disciplinary sanction, or administrative compensation, citizens must maintain evidentiary integrity:',
+          sw: 'Kuhakikisha ripoti inaleta matokeo ya kisheria na haki kutendeka, wananchi lazima wazingatie miongozo ya kulinda ushahidi:',
+        },
+        bulletPoints: {
+          en: [
+            'Digital Evidence Preservation: Preserve original digital photo and video files with unchanged EXIF metadata (timestamp, device model, GPS location). Back up files to secure cloud storage immediately.',
+            'Medical Records & P3 Forms: For physical assault, ensure the victim is examined at a public hospital and a Police P3 form or medical report is certified by a registered medical officer.',
+            'Witness Confidentiality: Redact vulnerable witness identities in public copies; maintain a secure master log protected by human rights legal counsel under the Witness Protection Act.',
+            'Targeted Submission Channels: Submit formal stamped copies to Independent Policing Oversight Authority (IPOA - toll-free 1559), Ethics and Anti-Corruption Commission (EACC - reportcorruption@integrity.go.ke), or KNCHR.',
+          ],
+          sw: [
+            'Uhifadhi wa Picha na Video: Hifadhi picha halisi bila kubadilisha maelezo ya kidijitali (metadata ya muda na eneo). Hifadhi nakala kwenye mfumo salama wa mtandaoni mara moja.',
+            'Fomu ya P3 na Matibabu: Iwapo kuna majeraha, muathiriwa afanyiwe uchunguzi katika hospitali ya serikali na daktari ajaze fomu ya P3 rasmi.',
+            'Kulinda Mashahidi: Linda majina ya mashahidi wanaoogopa kulipiziwa kisasi chini ya Sheria ya Ulinzi wa Mashahidi.',
+            'Kuwasilisha Sehemu Sahihi: Peleka nakala iliyogongwa muhuri kwa Mamlaka ya Kusimamia Polisi (IPOA), Tume ya Maadili (EACC), au Tume ya Haki za Binadamu (KNCHR).',
+          ],
+        },
+      },
+    ],
+    keyTerms: [
+      {
+        term: { en: 'Chain of Custody', sw: 'Mlolongo Salama wa Ushahidi' },
+        definition: {
+          en: 'The unbroken chronological documentation showing the custody, control, transfer, and disposition of evidence from collection to court.',
+          sw: 'Uthibitisho wa kisheria unaoonyesha jinsi ushahidi ulivyokusanywa, kuhifadhiwa na kukabidhiwa bila kubadilishwa wala kuchezewa.',
+        },
+      },
+      {
+        term: { en: 'Contemporaneous Notes', sw: 'Maelezo ya Papo Hapo' },
+        definition: {
+          en: 'Notes recorded during or immediately following an incident, carrying high evidentiary value in judicial proceedings under the Evidence Act.',
+          sw: 'Kumbukumbu zilizoandikwa papo hapo tukio linapotokea, ambazo zina uzito mkubwa wa kisheria mbele ya mahakama.',
+        },
+      },
+    ],
+    citizenActionTip: {
+      en: 'Practice drafting an incident report for your community files! Follow the standard structure: Header (Date/Time/Location) -> Chronological Narrative -> Evidence Log -> Witness Contacts -> Reporter Signature.',
+      sw: 'Fanya mazoezi ya kuandika ripoti ya tukio kwa jamii yako! Fuata mpangilio sahihi: Kichwa (Tarehe/Muda/Eneo) -> Mlolongo wa Matukio -> Orodha ya Ushahidi -> Mashahidi -> Sahihi ya Mwandishi.',
     },
   },
 ];

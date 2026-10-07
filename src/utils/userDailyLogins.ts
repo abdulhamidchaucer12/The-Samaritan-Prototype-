@@ -1,5 +1,6 @@
 import { AuthUser } from '../types';
 import { getCertificateSignatories } from './certificateSignatories';
+import { getAdminPlatformAddressingName } from './adminAppointments';
 
 /**
  * Daily login tracking for authenticated users.
@@ -137,7 +138,7 @@ export function getGreetingDisplayName(user?: AuthUser | null): string {
   const trimmed = user.username.trim();
   const lower = trimmed.toLowerCase();
 
-  // The_Samaritan -> "Sir Chaucer"
+  // The_Samaritan -> dynamically allocated name for oneself (e.g. "Sir Chaucer")
   if (
     lower === 'the_samaritan' ||
     lower === 'the samaritan' ||
@@ -145,35 +146,17 @@ export function getGreetingDisplayName(user?: AuthUser | null): string {
     lower === 'thesamaritan' ||
     lower === 'sir chaucer'
   ) {
-    return 'Sir Chaucer';
+    return getAdminPlatformAddressingName('The_Samaritan');
   }
 
-  const signatories = getCertificateSignatories();
-  const admin3Name = signatories?.signatory1Name || 'Amina Ntsiki Bedzengah';
-  const admin4Name = signatories?.signatory2Name || 'Mesalim Ali Rambo';
-
-  // Admin 3 -> name used in certificate signation (Signatory 1: Amina Ntsiki Bedzengah)
+  // Admin 1 to Admin 4 -> Addressed by the platform as "Admin Y" with Y being the first name of the admin!
   if (
-    lower === 'admin 3' ||
-    lower === 'admin3' ||
-    lower === '@admin3' ||
-    lower === '@admin.kfe3' ||
-    lower === 'admin.kfe3' ||
-    lower === '@admin_3'
+    user.role === 'admin' ||
+    lower.startsWith('admin') ||
+    lower.startsWith('@admin') ||
+    lower.includes('kfe')
   ) {
-    return admin3Name;
-  }
-
-  // Admin 4 -> name used in certificate signation (Signatory 2: Mesalim Ali Rambo)
-  if (
-    lower === 'admin 4' ||
-    lower === 'admin4' ||
-    lower === '@admin4' ||
-    lower === '@admin.kfe4' ||
-    lower === 'admin.kfe4' ||
-    lower === '@admin_4'
-  ) {
-    return admin4Name;
+    return getAdminPlatformAddressingName(trimmed);
   }
 
   return trimmed;

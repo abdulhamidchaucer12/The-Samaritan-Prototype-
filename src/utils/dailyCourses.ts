@@ -2,8 +2,8 @@ import { CivicLesson, QuizQuestion } from '../types';
 import { lessonsData } from '../data/lessonsData';
 import { getCourseQuizQuestions } from '../data/courseQuizzes';
 
-const DAILY_COURSES_STORAGE_KEY = 'the_samaritan_daily_courses_v2';
-const DAILY_COURSES_STATE_KEY = 'the_samaritan_daily_state_v2';
+const DAILY_COURSES_STORAGE_KEY = 'the_samaritan_daily_courses_v3';
+const DAILY_COURSES_STATE_KEY = 'the_samaritan_daily_state_v3';
 
 /**
  * Curated repository of specialized Kenyan Civic Courses for automatic daily release.
@@ -41,8 +41,8 @@ const DAILY_COURSE_TEMPLATES: CourseBlueprint[] = [
   {
     titleEn: 'County Budget Cycle & Ward Public Participation',
     titleSw: 'Mzunguko wa Bajeti ya Kaunti na Ushiriki wa Umma',
-    summaryEn: 'Master the 4 stages of the County Budget under the Public Finance Management Act (PFMA 2012) and how to submit project proposals at the ADP and CFSP stages in Kwale.',
-    summarySw: 'Jifunze hatua 4 za Bajeti ya Kaunti chini ya Sheria ya PFMA 2012 na jinsi ya kuwasilisha maombi ya miradi ya maendeleo katika wodi yako.',
+    summaryEn: 'Master the 4 stages of the County Budget under the Public Finance Management Act (PFMA 2012) and how to submit project proposals at the ADP and CFSP stages across all 47 counties in The Republic of Kenya.',
+    summarySw: 'Jifunze hatua 4 za Bajeti ya Kaunti chini ya Sheria ya PFMA 2012 na jinsi ya kuwasilisha maombi ya miradi ya maendeleo katika wodi yako popote nchini Kenya.',
     category: 'devolution',
     readTimeMinutes: 10,
     sections: [
@@ -103,10 +103,10 @@ const DAILY_COURSE_TEMPLATES: CourseBlueprint[] = [
 
   // 2. Community Land Act
   {
-    titleEn: 'Community Land Act & Ancestral Land Rights in Coastal Kenya',
-    titleSw: 'Sheria ya Ardhi ya Jamii na Haki za Umiliki Pwani ya Kenya',
-    summaryEn: 'Understand how the Community Land Act 2016 protects ancestral holdings, stops unlawful grabbing, and empowers community assemblies in Kwale.',
-    summarySw: 'Fahamu jinsi Sheria ya Ardhi ya Jamii ya 2016 inavyolinda ardhi za mababu, kuzuia unyakuzi, na kuwapa wananchi mamlaka ya maamuzi.',
+    titleEn: 'Community Land Act & Ancestral Land Rights in Kenya',
+    titleSw: 'Sheria ya Ardhi ya Jamii na Haki za Umiliki Nchini Kenya',
+    summaryEn: 'Understand how the Community Land Act 2016 protects ancestral holdings, stops unlawful grabbing, and empowers community assemblies across Kenya\'s counties.',
+    summarySw: 'Fahamu jinsi Sheria ya Ardhi ya Jamii ya 2016 inavyolinda ardhi za mababu, kuzuia unyakuzi, na kuwapa wananchi mamlaka ya maamuzi katika kaunti zote 47.',
     category: 'human_rights',
     readTimeMinutes: 11,
     sections: [
@@ -130,8 +130,8 @@ const DAILY_COURSE_TEMPLATES: CourseBlueprint[] = [
       {
         titleEn: 'Steps to Register Community Land in Your Village',
         titleSw: 'Hatua za Kusajili Ardhi ya Jamii Kijijini Mwako',
-        contentEn: 'To secure community land against land grabbing, communities in Kwale can form an registered Community Land Management Committee.',
-        contentSw: 'Kuzuia unyakuzi wa ardhi, wanajamii Kwale wanaweza kufuata utaratibu wa kisheria kusajili ardhi yao rasmi.',
+        contentEn: 'To secure community land against land grabbing, communities across Kenya\'s 47 counties can form a registered Community Land Management Committee.',
+        contentSw: 'Kuzuia unyakuzi wa ardhi, wanajamii kote nchini wanaweza kufuata utaratibu wa kisheria kusajili ardhi yao rasmi.',
         article: 'Section 7, Community Land Act 2016',
         bulletsEn: [
           'Convene a general meeting of all resident community members (including youth, women, and elders).',
@@ -161,7 +161,7 @@ const DAILY_COURSE_TEMPLATES: CourseBlueprint[] = [
         defSw: 'Hati miliki rasmi ya serikali inayotoa ushahidi kamili wa kisheria usiopingika wa umiliki wa ardhi.',
       },
     ],
-    actionTipEn: 'Check if your village communal land is mapped on the Kwale County Land Information Management System. Report any unauthorized fencing to the NLC and County Land CECM.',
+    actionTipEn: 'Check if your village communal land is mapped on your County Land Information Management System. Report any unauthorized fencing to the NLC and County Land CECM.',
     actionTipSw: 'Hakikisha eneo lenu la jamii limeorodheshwa kwenye rekodi za ardhi za kaunti. Toa taarifa mara moja kuhusu ua wowote usio halali.',
   },
 
@@ -223,7 +223,7 @@ const DAILY_COURSE_TEMPLATES: CourseBlueprint[] = [
         defSw: 'Shirika la serikali linalotoa mawakili wa bure kwa wananchi wasio na uwezo wa kifedha.',
       },
     ],
-    actionTipEn: 'Memorize the IPOA hotline: 1559 (Toll-Free). If you or a relative is detained unlawfully, alert a paralegal or petition the High Court in Kwale.',
+    actionTipEn: 'Memorize the IPOA hotline: 1559 (Toll-Free). If you or a relative is detained unlawfully, alert a paralegal or petition the nearest High Court station in your county.',
     actionTipSw: 'Hifadhi namba ya dharura ya IPOA: 1559 (Bure). Mtu akizuiliwa kinyume cha sheria, wasiliana na afisa wa sheria mara moja.',
   },
 
@@ -293,8 +293,8 @@ const DAILY_COURSE_TEMPLATES: CourseBlueprint[] = [
   {
     titleEn: 'Public Procurement & 30% AGPO Opportunities for Youth & Women',
     titleSw: 'Manunuzi ya Umma na Fursa za Asilimia 30 za AGPO kwa Vijana na Wanawake',
-    summaryEn: 'Understand the legal requirement reserving 30% of all public procurement tenders in Kwale County and national ministries for Youth, Women, and PWDs.',
-    summarySw: 'Fahamu haki ya kisheria inayotenga asilimia 30 ya zabuni zote za kaunti na serikali kuu kwa vijana, wanawake na watu wenye ulemavu.',
+    summaryEn: 'Understand the legal requirement reserving 30% of all public procurement tenders in all 47 County Governments and national state organs for Youth, Women, and PWDs.',
+    summarySw: 'Fahamu haki ya kisheria inayotenga asilimia 30 ya zabuni zote za serikali za kaunti na serikali kuu kwa vijana, wanawake na watu wenye ulemavu kote nchini Kenya.',
     category: 'devolution',
     readTimeMinutes: 10,
     sections: [
@@ -310,7 +310,7 @@ const DAILY_COURSE_TEMPLATES: CourseBlueprint[] = [
           'Exempts target groups from heavy tender security bond fees typically demanded from large corporations.',
         ],
         bulletsSw: [
-          'Inahusu idara zote za kaunti ya Kwale, bodi za miji na wizara za kitaifa.',
+          'Inahusu idara zote za kaunti zote 47, bodi za miji na wizara za kitaifa.',
           'Inahitaji tu cheti cha AGPO, KRA PIN, na jina la biashara lililosajiliwa.',
           'Inawaondolea vijana ada kubwa za dhamana ya zabuni (tender security bonds).',
         ],
@@ -347,7 +347,7 @@ const DAILY_COURSE_TEMPLATES: CourseBlueprint[] = [
         defSw: 'Mamlaka inayohakikisha ununuzi wa umma unafuata sheria na haki bila upendeleo.',
       },
     ],
-    actionTipEn: 'Visit the Kwale County website procurement section or the National Treasury AGPO portal (agpo.go.ke) to register your youth or women group.',
+    actionTipEn: 'Visit your County Government website procurement section or the National Treasury AGPO portal (agpo.go.ke) to register your youth or women group.',
     actionTipSw: 'Tembelea tovuti ya agpo.go.ke kusajili kikundi chako cha vijana au wanawake kupata cheti cha zabuni bila malipo.',
   },
 
@@ -355,24 +355,24 @@ const DAILY_COURSE_TEMPLATES: CourseBlueprint[] = [
   {
     titleEn: 'County Assembly Petitions & The Right of Recall',
     titleSw: 'Maombi Katika Bunge la Kaunti na Haki ya Kuwawajibisha Viongozi',
-    summaryEn: 'Discover the constitutional mechanics of submitting formal petitions to the Kwale County Assembly and the statutory procedures for recalling non-performing legislators.',
-    summarySw: 'Fahamu taratibu za kikatiba za kuwasilisha maombi kwenye Bunge la Kaunti ya Kwale na sheria za kuwawajibisha au kuwafuta kazi wawakilishi wasiotekeleza wajibu.',
+    summaryEn: 'Discover the constitutional mechanics of submitting formal petitions to any County Assembly in The Republic of Kenya and the statutory procedures for recalling non-performing legislators.',
+    summarySw: 'Fahamu taratibu za kikatiba za kuwasilisha maombi kwenye Bunge la Kaunti yoyote nchini Kenya na sheria za kuwawajibisha au kuwafuta kazi wawakilishi wasiotekeleza wajibu.',
     category: 'government',
     readTimeMinutes: 10,
     sections: [
       {
         titleEn: 'How to Submit a Petition to the County Assembly',
         titleSw: 'Jinsi ya Kuwasilisha Ombi kwa Bunge la Kaunti',
-        contentEn: 'Under Article 119 and Section 88 of the County Governments Act, every citizen or group in Kwale has the direct right to petition the Speaker of the County Assembly to investigate grievances, summon county officials, or amend by-laws.',
+        contentEn: 'Under Article 119 and Section 88 of the County Governments Act, every citizen or group across The Republic of Kenya has the direct right to petition the Speaker of their County Assembly to investigate grievances, summon county officials, or amend by-laws.',
         contentSw: 'Chini ya Kifungu cha 119 na Kifungu cha 88 cha Sheria ya Serikali za Kaunti, kila mwananchi ana haki ya kuwasilisha ombi rasmi kwa Spika wa Bunge la Kaunti ili kuchunguza kero au kuwaita mawaziri.',
         article: 'Article 119 & County Governments Act Sec. 88',
         bulletsEn: [
-          'Address the petition directly to the Clerk or Speaker of the County Assembly of Kwale.',
+          'Address the petition directly to the Clerk or Speaker of your County Assembly.',
           'Clearly state the facts, previous failed attempts to resolve with the executive, and the specific prayer (action requested).',
           'The petition is read on the Assembly floor and committed to the relevant Sectoral Committee within 14 days.',
         ],
         bulletsSw: [
-          'Elekeza barua ya ombi moja kwa moja kwa Karani au Spika wa Bunge la Kaunti ya Kwale.',
+          'Elekeza barua ya ombi moja kwa moja kwa Karani au Spika wa Bunge la Kaunti yako.',
           'Eleza kwa uwazi matatizo yaliyopo, majaribio ya awali, na hatua maalum unazoliomba bunge kuchukua.',
           'Ombi husomwa bungeni na kupelekwa kwa kamati husika ya kisekta ndani ya siku 14.',
         ],
@@ -409,24 +409,24 @@ const DAILY_COURSE_TEMPLATES: CourseBlueprint[] = [
         defSw: 'Kizuizi cha kikatiba kinachomzuia kiongozi aliyechaguliwa kupuuza wananchi wake kwa miaka 5 bila kuwajibika.',
       },
     ],
-    actionTipEn: 'Review the Kwale County Assembly Standing Orders online or at the Assembly library in Kwale Town to understand committee petition hearing procedures.',
-    actionTipSw: 'Fika katika Maktaba ya Bunge la Kaunti mjini Kwale au tovuti yao kujua jinsi kamati za bunge zinavyosikiliza maoni ya wananchi.',
+    actionTipEn: 'Review your County Assembly Standing Orders online or at your Assembly library to understand committee petition hearing procedures.',
+    actionTipSw: 'Fika katika Maktaba ya Bunge la Kaunti yako au tovuti yao kujua jinsi kamati za bunge zinavyosikiliza maoni ya wananchi.',
   },
 
   // 7. County Climate Change Regulations & Ward Resilience
   {
     titleEn: 'County Climate Change Regulations & Ward Adaptation Funds',
     titleSw: 'Kanuni za Mabadiliko ya Hali ya Hewa na Hazina za Wadi',
-    summaryEn: 'Learn how Kwale County Climate Change Regulations allocate 2% of the development budget to ward-level climate resilience, water security, and drought mitigation.',
-    summarySw: 'Fahamu jinsi kanuni za hali ya hewa za Kaunti ya Kwale zinavyotenga asilimia 2 ya bajeti kwa miradi ya maji, ukame na mazingira vijijini.',
+    summaryEn: 'Learn how County Climate Change Regulations allocate at least 2% of the development budget to ward-level climate resilience, water security, and drought mitigation across Kenya.',
+    summarySw: 'Fahamu jinsi kanuni za hali ya hewa za serikali za kaunti zinavyotenga asilimia 2 ya bajeti kwa miradi ya maji, ukame na mazingira vijijini kote nchini Kenya.',
     category: 'devolution',
     readTimeMinutes: 10,
     sections: [
       {
         titleEn: 'The 2% Ward Climate Change Fund Mandate',
         titleSw: 'Mgao wa Asilimia 2 wa Hazina ya Hali ya Hewa ya Wadi',
-        contentEn: 'Kwale County passed the Climate Change Act establishing dedicated ward climate adaptation committees (WCCC). At least 2% of the county development budget is ring-fenced specifically for citizen-prioritized resilience projects.',
-        contentSw: 'Kaunti ya Kwale ilipitisha Sheria ya Mabadiliko ya Hali ya Hewa inayounda kamati za wodi (WCCC). Angalau asilimia 2 ya bajeti ya maendeleo inatengwa kwa miradi inayopendekezwa na wananchi.',
+        contentEn: 'County Governments across Kenya enact Climate Change Acts establishing dedicated ward climate adaptation committees (WCCC). At least 2% of the county development budget is ring-fenced specifically for citizen-prioritized resilience projects.',
+        contentSw: 'Serikali za Kaunti kote nchini Kenya zinapitisha Sheria za Mabadiliko ya Hali ya Hewa zinazounda kamati za wodi (WCCC). Angalau asilimia 2 ya bajeti ya maendeleo inatengwa kwa miradi inayopendekezwa na wananchi.',
         constitutionalArticle: 'Article 42 & Article 69',
         bulletsEn: [
           'Ward Climate Change Committees (WCCC) are elected directly by community members at village barazas.',
@@ -566,8 +566,8 @@ const DAILY_COURSE_TEMPLATES: CourseBlueprint[] = [
       {
         titleEn: 'Hospital Management Boards & Citizen Oversight',
         titleSw: 'Bodi za Usimamizi wa Hospitali na Uangalizi wa Wananchi',
-        contentEn: 'Every Level 4 and Level 5 hospital in Kwale (e.g. Msambweni Referral, Kwale Sub-County Hospital) must have a Hospital Management Board comprising citizen community representatives.',
-        contentSw: 'Kila hospitali ya Level 4 na Level 5 huko Kwale (kama vile Rufaa ya Msambweni) lazima iwe na Bodi ya Usimamizi inayojumuisha wawakilishi wa wananchi.',
+        contentEn: 'Every Level 4 and Level 5 hospital across Kenya (e.g. County Referral and Sub-County Hospitals) must have a Hospital Management Board comprising citizen community representatives.',
+        contentSw: 'Kila hospitali ya Level 4 na Level 5 kote nchini Kenya (kama vile Hospitali za Rufaa za Kaunti na Hospitali za Kaunti Ndogo) lazima iwe na Bodi ya Usimamizi inayojumuisha wawakilishi wa wananchi.',
         article: 'Kenya Health Act 2017 Section 31',
         bulletsEn: [
           'Citizens can lodge complaints against drug stockouts or negligence to the County Health Executive.',
@@ -603,16 +603,16 @@ const DAILY_COURSE_TEMPLATES: CourseBlueprint[] = [
   {
     titleEn: 'Urban Areas and Cities Act: Municipal Boards & Citizen Forums',
     titleSw: 'Sheria ya Miji na Majiji: Bodi za Manispaa na Mabaraza ya Wananchi',
-    summaryEn: 'How residents, business operators, and neighborhood associations in Diani, Ukunda, and Kwale Town can elect citizen representatives and influence urban plans.',
-    summarySw: 'Jinsi wakazi, wafanyabiashara na vyama vya mitaa vya Ukunda, Diani na Mjini Kwale wanavyoweza kuchagua wawakilishi na kushiriki mipango ya manispaa.',
+    summaryEn: 'How residents, business operators, and neighborhood associations across municipalities and urban boards in Kenya can elect citizen representatives and influence urban plans.',
+    summarySw: 'Jinsi wakazi, wafanyabiashara na vyama vya mitaa katika miji na manispaa kote nchini wanavyoweza kuchagua wawakilishi na kushiriki mipango ya manispaa.',
     category: 'devolution',
     readTimeMinutes: 9,
     sections: [
       {
         titleEn: 'Municipal Boards & Citizen Representation',
         titleSw: 'Bodi za Manispaa na Uwakilishi wa Wananchi',
-        contentEn: 'Under the Urban Areas and Cities Act (amended 2019), municipalities like Diani and Kwale are governed by Municipal Boards. Four out of nine board members must be competitively nominated by registered citizen associations.',
-        contentSw: 'Chini ya Sheria ya Miji na Majiji (iliyofanyiwa marekebisho 2019), manispaa kama Diani na Kwale husimamiwa na Bodi za Manispaa. Wajumbe wanne kati ya tisa lazima wateuliwe kutoka vyama vya wananchi.',
+        contentEn: 'Under the Urban Areas and Cities Act (amended 2019), municipalities across all counties in Kenya are governed by Municipal Boards. Four out of nine board members must be competitively nominated by registered citizen associations.',
+        contentSw: 'Chini ya Sheria ya Miji na Majiji (iliyofanyiwa marekebisho 2019), manispaa na miji kote nchini husimamiwa na Bodi za Manispaa. Wajumbe wanne kati ya tisa lazima wateuliwe kutoka vyama vya wananchi.',
         constitutionalArticle: 'Fourth Schedule Part 2 & UACA Section 13',
         bulletsEn: [
           'Professional associations, business chambers, youth networks, and neighbourhood groups nominate board members.',
@@ -657,8 +657,8 @@ const DAILY_COURSE_TEMPLATES: CourseBlueprint[] = [
         defSw: 'Ugawaji wa kisheria wa maeneo ya makazi, biashara, viwanda na maeneo ya wazi mijini.',
       },
     ],
-    actionTipEn: 'Check the municipal notice board at the Diani or Kwale Municipal Office for pending planning applications and zoning barazas.',
-    actionTipSw: 'Kagua ubao wa matangazo katika ofisi ya Manispaa ya Diani au Kwale kuona maombi ya mipango miji na mikutano ya wazi.',
+    actionTipEn: 'Check the municipal notice board at your Municipal Board or Town Office for pending planning applications and zoning barazas.',
+    actionTipSw: 'Kagua ubao wa matangazo katika ofisi ya Manispaa au Mji wa eneo lako kuona maombi ya mipango miji na mikutano ya wazi.',
   },
 
   // 11. Article 37: Right to Assembly & Picketing
@@ -789,8 +789,8 @@ const DAILY_COURSE_TEMPLATES: CourseBlueprint[] = [
   {
     titleEn: 'National Government-Constituency Development Fund (NG-CDF) Audits',
     titleSw: 'Ukaguzi wa Fedha za Maendeleo ya Eneo Bunge (NG-CDF) na Wananchi',
-    summaryEn: 'How to monitor CDF allocations for high school classrooms, security posts, and bursaries in Kwale constituencies (Matuga, Msambweni, Lunga Lunga, Kinango).',
-    summarySw: 'Jinsi ya kufuatilia fedha za CDF za madarasa ya sekondari, vituo vya polisi na ufadhili wa masomo (bursary) katika maeneo bunge ya Kwale.',
+    summaryEn: 'How to monitor CDF allocations for high school classrooms, security posts, and bursaries across Kenya\'s 290 constituencies.',
+    summarySw: 'Jinsi ya kufuatilia fedha za CDF za madarasa ya sekondari, vituo vya polisi na ufadhili wa masomo (bursary) katika maeneo bunge yote 290 ya Kenya.',
     category: 'government',
     readTimeMinutes: 10,
     sections: [
@@ -851,8 +851,8 @@ const DAILY_COURSE_TEMPLATES: CourseBlueprint[] = [
   {
     titleEn: 'Mining Act 2016: Local Mineral Royalties Split (70/20/10)',
     titleSw: 'Sheria ya Madini 2016: Mgao wa Mapato ya Madini (70/20/10)',
-    summaryEn: 'How mining communities in Kwale (titanium, niobium, rare earths) are legally entitled to 10% community royalties and 20% county royalties.',
-    summarySw: 'Jinsi jamii za Kwale zinazozungukwa na migodi ya madini (titanium n.k.) zinavyostahili kisheria asilimia 10 ya mrabaha na kaunti asilimia 20.',
+    summaryEn: 'How resource-rich communities across Kenya\'s counties (mining, quarrying, geothermal, oil, minerals) are legally entitled to 10% community royalties and 20% county royalties.',
+    summarySw: 'Jinsi jamii za maeneo ya madini na maliasili nchini Kenya zinavyostahili kisheria asilimia 10 ya mrabaha na kaunti asilimia 20.',
     category: 'constitution',
     readTimeMinutes: 11,
     sections: [
@@ -967,16 +967,16 @@ const DAILY_COURSE_TEMPLATES: CourseBlueprint[] = [
         defSw: 'Agizo la kisheria linalomlazimu mwekezaji kusimamisha mara moja ujenzi na ukataji miti.',
       },
     ],
-    actionTipEn: 'Monitor the NEMA Kenya public notices website monthly to review pending project licenses in Kwale County.',
-    actionTipSw: 'Kagua tovuti ya matangazo ya NEMA mara kwa mara kuona maombi ya leseni za uwekezaji yanayopendekezwa Kaunti ya Kwale.',
+    actionTipEn: 'Monitor the NEMA Kenya public notices website monthly to review pending project licenses across Kenya\'s counties.',
+    actionTipSw: 'Kagua tovuti ya matangazo ya NEMA mara kwa mara kuona maombi ya leseni za uwekezaji yanayopendekezwa katika kaunti yako.',
   },
 
   // 16. Persons with Disabilities Act & Article 54
   {
     titleEn: 'Persons with Disabilities Act & Article 54 Inclusivity in Public Projects',
     titleSw: 'Sheria ya Watu Wenye Ulemavu na Ushirikishwaji Chini ya Kifungu cha 54',
-    summaryEn: 'How to enforce the 5% public employment rule, accessible infrastructure ramps in county facilities, and assistive devices budget in Kwale.',
-    summarySw: 'Jinsi ya kutekeleza sheria ya asilimia 5 ya ajira kwa watu wenye ulemavu, njia za viti vya magurudumu na bajeti ya vifaa saidizi.',
+    summaryEn: 'How to enforce the 5% public employment rule, accessible infrastructure ramps in county facilities, and assistive devices budget across all 47 counties of Kenya.',
+    summarySw: 'Jinsi ya kutekeleza sheria ya asilimia 5 ya ajira kwa watu wenye ulemavu, njia za viti vya magurudumu na bajeti ya vifaa saidizi katika kaunti zote 47 za Kenya.',
     category: 'human_rights',
     readTimeMinutes: 9,
     sections: [
@@ -1029,8 +1029,8 @@ const DAILY_COURSE_TEMPLATES: CourseBlueprint[] = [
         defSw: 'Marekebisho maalum kazini au shuleni yanayomwezesha mtu mwenye ulemavu kufanya kazi zake bila vikwazo.',
       },
     ],
-    actionTipEn: 'Ensure any relative with a disability is registered at the NCPWD county office in Kwale Town to receive assistive equipment and educational bursary support.',
-    actionTipSw: 'Hakikisha mtu yeyote mwenye ulemavu katika familia yako amesajiliwa na ofisi ya NCPWD mjini Kwale ili apate vifaa na ufadhili wa masomo.',
+    actionTipEn: 'Ensure any relative with a disability is registered at the NCPWD county office in your county headquarters to receive assistive equipment and educational bursary support.',
+    actionTipSw: 'Hakikisha mtu yeyote mwenye ulemavu katika familia yako amesajiliwa na ofisi ya NCPWD katika makao makuu ya kaunti yako ili apate vifaa na ufadhili wa masomo.',
   },
 
   // 17. National Cohesion & Anti-Hate Speech
@@ -1099,8 +1099,8 @@ const DAILY_COURSE_TEMPLATES: CourseBlueprint[] = [
   {
     titleEn: 'Small Claims Court: Resolving Community Disputes Under Ksh 1M in 60 Days',
     titleSw: 'Mahakama ya Madai Madogo: Kusuluhisha Kesi Chini ya Sh Milioni 1 Ndani ya Siku 60',
-    summaryEn: 'How citizens and small traders in Kwale can recover debts, resolve rent disputes, and settle commercial contracts cheaply without expensive lawyers.',
-    summarySw: 'Jinsi wananchi na wafanyabiashara wadogo wanavyoweza kurejesha madeni na migogoro ya kodi ya nyumba kwa haraka bila gharama za mawakili.',
+    summaryEn: 'How citizens and small traders across Kenya can recover debts, resolve rent disputes, and settle commercial contracts cheaply without expensive lawyers.',
+    summarySw: 'Jinsi wananchi na wafanyabiashara wadogo kote nchini Kenya wanavyoweza kurejesha madeni na migogoro ya kodi ya nyumba kwa haraka bila gharama za mawakili.',
     category: 'government',
     readTimeMinutes: 9,
     sections: [
@@ -1122,10 +1122,10 @@ const DAILY_COURSE_TEMPLATES: CourseBlueprint[] = [
         ],
       },
       {
-        titleEn: 'Steps to File a Claim at Kwale Law Courts',
-        titleSw: 'Hatua za Kufungua Kesi Mahakama ya Kwale',
-        contentEn: 'You do not need to hire an advocate. Filing is done electronically via the Judiciary e-filing portal (efiling.court.go.ke) or physically at the Small Claims Court Registry in Kwale Law Courts.',
-        contentSw: 'Huna haja ya kulipa wakili. Kufungua kesi hufanywa kwa mtandao kupitia mfumo wa e-filing wa Idara ya Mahakama au kusajili moja kwa moja kwenye mahakama ya Kwale.',
+        titleEn: 'Steps to File a Claim at Small Claims Courts across Kenya',
+        titleSw: 'Hatua za Kufungua Kesi Mahakama za Madai Madogo nchini Kenya',
+        contentEn: 'You do not need to hire an advocate. Filing is done electronically via the Judiciary e-filing portal (efiling.court.go.ke) or physically at the Small Claims Court Registry at your local Law Courts.',
+        contentSw: 'Huna haja ya kulipa wakili. Kufungua kesi hufanywa kwa mtandao kupitia mfumo wa e-filing wa Idara ya Mahakama au kusajili moja kwa moja kwenye mahakama iliyo karibu nawe.',
         article: 'Small Claims Court Act Section 23',
         bulletsEn: [
           'Attach proof of transaction: M-PESA statements, signed promissory notes, WhatsApp agreements, or receipts.',
@@ -1153,8 +1153,8 @@ const DAILY_COURSE_TEMPLATES: CourseBlueprint[] = [
         defSw: 'Mazungumzo ya siri yanayoongozwa na mpatanishi aliyesajiliwa na mahakama ili kumaliza mgogoro bila uhasama.',
       },
     ],
-    actionTipEn: 'If a debtor owes you money with written or mobile money proof, visit the Kwale Small Claims Court desk instead of resorting to unlawful self-help or police debt collection.',
-    actionTipSw: 'Kama mtu anadaiwa na una ushahidi wa M-PESA au maandishi, fungua kesi Mahakama ya Madai Madogo Kwale badala ya kutumia polisi au vurugu za kibinafsi.',
+    actionTipEn: 'If a debtor owes you money with written or mobile money proof, visit the nearest Small Claims Court desk instead of resorting to unlawful self-help or police debt collection.',
+    actionTipSw: 'Kama mtu anadaiwa na una ushahidi wa M-PESA au maandishi, fungua kesi Mahakama ya Madai Madogo ya eneo lako badala ya kutumia polisi au vurugu za kibinafsi.',
   },
 
   // 19. County Policing Authorities & Community Safety
@@ -1280,6 +1280,318 @@ const DAILY_COURSE_TEMPLATES: CourseBlueprint[] = [
     actionTipEn: 'Demand that all ward project signboards list the directors of the awarded contractor to verify that no public officer has an undisclosed conflict of interest.',
     actionTipSw: 'Dai kwamba vibao vya miradi yote vitaje wamiliki wa kampuni iliyoshinda zabuni ili kuzuia viongozi kujipa kandarasi za umma kisiri.',
   },
+
+  // 21. Human Rights Advocacy
+  {
+    titleEn: 'Human Rights Advocacy: Community Monitoring, Rights Defense, and Citizen Empowerment',
+    titleSw: 'Utetezi wa Haki za Binadamu: Ufuatiliaji wa Jamii, Kulinda Haki na Uwezeshaji wa Wananchi',
+    summaryEn: 'Master grassroots human rights advocacy under Chapter 4 of the Constitution. Learn how community paralegals and active citizens monitor violations, protect vulnerable groups, engage duty bearers, and petition the KNCHR and High Court across The Republic of Kenya.',
+    summarySw: 'Jifunze mbinu za kutetea haki za binadamu mashinani chini ya Sura ya 4 ya Katiba. Fahamu jinsi ya kufuatilia ukiukaji wa haki, kuwalinda wanyonge, kuwawajibisha wenye madaraka, na kuwasilisha maombi kwa KNCHR na Mahakama Kuu kote nchini Kenya.',
+    category: 'human_rights',
+    readTimeMinutes: 9,
+    sections: [
+      {
+        titleEn: 'Constitutional Anchoring: Chapter 4 Bill of Rights & Article 22 Enforcement',
+        titleSw: 'Msingi wa Kikatiba: Mswada wa Haki (Sura ya 4) na Utetezi chini ya Kifungu cha 22',
+        contentEn: 'Under Article 21, the State has a binding obligation to respect, protect, promote, and fulfill fundamental rights. Article 22 guarantees that any person acting in their own interest or on behalf of others or in the public interest has the right to institute High Court proceedings without filing fees or restrictive technical barriers.',
+        contentSw: 'Chini ya Kifungu cha 21, Serikali ina wajibu wa lazima kuheshimu, kulinda, kuendeleza na kutimiza haki za kimsingi. Kifungu cha 22 kinampa kila mwananchi haki ya kufungua kesi Mahakama Kuu bila ada au vikwazo vya kiutaratibu.',
+        article: 'Article 19, 21 & 22',
+        bulletsEn: [
+          'No court filing fees can be used to bar citizens from filing Article 22 human rights petitions.',
+          'Community paralegals and civil society groups possess full locus standi to represent victims.',
+          'High Court remedies include injunctions, declarations of invalidity, and financial compensation.',
+        ],
+        bulletsSw: [
+          'Ada za mahakama haziwezi kutumika kuzuia wananchi kufungua kesi za kutetea haki za binadamu.',
+          'Wasaidizi wa kisheria na mashirika ya kijamii yana haki kamili ya kuwawakilisha waathiriwa kortini.',
+          'Maamuzi ya Mahakama Kuu yanajumuisha amri za kuzuia dhuluma, kubatilisha maamuzi haramu na kutoa fidia.',
+        ],
+      },
+      {
+        titleEn: 'Grassroots Monitoring Tools & Protection of Human Rights Defenders',
+        titleSw: 'Mbinu za Ufuatiliaji Mashinani na Ulinzi wa Watetezi wa Haki',
+        contentEn: 'Grassroots monitors document rights violations factually and engage statutory oversight bodies including the Kenya National Commission on Human Rights (KNCHR) and the Commission on Administrative Justice (Ombudsman - CAJ).',
+        contentSw: 'Watetezi wa haki mashinani huandika ukiukaji wa haki kwa ushahidi kamili na kuwasiliana na Tume ya Kitaifa ya Haki za Binadamu (KNCHR) na Ofisi ya Ombudsman (CAJ).',
+        article: 'Article 59 & KNCHR Act',
+        bulletsEn: [
+          'Document dates, names, service numbers, and evidence objectively without hearsay.',
+          'Provide early legal aid and safe referrals for victims of gender-based violence or arbitrary arrest.',
+          'Maintain encrypted digital emergency channels and alert civil society defender networks if facing threats.',
+        ],
+        bulletsSw: [
+          'Weka rekodi ya tarehe, majina, nambari za sare na ushahidi bila uvumi.',
+          'Toa msaada wa kwanza wa kisheria na rufaa salama kwa waathiriwa wa dhuluma za kijinsia au kukamatwa kiholela.',
+          'Tumia njia salama za mawasiliano na taarifu mitandao ya watetezi wa haki unapokabiliwa na hatari.',
+        ],
+      },
+    ],
+    keyTerms: [
+      {
+        en: 'Human Rights Defender (HRD)',
+        sw: 'Mteteezi wa Haki za Binadamu',
+        defEn: 'Any person who peacefully promotes and protects universally recognized human rights and fundamental freedoms.',
+        defSw: 'Mtu yeyote anayechukua hatua za amani kukuza na kulinda haki za binadamu kwa wote.',
+      },
+      {
+        en: 'Public Interest Litigation (PIL)',
+        sw: 'Kesi kwa Maslahi ya Umma',
+        defEn: 'Court action instituted to enforce the rights of the broader public or disadvantaged groups.',
+        defSw: 'Kesi inayofunguliwa mahakamani kulinda haki za jamii nzima badala ya maslahi ya kibinafsi.',
+      },
+    ],
+    actionTipEn: 'Form a human rights vigilance team in your ward. Report severe rights abuses to KNCHR toll-free SMS 22359 or file an urgent Article 22 petition at the nearest High Court station.',
+    actionTipSw: 'Unda kamati ya ulinzi wa haki za binadamu kwenye wodi yako. Ripoti dhuluma kwa KNCHR (SMS ya bure 22359) au fungua kesi chini ya Kifungu cha 22.',
+  },
+
+  // 22. Using Social Media as a Narrative Tool for Peace
+  {
+    titleEn: 'Using Social Media as a Narrative Tool for Peace & Digital Cohesion',
+    titleSw: 'Kutumia Mitandao ya Kijamii kama Chombo cha Amani na Mshikamano wa Kidijitali',
+    summaryEn: 'Learn how to use social media (WhatsApp, X, Facebook, TikTok) as a constructive civic tool for peacebuilding. Understand Article 33 freedom of expression, boundaries on hate speech, countering propaganda, and narrative reframing for national cohesion across The Republic of Kenya.',
+    summarySw: 'Jifunze jinsi ya kutumia mitandao ya kijamii (WhatsApp, X, Facebook, TikTok) kujenga amani na mshikamano. Fahamu Kifungu cha 33 cha uhuru wa kujieleza, mipaka dhidi ya matamshi ya chuki, kukabili propaganda, na kueneza ukweli kote nchini Kenya.',
+    category: 'participation',
+    readTimeMinutes: 8,
+    sections: [
+      {
+        titleEn: 'Article 33 Freedom of Expression & Constitutional Boundaries',
+        titleSw: 'Kifungu cha 33 Uhuru wa Kujieleza na Mipaka ya Kikatiba',
+        contentEn: 'While Article 33(1) guarantees freedom of expression, Article 33(2) explicitly provides that this right does not extend to propaganda for war, incitement to violence, hate speech, or advocacy of ethnic hatred. Spreading ethnic slurs or incitement violates the National Cohesion and Integration Act.',
+        contentSw: 'Wakati Kifungu cha 33(1) kinalinda uhuru wa kutoa maoni, Kifungu cha 33(2) kinaweka wazi kuwa uhuru huu haujumuishi propaganda za vita, kuchochea fujo, matamshi ya chuki au uchochezi wa kikabila.',
+        article: 'Article 33(1) & 33(2)',
+        bulletsEn: [
+          'Hate speech and ethnic incitement carry criminal penalties under Section 13 and 62 of the NCIC Act.',
+          'Publishing fabricated alarms is an offense under the Computer Misuse and Cybercrimes Act.',
+          'Every citizen is bound under Article 10 to promote national unity and peaceful coexistence.',
+        ],
+        bulletsSw: [
+          'Matamshi ya chuki na uchochezi wa kikabila ni makosa ya jinai chini ya Sheria ya NCIC.',
+          'Kusambaza habari za uzushi wa makusudi ni kosa chini ya Sheria ya Makosa ya Mitandao.',
+          'Kila mwananchi anawajibika chini ya Kifungu cha 10 kuendeleza umoja wa kitaifa na amani.',
+        ],
+      },
+      {
+        titleEn: 'Strategic Peace Storytelling & Countering Disinformation',
+        titleSw: 'Kusimulia Masimulizi ya Amani na Kukabili Upotoshaji Mtandaoni',
+        contentEn: 'Citizens and youth influencers can actively counter inflammatory rumors by verifying sources, framing inclusive peace narratives, and promoting constructive cross-community barazas.',
+        contentSw: 'Wananchi na vijana wanaweza kukabili uvumi wa uchochezi kwa kuhakiki vyanzo, kueneza masimulizi ya amani, na kuunganisha jamii mtandaoni.',
+        article: 'Article 10 & NCIC Act',
+        bulletsEn: [
+          'Verify facts before forwarding messages in WhatsApp groups or retweeting sensational claims.',
+          'Share stories highlighting cross-ethnic cooperation on community water, health, and economic projects.',
+          'Tag fact-checkers and official government oversight portals when debunking manipulated media.',
+        ],
+        bulletsSw: [
+          'Hakiki ukweli kabla ya kusambaza ujumbe kwenye WhatsApp au kurudia kutuma habari za kutisha.',
+          'Tangaza habari zinazoonyesha ushirikiano wa amani wa jamii mbalimbali kwenye miradi ya maendeleo.',
+          'Taja vyanzo rasmi vya kisheria na ripoti za serikali unapopinga picha au video za kupotosha.',
+        ],
+      },
+    ],
+    keyTerms: [
+      {
+        en: 'Digital Cohesion',
+        sw: 'Mshikamano wa Kidijitali',
+        defEn: 'Deploying digital communications deliberately to cultivate mutual respect, reduce ethnic polarization, and bridge community divides.',
+        defSw: 'Kutumia mitandao ya kijamii kwa makusudi kujenga heshima, kupunguza ubaguzi na kuleta mshikamano.',
+      },
+      {
+        en: 'Disinformation Counter-narrative',
+        sw: 'Simulizi ya Kukabili Uzushi',
+        defEn: 'A fact-based, culturally resonant communication designed to neutralize malicious propaganda.',
+        defSw: 'Ujumbe wenye ukweli unaotolewa kubatilisha na kuzima uvumi na propaganda hasi.',
+      },
+    ],
+    actionTipEn: 'Practice digital hygiene! Refuse to forward unverified tribal or political rumors in family and community WhatsApp chats. Share constructive civic literacy materials instead.',
+    actionTipSw: 'Kuwa mlinzi wa amani mtandaoni! Usisambaze uvumi wa kikabila au uchochezi kwenye vikundi vya WhatsApp. Sambaza elimu ya kikatiba na ukweli.',
+  },
+
+  // 23. How to Write an Incident Report
+  {
+    titleEn: 'How to Write an Incident Report: Fact Documentation, Evidentiary Standards, and Citizen Accountability',
+    titleSw: 'Jinsi ya Kuandika Ripoti ya Tukio: Nyaraka za Ukweli, Viwango vya Ushahidi na Uwajibikaji',
+    summaryEn: 'A practical, structured guide for citizens and monitors to draft legally robust incident reports. Master the 5 Ws, chronological logging, evidence preservation, chain of custody, and reporting to IPOA, EACC, and courts across Kenya.',
+    summarySw: 'Mwongozo wa vitendo kwa wananchi na watetezi wa haki kuandika ripoti rasmi ya tukio yenye mashiko ya kisheria. Jifunze mpangilio wa matukio, kuhifadhi ushahidi wa picha na video, na kuwasilisha kwa IPOA, EACC na mahakamani.',
+    category: 'integrity',
+    readTimeMinutes: 9,
+    sections: [
+      {
+        titleEn: 'The 5 Ws & Contemporaneous Chronological Logging',
+        titleSw: 'Mambo 5 Makuu (5 Ws) na Mpangilio wa Matukio Papo Hapo',
+        contentEn: 'An incident report must be compiled contemporaneously when an occurrence happens. Under the Evidence Act (Cap 80), notes recorded immediately hold prime judicial weight because memory fades and details blur over time.',
+        contentSw: 'Ripoti ya tukio lazima iandikwe mara moja tukio linapotokea. Chini ya Sheria ya Ushahidi (Cap 80), kumbukumbu za papo hapo zina uzito mkubwa kortini kwa sababu maelezo hayapotei.',
+        article: 'Article 35 & Evidence Act Cap 80',
+        bulletsEn: [
+          'Who: Record full names, titles, vehicle registration plates, and police uniform service numbers.',
+          'What & When: Detailed chronological log with exact 24-hour timestamps and precise observable actions.',
+          'Where: Exact physical location, landmarks, ward, sub-county, and GPS coordinates.',
+          'Distinguish Facts from Opinions: Quote exact words spoken; avoid speculation or emotional exaggeration.',
+        ],
+        bulletsSw: [
+          'Nani (Who): Rekodi majina kamili, vyeo, nambari za magari, na nambari za sare za polisi (force numbers).',
+          'Nini na Lini: Mpangilio wa matukio kwa saa na dakika na vitendo halisi vilivyotendeka.',
+          'Wapi (Where): Mahali kamili, alama za eneo, kijiji, wodi na kuratibu za ramani (GPS).',
+          'Tofautisha Ukweli na Hisia: Nukuu maneno halisi yaliyosemwa bila kuongeza chumvi au makisio.',
+        ],
+      },
+      {
+        titleEn: 'Preserving Chain of Custody & Secure Submission to Oversight Organs',
+        titleSw: 'Kulinda Mnyororo Salama wa Ushahidi na Kuwasilisha Kwenye Vyombo vya Sheria',
+        contentEn: 'Physical and digital evidence must have an unbroken chain of custody. Certified copies should be lodged with the relevant statutory authority while keeping receipted stamped duplicates.',
+        contentSw: 'Ushahidi wa kidijitali na nyaraka lazima uhifadhiwe bila kuchezewa. Nakala zilizoidhinishwa lazima zipelekwe kwenye ofisi husika na kubakiza nakala iliyogongwa muhuri.',
+        article: 'Article 244 & IPOA Act Sec. 25',
+        bulletsEn: [
+          'Retain original photo/video files with intact digital metadata (timestamp, GPS coordinates).',
+          'Obtain certified hospital P3 medical examination forms for assault cases.',
+          'Lodge stamped copies with IPOA (police misconduct), EACC (extortion/bribery), or KNCHR (human rights violations).',
+        ],
+        bulletsSw: [
+          'Hifadhi picha halisi bila kufuta maelezo ya kidijitali (metadata ya muda na eneo).',
+          'Pata fomu ya matibabu ya P3 kutoka hospitali ya serikali kwa kesi za kupigwa au kujeruhiwa.',
+          'Wasilisha nakala iliyogongwa muhuri kwa IPOA (ukatili wa polisi), EACC (rushwa), au KNCHR (haki za binadamu).',
+        ],
+      },
+    ],
+    keyTerms: [
+      {
+        en: 'Chain of Custody',
+        sw: 'Mnyororo Salama wa Ushahidi',
+        defEn: 'The chronological documentation showing custody, control, and transfer of evidence to guarantee it has not been tampered with.',
+        defSw: 'Rekodi inayoonyesha jinsi ushahidi ulivyokusanywa na kukabidhiwa bila kubadilishwa wala kuchafuliwa.',
+      },
+      {
+        en: 'Contemporaneous Evidence',
+        sw: 'Ushahidi wa Papo Hapo',
+        defEn: 'Records compiled at the exact time of an incident, recognized by courts as highly authentic and credible.',
+        defSw: 'Nyaraka zilizoandikwa papo hapo wakati tukio linafanyika zenye thamani kubwa ya kisheria.',
+      },
+    ],
+    actionTipEn: 'Save a standardized incident reporting checklist on your smartphone. In any encounter with misconduct, note down officers’ badge numbers, vehicle plates, exact time, and names of independent eyewitnesses.',
+    actionTipSw: 'Hifadhi kiolezo cha ripoti ya tukio kwenye simu yako. Kisa kikitokea, andika nambari za sare za maafisa, nambari ya gari, muda kamili na majina ya mashahidi.',
+  },
+
+  // 24. Chapter 1: Sovereignty of the People & Supremacy of the Constitution
+  {
+    titleEn: 'Chapter 1: Sovereignty of the People & Supremacy of the Constitution (Articles 1-3)',
+    titleSw: 'Sura ya 1: Mamlaka Kuu ya Wananchi na Ukuu wa Katiba (Vifungu 1-3)',
+    summaryEn: 'Explore the fundamental bedrock of Kenya\'s constitutional democracy: all sovereign power belongs to the people of Kenya, exercised directly or through democratically elected representatives under Articles 1, 2, and 3.',
+    summarySw: 'Chunguza msingi mkuu wa demokrasia ya kikatiba ya Kenya: mamlaka yote ya uhuru ni ya wananchi wa Kenya, yakitumiwa moja kwa moja au kupitia wawakilishi waliochaguliwa chini ya Vifungu 1, 2, na 3.',
+    category: 'constitution',
+    readTimeMinutes: 8,
+    sections: [
+      {
+        titleEn: 'Article 1 & 2: Direct vs Delegated Sovereign Power',
+        titleSw: 'Kifungu cha 1 na 2: Mamlaka ya Moja kwa Moja dhidi ya Mamlaka ya Kukasimiwa',
+        contentEn: 'Article 1(1) states that all sovereign power belongs to the people of Kenya. The people may exercise their sovereign power either directly (through voting, referenda, public participation, recall) or through their democratically elected representatives in Parliament and County Assemblies. Article 2 confirms that the Constitution is supreme over all persons and state organs.',
+        contentSw: 'Kifungu cha 1(1) kinatamka kwamba mamlaka yote ya uhuru ni ya wananchi wa Kenya. Wananchi wanaweza kutumia mamlaka haya moja kwa moja au kupitia wawakilishi wao. Kifungu cha 2 kinathibitisha kuwa Katiba ndiyo sheria kuu zaidi.',
+        article: 'Article 1 & 2',
+        bulletsEn: [
+          'State officers are trustees, not rulers; they exercise power only on behalf of citizens.',
+          'Any law, customary practice, or executive decree inconsistent with the Constitution is void to the extent of the inconsistency.',
+          'No person may claim or exercise state authority except as authorized under the Constitution.',
+        ],
+        bulletsSw: [
+          'Viongozi wa umma ni wadhamini tu, si watawala; wanatumia mamlaka kwa niaba ya wananchi.',
+          'Sheria au amri yoyote inayopingana na Katiba ni batili kisheria.',
+          'Hakuna mtu anayeweza kujipa mamlaka ya serikali kinyume na Katiba.',
+        ],
+      },
+      {
+        titleEn: 'Article 3: The Civic Duty to Defend the Constitution',
+        titleSw: 'Kifungu cha 3: Wajibu wa Raia Kulinda na Kutetea Katiba',
+        contentEn: 'Article 3 imposes an active obligation on every citizen to respect, uphold, and defend the Constitution. Any attempt to establish a government otherwise than in compliance with this Constitution is unlawful.',
+        contentSw: 'Kifungu cha 3 kinaweka wajibu kwa kila mwananchi kuiheshimu na kuitetea Katiba. Jaribio lolote la kuanzisha serikali kinyume na Katiba ni kosa la uhaini.',
+        article: 'Article 3',
+        bulletsEn: [
+          'Citizens have a legal right and patriotic duty to resist unconstitutional orders.',
+          'Constitutional defense encompasses attending barazas, voting, and peaceful assembly under Article 37.',
+          'Civil society and community leaders have a duty to educate citizens on their sovereign rights.',
+        ],
+        bulletsSw: [
+          'Mwananchi ana haki na wajibu wa kikatiba wa kupinga maagizo haramu yanayokiuka Katiba.',
+          'Kulinda Katiba kunajumuisha kushiriki mabaraza, kupiga kura na kuandamana kwa amani.',
+          'Viongozi wa jamii wana wajibu wa kuelimisha wananchi kuhusu mamlaka yao kuu.',
+        ],
+      },
+    ],
+    keyTerms: [
+      {
+        en: 'Popular Sovereignty',
+        sw: 'Mamlaka ya Wananchi',
+        defEn: 'The constitutional doctrine that the legitimacy of the state is created and sustained by the will and consent of its people.',
+        defSw: 'Kanuni kwamba mamlaka ya serikali yanatoka kwa ridhaa na maamuzi ya wananchi.',
+      },
+      {
+        en: 'Constitutional Supremacy',
+        sw: 'Ukuu wa Katiba',
+        defEn: 'The legal status placing the Constitution above all other legislation, court decisions, and executive proclamations.',
+        defSw: 'Nafasi ya kisheria inayoweka Katiba juu ya sheria zote na amri zote za serikali.',
+      },
+    ],
+    actionTipEn: 'Remember in every civic engagement: You are the sovereign employer of elected leaders. Demand accountability and cite Article 1 and 2 in your community memoranda.',
+    actionTipSw: 'Kumbuka kila wakati: Wewe ndiye mwenye mamlaka mkuu uliyewaajiri viongozi. Dai uwajibikaji na unukuu Kifungu cha 1 na 2 kwenye barua zako.',
+  },
+
+  // 25. Chapter 2: The Republic & National Values
+  {
+    titleEn: 'Chapter 2: The Republic & Article 10 National Values of Governance (Articles 4-11)',
+    titleSw: 'Sura ya 2: Jamhuri na Maadili ya Kitaifa ya Utawala (Kifungu 10 & Vifungu 4-11)',
+    summaryEn: 'Deep dive into Kenya\'s national character and Article 10 national values: patriotism, rule of law, democracy, human dignity, social justice, equity, integrity, transparency, accountability, and sustainable development.',
+    summarySw: 'Chambua muundo wa Jamhuri ya Kenya na maadili ya kitaifa ya Kifungu cha 10: uzalendo, utawala wa sheria, demokrasia, utu, haki ya kijamii, usawa, uadilifu, uwazi, uwajibikaji, na maendeleo endelevu.',
+    category: 'constitution',
+    readTimeMinutes: 8,
+    sections: [
+      {
+        titleEn: 'The Binding Legal Effect of Article 10',
+        titleSw: 'Nguvu ya Kisheria ya Maadili ya Kitaifa (Kifungu cha 10)',
+        contentEn: 'Article 10 binds all State organs, State officers, public officers, and all persons whenever any of them applies or interprets the Constitution, enacts, applies, or interprets any law, or makes or implements public policy decisions.',
+        contentSw: 'Kifungu cha 10 kinabana vyombo vyote vya dola, viongozi na wananchi wote wanapotumia au kufafanua Katiba, kutunga sheria, au kutekeleza sera za umma.',
+        article: 'Article 10(1) & 10(2)',
+        bulletsEn: [
+          'Patriotism, national unity, sharing and devolution of power, rule of law, democracy, and participation of the people.',
+          'Human dignity, equity, social justice, inclusiveness, equality, human rights, non-discrimination, and protection of the marginalised.',
+          'Good governance, integrity, transparency, accountability, and sustainable development.',
+        ],
+        bulletsSw: [
+          'Uzalendo, umoja wa kitaifa, ugatuzi wa mamlaka, utawala wa sheria, demokrasia, na ushiriki wa wananchi.',
+          'Utu wa mwanadamu, usawa, haki ya kijamii, kujumuisha wote, haki za binadamu, kutobagua, na kulinda wanyonge.',
+          'Utawala bora, uadilifu, uwazi, uwajibikaji, na maendeleo endelevu.',
+        ],
+      },
+      {
+        titleEn: 'Enforcing Article 10 in Court & Public Administration',
+        titleSw: 'Kutekeleza Kifungu cha 10 Mahakamani na Katika Utawala wa Umma',
+        contentEn: 'Courts have repeatedly struck down laws and policies passed without genuine public participation or violating equality principles, confirming Article 10 is directly justiciable and enforceable.',
+        contentSw: 'Mahakama zimefuta mara nyingi sheria na sera zilizopitishwa bila ushiriki wa kweli wa wananchi, ikithibitisha kwamba Kifungu cha 10 kina nguvu kamili ya kisheria.',
+        article: 'Article 10 & High Court Jurisprudence',
+        bulletsEn: [
+          'Any government decision made without transparency or public participation is vulnerable to constitutional quashing.',
+          'Appointments that fail to reflect ethnic, regional, gender, and disability diversity violate Article 10.',
+          'Citizens can cite Article 10 to demand reasons for administrative actions affecting their welfare.',
+        ],
+        bulletsSw: [
+          'Uamuzi wowote wa serikali unaofanywa bila uwazi au ushiriki wa wananchi unaweza kufutwa na Mahakama Kuu.',
+          'Uteuzi wa kazi za umma usiozingatia usawa wa kikanda, kijinsia na walemavu unakiuka Kifungu cha 10.',
+          'Wananchi wanaweza kutumia Kifungu cha 10 kudai maelezo ya kina kuhusu maamuzi ya serikali.',
+        ],
+      },
+    ],
+    keyTerms: [
+      {
+        en: 'Justiciability of Values',
+        sw: 'Nguvu ya Kisheria ya Maadili',
+        defEn: 'The legal rule that constitutional values in Article 10 are not mere aspirations but enforceable legal standards in Kenyan courts.',
+        defSw: 'Kanuni kwamba maadili ya Kifungu cha 10 si maneno tu bali ni sheria kamili zinazoweza kutekelezwa kortini.',
+      },
+      {
+        en: 'Substantive Public Participation',
+        sw: 'Ushiriki wa Dhati wa Umma',
+        defEn: 'Meaningful, well-informed engagement where citizen input is genuinely considered before decisions are finalized.',
+        defSw: 'Ushiriki halisi ambapo maoni ya wananchi yanasikilizwa na kupewa uzito kabla ya uamuzi kufanywa.',
+      },
+    ],
+    actionTipEn: 'Audit county development plans against Article 10 values! If an infrastructure project excludes women, youth, or PWDs, challenge it formally using Article 10 equity provisions.',
+    actionTipSw: 'Kagua mipango ya kaunti kwa kutumia maadili ya Kifungu cha 10! Mradi ukibagua wanawake, vijana au walemavu, upinge kisheria kwa misingi ya usawa.',
+  },
 ];
 
 /**
@@ -1336,8 +1648,8 @@ function generateProceduralDailyCourse(
       sumSw: 'Jinsi madiwani katika Kamati za Hesabu za Umma wanavyohoji mawaziri wa kaunti kuhusu matumizi yenye shaka.',
     },
     {
-      en: 'Public Benefit Organizations (PBO) Act & Community Groups in Coastal Kenya',
-      sw: 'Sheria ya Mashirika ya Kijamii (PBO) na Vikundi vya Mashinani Pwani',
+      en: 'Public Benefit Organizations (PBO) Act & Community Groups in Kenya',
+      sw: 'Sheria ya Mashirika ya Kijamii (PBO) na Vikundi vya Mashinani Nchini Kenya',
       sumEn: 'Statutory registration, operational freedoms, and funding protections for grassroots community-based organizations under PBO Act.',
       sumSw: 'Usajili wa kisheria, uhuru wa utendaji na ulinzi wa fedha za vikundi vya kijamii chini ya Sheria ya PBO.',
     },
@@ -1348,10 +1660,10 @@ function generateProceduralDailyCourse(
       sumSw: 'Haki ya kikatiba ya kila mwananchi kuwania uongozi bila chama na kudai kura ya mchujo ya haki na uwazi.',
     },
     {
-      en: 'County Spatial Planning & Protecting Public Beach Access Corridors',
-      sw: 'Mipango ya Anga ya Kaunti na Kulinda Njia za Umma Kuelekea Ufukweni',
-      sumEn: 'How Kwale residents can assert historical easements and legally preserve public rights of way to the Indian Ocean.',
-      sumSw: 'Jinsi wananchi wa Kwale wanavyoweza kulinda kisheria njia za umma za kupita kuelekea Bahari Hindi bila kuzuiwa.',
+      en: 'County Spatial Planning & Protecting Public Commons & Access Corridors',
+      sw: 'Mipango ya Anga ya Kaunti na Kulinda Njia za Umma na Maeneo ya Jamii',
+      sumEn: 'How citizens across Kenya can assert historical easements and legally preserve public rights of way, riparian reserves, and community commons.',
+      sumSw: 'Jinsi wananchi kote nchini Kenya wanavyoweza kulinda kisheria njia za umma, mito na maeneo ya wazi bila kuzuiwa.',
     },
     {
       en: 'Article 201 Public Finance Principles: Fiscal Responsibility & Intergenerational Equity',
@@ -1376,6 +1688,172 @@ function generateProceduralDailyCourse(
       sw: 'Uthibitisho wa AGPO kwa Vijana na Wanawake Kupata Zabuni za Serikali',
       sumEn: 'How to register a youth enterprise, obtain tax compliance certificates, and bid for 30% reserved county tenders.',
       sumSw: 'Jinsi ya kusajili biashara ya vijana, kupata cheti cha KRA na kuomba zabuni za asilimia 30 zilizotengwa na kaunti.',
+    },
+    // Dedicated Human Rights Advocacy Modules
+    {
+      en: 'Grassroots Human Rights Advocacy: Community Paralegal Defense & Protection',
+      sw: 'Utetezi wa Haki za Binadamu Mashinani: Usaidizi wa Kisheria na Ulinzi wa Jamii',
+      sumEn: 'How community paralegals organize legal aid clinics, monitor local violations, and coordinate rapid response protection for vulnerable residents.',
+      sumSw: 'Jinsi wasaidizi wa kisheria wanavyoendesha kliniki za msaada wa kisheria, kufuatilia ukiukaji wa haki, na kulinda wanyonge mashinani.',
+    },
+    {
+      en: 'Public Interest Litigation (PIL): Filing Constitutional Petitions under Article 22',
+      sw: 'Kesi kwa Maslahi ya Umma (PIL): Kuwasilisha Maombi ya Kikatiba chini ya Kifungu cha 22',
+      sumEn: 'The procedural blueprint for citizens to institute High Court petitions defending communal water, land, and environmental rights without court fees.',
+      sumSw: 'Mwongozo wa wananchi kufungua kesi Mahakama Kuu kulinda haki za maji, ardhi na mazingira bila kizuizi cha ada za mahakama.',
+    },
+    {
+      en: 'Human Rights Advocacy for Persons with Disabilities and Marginalized Communities',
+      sw: 'Utetezi wa Haki za Binadamu kwa Watu Wenye Ulemavu na Jamii Zilizotengwa',
+      sumEn: 'Practical strategies to audit public accessibility, demand Article 54 employment quotas, and petition NCPWD for assistive devices.',
+      sumSw: 'Mbinu za kutathmini majengo ya umma, kudai nafasi za kazi za asilimia 5, na kushirikiana na NCPWD kupata vifaa saidizi.',
+    },
+    // Dedicated Social Media for Peace Modules
+    {
+      en: 'Using Social Media as a Narrative Tool for Peace: Countering Online Disinformation',
+      sw: 'Kutumia Mitandao ya Kijamii Kujenga Amani: Kukabili Uzushi na Propaganda za Mtandaoni',
+      sumEn: 'How youth leaders and civic educators can build digital peacebuilding campaigns, verify viral claims, and de-escalate tensions on WhatsApp and TikTok.',
+      sumSw: 'Jinsi viongozi wa vijana wanavyoweza kuendesha kampeni za amani mitandaoni, kuhakiki habari, na kutuliza uhasama kwenye vikundi vya kidijitali.',
+    },
+    {
+      en: 'Digital Peacebuilding & Cross-County Youth Dialogues on Social Media',
+      sw: 'Mshikamano wa Kidijitali na Mazungumzo ya Vijana wa Kaunti Mbalimbali Mtandaoni',
+      sumEn: 'Cultivating digital empathy and cross-ethnic unity through collaborative storytelling and peace narrative hashtags.',
+      sumSw: 'Kujenga maelewano na umoja wa kikabila kupitia masimulizi chanya ya vijana na kampeni za amani mtandaoni.',
+    },
+    {
+      en: 'Fact-Checking Public Accounts & Demystifying Government Propaganda Online',
+      sw: 'Kuhakiki Ukweli wa Hesabu za Serikali na Kufichua Taarifa za Upotoshaji Mtandaoni',
+      sumEn: 'Using open-source government portals, budget circulars, and Auditor-General reports to counter false political narratives on social media.',
+      sumSw: 'Kutumia ripoti rasmi za Mkaguzi Mkuu na nyaraka za bajeti kutoa ukweli unaopinga uvumi na uzushi wa kisiasa mtandaoni.',
+    },
+    // Dedicated Incident Reporting Modules
+    {
+      en: 'How to Write an Incident Report: Evidentiary Standards & IPOA Police Misconduct Inquiries',
+      sw: 'Jinsi ya Kuandika Ripoti ya Tukio: Viwango vya Ushahidi na Ukatili wa Jeshi la Polisi',
+      sumEn: 'Step-by-step documentation of arbitrary arrests, uniform badge numbers, exact timestamps, and filing formal complaints with IPOA and KNCHR.',
+      sumSw: 'Mwongozo wa kuandika ripoti ya kukamatwa kiholela, kurekodi nambari za polisi, tarehe, na kuwasilisha kwa IPOA na KNCHR.',
+    },
+    {
+      en: 'Preserving Digital Evidence & Chain of Custody for Human Rights Incident Reports',
+      sw: 'Kulinda Ushahidi wa Kidijitali na Mlolongo wa Ushahidi katika Ripoti za Matukio',
+      sumEn: 'How to preserve video and photo EXIF metadata, secure witness audio recordings, and maintain tamper-proof logs admissible under the Evidence Act.',
+      sumSw: 'Jinsi ya kuhifadhi picha na video bila kufuta metadata ya muda na GPS ili zikubalike mahakamani chini ya Sheria ya Ushahidi.',
+    },
+    {
+      en: 'Drafting an Anti-Corruption Incident Report for EACC & Whistleblower Portals',
+      sw: 'Kuandika Ripoti ya Tukio la Rushwa kwa ajili ya EACC na Mifumo ya Kutoa Taarifa',
+      sumEn: 'How to compile factual, unembellished records of extortion, bribery demands, or tender irregularities for statutory anti-corruption probes.',
+      sumSw: 'Jinsi ya kuandika ushahidi kamili wa madai ya hongo au ukiukaji wa zabuni kwa ajili ya uchunguzi wa Tume ya Maadili (EACC).',
+    },
+    // Entire Constitution of Kenya 2010 Chapters (Nationwide across The Republic of Kenya)
+    {
+      en: 'Chapter 3: Kenyan Citizenship Rights, Dual Nationality & Civil Registration (Articles 12-18)',
+      sw: 'Sura ya 3: Uraia wa Kenya, Uraia wa Nchi Mbili na Usajili wa Raia (Vifungu 12-18)',
+      sumEn: 'The constitutional protection against deprivation of citizenship by birth, dual nationality rights, and demanding birth certificates and ID cards without discrimination.',
+      sumSw: 'Haki ya kikatiba ya kutonyanganywa uraia wa kuzaliwa, uraia wa nchi mbili, na kupata vitambulisho na vyeti vya kuzaliwa bila ubaguzi.',
+    },
+    {
+      en: 'Chapter 4: The Bill of Rights - Non-Derogable Rights & Emergency Safeguards (Articles 19-25)',
+      sw: 'Sura ya 4: Hati ya Haki - Haki Zisizoweza Kusitishwa Hata Wakati wa Hali ya Hatari (Vifungu 19-25)',
+      sumEn: 'Absolute protection from torture, slavery, unfair trials, and detention without habeas corpus guarantees across Kenya.',
+      sumSw: 'Ulinzi kamili dhidi ya mateso, utumwa, kesi zisizo za haki na haki ya kuletwa kortini mara moja (habeas corpus) kote nchini Kenya.',
+    },
+    {
+      en: 'Chapter 4: Economic and Social Rights under Article 43: Healthcare, Water, Food & Sanitation',
+      sw: 'Sura ya 4: Haki za Kiuchumi na Kijamii chini ya Kifungu cha 43: Afya, Maji, Chakula na Makazi',
+      sumEn: 'How citizens in all 47 counties can cite Article 43 to demand essential medicines, clean piped water, dignified sanitation, and social safety nets.',
+      sumSw: 'Jinsi wananchi katika kaunti zote 47 wanavyoweza kutumia Kifungu cha 43 kudai dawa hospitalini, maji safi na makazi bora.',
+    },
+    {
+      en: 'Chapter 4: Fair Administrative Action & Reasoned Decision Notices (Article 47)',
+      sw: 'Sura ya 4: Utawala wa Haki na Haki ya Kupewa Sababu za Kimaandishi (Kifungu 47)',
+      sumEn: 'The legal duty of every public office to give written reasons within reasonable time when administrative actions adversely affect citizens.',
+      sumSw: 'Wajibu wa kisheria wa kila afisa wa serikali kutoa sababu kwa maandishi anapofanya uamuzi unaomwathiri mwananchi.',
+    },
+    {
+      en: 'Chapter 5: Land Policy & Protecting Public, Community and Private Holdings (Articles 60-68)',
+      sw: 'Sura ya 5: Sera ya Ardhi na Kulinda Ardhi ya Umma, Jamii na Kibinafsi (Vifungu 60-68)',
+      sumEn: 'Constitutional land tenure principles, National Land Commission audits, and stopping unlawful conversion of public lands across Kenya.',
+      sumSw: 'Misingi ya umiliki wa ardhi kikatiba, uchunguzi wa Tume ya NLC na kuzuia unyakuzi wa ardhi za umma na jamii kote nchini.',
+    },
+    {
+      en: 'Chapter 5: Environment & Natural Resources: Enforcing Article 70 Citizen Remedies',
+      sw: 'Sura ya 5: Mazingira na Maliasili: Hatua za Kisheria za Wananchi chini ya Kifungu cha 70',
+      sumEn: 'How any person can petition courts to stop ecological destruction and chemical dumping without having to demonstrate personal loss.',
+      sumSw: 'Jinsi mwananchi yeyote anavyoweza kuomba amri ya mahakama kuzuia uharibifu wa mazingira bila kulazimika kuonyesha hasara binafsi.',
+    },
+    {
+      en: 'Chapter 6: Leadership and Integrity: Public Trust & Citizen Vetting of Officers (Articles 73-80)',
+      sw: 'Sura ya 6: Uongozi na Uadilifu: Dhamana ya Umma na Wananchi Kuwakagua Viongozi (Vifungu 73-80)',
+      sumEn: 'Citizen mechanisms to challenge ethically tainted appointments, demand conflict of interest disclosures, and petition for impeachment.',
+      sumSw: 'Mbinu za wananchi kupinga uteuzi wa viongozi wasio na maadili, kudai uwazi wa maslahi binafsi na kuwawajibisha kisheria.',
+    },
+    {
+      en: 'Chapter 7: Representation of the People: Universal Suffrage & Electoral Audits (Articles 81-92)',
+      sw: 'Sura ya 7: Uwakilishi wa Wananchi: Haki ya Kupiga Kura na Ukaguzi wa Uchaguzi (Vifungu 81-92)',
+      sumEn: 'Voter registration rights, polling station scrutiny, two-thirds gender rule compliance, and independent candidates under Article 88.',
+      sumSw: 'Haki ya kujiandikisha kupiga kura, kulinda kura vituoni, kanuni ya thuluthi mbili ya jinsia na wagombea binafsi.',
+    },
+    {
+      en: 'Chapter 8: The Legislature: Bicameral Lawmaking & Article 118 Public Hearings (Articles 93-128)',
+      sw: 'Sura ya 8: Bunge la Taifa na Seneti: Utungaji wa Sheria na Mikutano ya Umma (Vifungu 93-128)',
+      sumEn: 'How the Senate and National Assembly deliberate bills and why laws passed without public participation are null and void.',
+      sumSw: 'Jinsi Bunge la Kitaifa na Seneti yanavyotunga sheria na kwa nini sheria inayopitishwa bila ushiriki wa wananchi ni batili kisheria.',
+    },
+    {
+      en: 'Chapter 9: The Executive: Presidential Authority, Cabinet & ODPP Independence (Articles 129-158)',
+      sw: 'Sura ya 9: Mhimili wa Utendaji: Mamlaka ya Rais, Baraza la Mawaziri na Uhuru wa ODPP (Vifungu 129-158)',
+      sumEn: 'The constitutional boundaries of presidential decrees, Cabinet Secretary vetting, and independent prosecution under Article 157.',
+      sumSw: 'Mipaka ya kikatiba ya amri za utendaji za Rais, msasa wa mawaziri bungeni na uhuru wa Mkurugenzi wa Mashtaka ya Umma.',
+    },
+    {
+      en: 'Chapter 10: The Judiciary: Judicial Authority & Alternative Dispute Resolution (Articles 159-173)',
+      sw: 'Sura ya 10: Mahakama: Mamlaka ya Kutoa Haki na Utatuzi Mbadala wa Migogoro (Vifungu 159-173)',
+      sumEn: 'Article 159 principles that judicial authority belongs to the people, justice shall not be delayed, and traditional dispute resolution must respect human rights.',
+      sumSw: 'Misingi ya Kifungu cha 159 kwamba mamlaka ya mahakama yanatoka kwa wananchi, haki isicheleweshwe na upatanishi wa amani uheshimu utu.',
+    },
+    {
+      en: 'Chapter 11: Devolved Government: Objects of Devolution & County Assemblies (Articles 174-200)',
+      sw: 'Sura ya 11: Serikali za Kaunti: Madhumuni ya Ugatuzi na Mabunge ya Kaunti (Vifungu 174-200)',
+      sumEn: 'Empowering communities through 47 devolved county governments, ward-level representation, and intergovernmental relations across Kenya.',
+      sumSw: 'Kuwawezesha wananchi kupitia serikali 47 za kaunti, uwakilishi wa wodi na ushirikiano wa kitaifa na ugatuzi nchini Kenya.',
+    },
+    {
+      en: 'Chapter 12: Public Finance: Article 201 Principles & National Equitable Sharing (Articles 201-231)',
+      sw: 'Sura ya 12: Fedha za Umma: Misingi ya Kifungu cha 201 na Mgawanyo Sawa wa Mapato (Vifungu 201-231)',
+      sumEn: 'Tracking the Division of Revenue Act, County Allocation of Revenue Act (CARA), Controller of Budget quarterly releases, and Auditor-General reports.',
+      sumSw: 'Kufuatilia Sheria ya Mgawanyo wa Mapato (CARA), idhini ya Mdhibiti wa Bajeti na ripoti za kila robo mwaka za matumizi ya fedha.',
+    },
+    {
+      en: 'Chapter 13: Values and Principles of Public Service & Meritocracy (Article 232)',
+      sw: 'Sura ya 13: Maadili na Misingi ya Utumishi wa Umma na Ajira kwa Uwezo (Kifungu 232)',
+      sumEn: 'How citizens can demand merit-based recruitment, transparent promotions, and ethical public administration across all 47 counties.',
+      sumSw: 'Jinsi wananchi wanavyoweza kudai ajira zenye usawa, kupinga upendeleo na kuhakikisha watumishi wa umma wanatoa huduma bora.',
+    },
+    {
+      en: 'Chapter 14: National Security Principles & Democratic Civilian Oversight (Articles 238-247)',
+      sw: 'Sura ya 14: Usalama wa Taifa na Usimamizi wa Kidemokrasia wa Wananchi (Vifungu 238-247)',
+      sumEn: 'The constitutional doctrine that national security must respect democracy, human rights, and the rule of law under civilian authority.',
+      sumSw: 'Misingi ya kikatiba kwamba vyombo vya usalama lazima viheshimu haki za binadamu, utawala wa sheria na mamlaka ya kiraia.',
+    },
+    {
+      en: 'Chapter 15: Independent Commissions & Offices: Guardians of Constitutional Sovereignty (Articles 248-254)',
+      sw: 'Sura ya 15: Tume Huru na Ofisi Huru: Walinzi wa Mamlaka ya Wananchi (Vifungu 248-254)',
+      sumEn: 'How independent commissions (KNCHR, CAJ, EACC, CRA, SRC) protect the public from executive overreach and guarantee constitutional compliance.',
+      sumSw: 'Jinsi tume huru za kikatiba zinavyomlinda mwananchi dhidi ya unyanyasaji wa wakuu na kuhakikisha uzingatiaji wa Katiba.',
+    },
+    {
+      en: 'Chapter 16: Amendment of the Constitution: Popular Initiative Safeguards (Articles 255-257)',
+      sw: 'Sura ya 16: Marekebisho ya Katiba: Ulinzi wa Mpango wa Wananchi na Kura ya Maoni (Vifungu 255-257)',
+      sumEn: 'The rigorous legal thresholds required to amend protected clauses, 1 million voter signatures, and approval by 24 County Assemblies.',
+      sumSw: 'Masharti magumu ya kisheria ya kurekebisha Katiba, sahihi milioni moja za wapiga kura na idhini ya mabunge ya kaunti 24.',
+    },
+    {
+      en: 'Chapter 17: General Provisions & Citizen Standing to Enforce the Constitution (Article 258)',
+      sw: 'Sura ya 17: Masharti ya Jumla na Haki Kamili ya Mwananchi Kulinda Katiba (Kifungu 258)',
+      sumEn: 'Article 258 open standing: Every Kenyan has the inalienable legal right to institute court proceedings to defend the Constitution without proving personal loss.',
+      sumSw: 'Kifungu cha 258: Kila mwananchi wa Kenya ana haki kamili ya kufungua kesi mahakamani kutetea Katiba bila kulazimika kuonyesha aliumia binafsi.',
     },
   ];
 
@@ -1441,8 +1919,8 @@ function generateProceduralDailyCourse(
           sw: 'Usimamizi wa Mwananchi na Utekelezaji Jamii',
         },
         content: {
-          en: 'Constitutional democracy requires continuous community vigilance. By organizing structured citizen groups and using standard administrative petitions, Kwale residents achieve long-term public service delivery.',
-          sw: 'Demokrasia ya kikatiba inahitaji ufuatiliaji endelevu wa wananchi. Kwa kujiunga kwenye vikundi na kuandika barua rasmi, wakaazi wa Kwale wanafanikisha maendeleo ya kweli.',
+          en: 'Constitutional democracy requires continuous community vigilance. By organizing structured citizen groups and using standard administrative petitions, citizens across The Republic of Kenya achieve long-term public service delivery.',
+          sw: 'Demokrasia ya kikatiba inahitaji ufuatiliaji endelevu wa wananchi. Kwa kujiunga kwenye vikundi na kuandika barua rasmi, wananchi kote nchini Kenya wanafanikisha maendeleo ya kweli.',
         },
         bulletPoints: {
           en: [

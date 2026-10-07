@@ -205,6 +205,30 @@ export interface FeedbackSubmission {
   dateSubmitted: string;
 }
 
+export interface WebCitation {
+  uri: string;
+  title: string;
+  explanation: {
+    en: string;
+    sw: string;
+  };
+}
+
+export interface RahamProtocolDocument {
+  id: string;
+  title: string;
+  category: 'constitution' | 'human_rights' | 'devolution' | 'incident_reporting' | 'peace_advocacy' | 'public_finance' | 'custom';
+  statutoryAnchors: string;
+  summary: string;
+  fullContent: string;
+  whatIfScenarios?: string;
+  practicalExamples?: string;
+  uploadedBy: string;
+  uploadedAt: string;
+  isActive: boolean;
+  sourceType: 'manual' | 'upload' | 'executive_decree';
+}
+
 export interface AdminAnswer {
   id: string;
   answeredBy: 'Admin 1' | 'Admin 2' | 'Admin 3' | 'Admin 4' | 'Operator' | string;
@@ -221,6 +245,25 @@ export interface AdminAnswer {
   howToUseArticles?: {
     en: string;
     sw: string;
+  };
+  practicalExamples?: {
+    en: string;
+    sw: string;
+  };
+  whatIfScenarios?: {
+    en: string;
+    sw: string;
+  };
+  webFindings?: {
+    summaryEn: string;
+    summarySw: string;
+    citations: WebCitation[];
+  };
+  rahamProtocolGrounded?: {
+    applied: boolean;
+    protocolTitle?: string;
+    guidanceEn?: string;
+    guidanceSw?: string;
   };
   answeredAt: string;
   lastEditedAt?: string;

@@ -58,6 +58,7 @@ import { SuggestionBoxModal } from './SuggestionBoxModal';
 import { AdminOnlineStatusBadge } from './AdminOnlineStatusBadge';
 import { KfeClearBoxIcon } from './KfeClearBoxIcon';
 import { OnlineUsersPresenceBar } from './OnlineUsersPresenceBar';
+import { UserBadge } from './UserBadge';
 
 interface CivicQuestionsHubProps {
   language: Language;
@@ -1129,12 +1130,12 @@ export const CivicQuestionsHub: React.FC<CivicQuestionsHubProps> = ({
                   <div className="flex flex-wrap items-center justify-between gap-3 text-xs text-slate-500 pt-3 border-t border-slate-100">
                     <div className="flex items-center gap-3">
                       <div className="flex items-center gap-1.5">
-                        <div className="w-5 h-5 rounded-full bg-slate-200 flex items-center justify-center font-mono font-bold text-[10px] text-slate-700">
-                          @
-                        </div>
-                        <span className="font-mono text-slate-700 font-medium">
-                          {q.askedByAnonymousHandle}
-                        </span>
+                        <UserBadge
+                          username={q.askedByAnonymousHandle}
+                          size="xs"
+                          showAvatar
+                          currentUser={currentUser}
+                        />
                       </div>
                       <span>•</span>
                       <span>{new Date(q.createdAt).toLocaleDateString()}</span>
@@ -1247,7 +1248,17 @@ export const CivicQuestionsHub: React.FC<CivicQuestionsHubProps> = ({
                                 <div>
                                   <div className="flex items-center gap-2">
                                     <span className="font-extrabold text-xs sm:text-sm text-slate-900">
-                                      {isOperatorAnswer ? 'Operator' : ans.answeredBy}
+                                      {isOperatorAnswer ? (
+                                        'Operator'
+                                      ) : (
+                                        <UserBadge
+                                          username={ans.answeredBy}
+                                          size="xs"
+                                          showAvatar
+                                          showRoleLabel
+                                          currentUser={currentUser}
+                                        />
+                                      )}
                                     </span>
                                     {isOperatorAnswer ? (
                                       <div className="flex items-center gap-1.5 flex-wrap">
@@ -1257,10 +1268,13 @@ export const CivicQuestionsHub: React.FC<CivicQuestionsHubProps> = ({
                                         {ans.isVerified ? (
                                           <span className="px-2 py-0.5 rounded-full text-[10px] font-bold bg-emerald-100 text-emerald-900 border border-emerald-300 flex items-center gap-1">
                                             <CheckCircle2 className="w-3 h-3 text-emerald-600" />
-                                            <span>
-                                              {language === 'en'
-                                                ? `Verified by ${ans.verifiedBy || 'Admin'}`
-                                                : `Imethibitishwa na ${ans.verifiedBy || 'Admin'}`}
+                                            <span className="inline-flex items-center gap-1">
+                                              <span>{language === 'en' ? 'Verified by' : 'Imethibitishwa na'}</span>
+                                              <UserBadge
+                                                username={ans.verifiedBy || 'Admin'}
+                                                size="xs"
+                                                currentUser={currentUser}
+                                              />
                                             </span>
                                           </span>
                                         ) : (

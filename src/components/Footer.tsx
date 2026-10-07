@@ -70,7 +70,7 @@ export const Footer: React.FC<FooterProps> = ({ language, onSelectTab }) => {
                 <strong className="text-slate-200">
                   {language === 'en' ? 'Implementation Scope:' : 'Eneo la Utekelezaji:'}
                 </strong>{' '}
-                <span>Kwale County & The Republic of Kenya</span>
+                <span>{language === 'en' ? 'The Republic of Kenya (Nationwide • All 47 Counties)' : 'Jamhuri ya Kenya (Nchi Nzima • Kaunti Zote 47)'}</span>
               </p>
               <p>
                 <strong className="text-slate-200">
@@ -197,6 +197,14 @@ export const Footer: React.FC<FooterProps> = ({ language, onSelectTab }) => {
                   className="hover:text-amber-300 transition-colors"
                 >
                   {t.nav.myLearning}
+                </button>
+              </li>
+              <li>
+                <button
+                  onClick={() => onSelectTab('profile')}
+                  className="hover:text-amber-300 transition-colors"
+                >
+                  {t.nav.profile}
                 </button>
               </li>
               <li>

@@ -141,7 +141,7 @@ export const FeedbackAndContact: React.FC<FeedbackAndContactProps> = ({ language
                   {language === 'en' ? 'Implementation Scope:' : 'Eneo la Utekelezaji:'}
                 </span>
                 <span className="font-bold text-blue-900">
-                  The Republic of Kenya (Kwale County & National Digital)
+                  {language === 'en' ? 'The Republic of Kenya (Nationwide • All 47 Counties)' : 'Jamhuri ya Kenya (Nchi Nzima • Kaunti Zote 47)'}
                 </span>
               </div>
               <div className="flex items-center justify-between">

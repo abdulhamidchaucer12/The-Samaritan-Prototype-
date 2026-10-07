@@ -99,6 +99,8 @@ import {
   CertificateSignatoriesConfig,
 } from '../utils/certificateSignatories';
 import { KfeClearBoxIcon } from './KfeClearBoxIcon';
+import { AdminNameAllocationConsole } from './AdminNameAllocationConsole';
+import { getAdminPlatformAddressingName } from '../utils/adminAppointments';
 
 interface AdminExecutivePanelProps {
   language: Language;
@@ -120,6 +122,7 @@ export const AdminExecutivePanel: React.FC<AdminExecutivePanelProps> = ({
     | 'signatories'
     | 'notifications'
     | 'appoint'
+    | 'allocate_admin_names'
     | 'events'
     | 'samaritan_super_command'
     | 'citizen_roster_sentinel'
@@ -522,10 +525,10 @@ export const AdminExecutivePanel: React.FC<AdminExecutivePanelProps> = ({
               <Award className="w-4 h-4" />
               <span>
                 {currentUser.username === 'The_Samaritan' || currentUser.username === '@The_Samaritan'
-                  ? 'Sir Chaucer • Platform Architect & Super Admin'
+                  ? `${getAdminPlatformAddressingName(currentUser.username)} • Platform Architect & Super Admin`
                   : currentUser.username === 'Admin 4' || currentUser.username === '@admin.kfe4'
-                  ? 'Admin 4 • Executive Director Authority'
-                  : 'Admin 3 • Project Officer Authority'}
+                  ? `${getAdminPlatformAddressingName(currentUser.username)} • Executive Director Authority`
+                  : `${getAdminPlatformAddressingName(currentUser.username)} • Project Officer Authority`}
               </span>
             </div>
             <h2 className="text-2xl sm:text-3xl font-serif font-black text-white">
@@ -557,6 +560,12 @@ export const AdminExecutivePanel: React.FC<AdminExecutivePanelProps> = ({
                   labelEn: 'Citizen Roster & Operator Desk',
                   labelSw: 'Orodha Kuu & Dawati la Operator AI',
                   icon: Users,
+                },
+                {
+                  id: 'allocate_admin_names',
+                  labelEn: 'Allocate Admin Names (1-4)',
+                  labelSw: 'Kugawa Majina ya Wasimamizi (1-4)',
+                  icon: UserCheck,
                 },
                 {
                   id: 'samaritan_super_command',
@@ -2035,8 +2044,8 @@ export const AdminExecutivePanel: React.FC<AdminExecutivePanelProps> = ({
 
             <p className="text-xs sm:text-sm text-amber-100/80 max-w-3xl leading-relaxed">
               {language === 'en'
-                ? 'Welcome Sir Chaucer. From this Super Authority console you control system-wide anti-repetition protocols, dispatch daily administrative directives to online administrators (@admin.kfe1 through @admin.kfe4), and supervise all foundational, daily, and supplementary civic modules.'
-                : 'Karibu Sir Chaucer. Kutoka kwenye kituo hiki kikuu unadhibiti itifaki za kuzuia marudio, kutuma miongozo ya kiutawala kwa wasimamizi wote, na kusimamia masomo yote ya kiraia.'}
+                ? `Welcome ${getAdminPlatformAddressingName('The_Samaritan')}. From this Super Authority console you control system-wide anti-repetition protocols, dispatch daily administrative directives to online administrators (@admin.kfe1 through @admin.kfe4), and supervise all foundational, daily, and supplementary civic modules.`
+                : `Karibu ${getAdminPlatformAddressingName('The_Samaritan')}. Kutoka kwenye kituo hiki kikuu unadhibiti itifaki za kuzuia marudio, kutuma miongozo ya kiutawala kwa wasimamizi wote, na kusimamia masomo yote ya kiraia.`}
             </p>
 
             {reindexSuccessMsg && (
@@ -2254,7 +2263,25 @@ export const AdminExecutivePanel: React.FC<AdminExecutivePanelProps> = ({
               </div>
             </div>
           </div>
+
+          {/* Integrated Admin Name Allocation Console in Super Command */}
+          <AdminNameAllocationConsole
+            language={language}
+            currentUser={currentUser}
+            onRefresh={onRefreshDashboard}
+          />
         </div>
+      )}
+
+      {/* ========================================================================= */}
+      {/* ALLOCATE ADMIN NAMES DEDICATED SUBTAB */}
+      {/* ========================================================================= */}
+      {subTab === 'allocate_admin_names' && (
+        <AdminNameAllocationConsole
+          language={language}
+          currentUser={currentUser}
+          onRefresh={onRefreshDashboard}
+        />
       )}
 
       {/* ========================================================================= */}

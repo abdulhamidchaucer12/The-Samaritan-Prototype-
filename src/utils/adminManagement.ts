@@ -948,8 +948,8 @@ export function sendDailyGuidanceNotificationToAdminIfOnline(adminUsername: stri
   }
 
   const guidanceMessages = [
-    `Warm greetings from Sir Chaucer (The_Samaritan). Today's civic admin guidance: Regularly audit unanswered community questions in the Civic Q&A Hub and verify responses against Kenya's Constitution 2010. Your timely answers empower grassroots public participation across Kwale County.`,
-    `Greetings from Sir Chaucer (The_Samaritan). Administrator tip for today: Ensure civic events in Kwale County are vetted with accurate venue details and public participation agendas to foster transparent devolution.`,
+    `Warm greetings from Sir Chaucer (The_Samaritan). Today's civic admin guidance: Regularly audit unanswered community questions in the Civic Q&A Hub and verify responses against Kenya's Constitution 2010. Your timely answers empower grassroots public participation across The Republic of Kenya.`,
+    `Greetings from Sir Chaucer (The_Samaritan). Administrator tip for today: Ensure civic events across The Republic of Kenya (all 47 counties) are vetted with accurate venue details and public participation agendas to foster transparent devolution.`,
     `Greetings from Sir Chaucer (The_Samaritan). Daily adminship recommendation: Review citizen community feedback and suggestion box submissions to keep our digital civic education materials fresh, accurate, and accessible to youth and elders alike.`,
     `Greetings from Sir Chaucer (The_Samaritan). Daily platform notice: Always ensure that certificates issued to participants uphold verifiable accuracy. Upholding administrative excellence builds lasting community trust.`
   ];

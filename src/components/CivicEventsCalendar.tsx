@@ -258,8 +258,8 @@ END:VCALENDAR`;
             </h2>
             <p className="text-xs sm:text-sm text-slate-300 max-w-2xl leading-relaxed">
               {language === 'en'
-                ? 'Join upcoming devolved budget hearings, citizen audit barazas, and youth civic literacy forums across Kwale County and all 47 counties of Kenya.'
-                : 'Shiriki vikao vya bajeti ya kaunti, mabaraza ya uwajibikaji, na makongamano ya vijana katika maeneo ya Kaunti ya Kwale na kaunti zote 47 za Kenya.'}
+                ? 'Join upcoming devolved budget hearings, citizen audit barazas, and youth civic literacy forums across The Republic of Kenya (All 47 Counties).'
+                : 'Shiriki vikao vya bajeti ya kaunti, mabaraza ya uwajibikaji, na makongamano ya vijana kote katika Jamhuri ya Kenya (Kaunti zote 47).'}
             </p>
           </div>
 

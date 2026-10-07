@@ -17,6 +17,7 @@ import {
   Globe,
   Wifi,
   WifiOff,
+  User,
 } from 'lucide-react';
 import { Header } from './components/Header';
 import { Footer } from './components/Footer';
@@ -42,6 +43,7 @@ import { BannedScreen } from './components/BannedScreen';
 import { FacilitatorTokensModal } from './components/FacilitatorTokensModal';
 import { OnlineUsersModal } from './components/OnlineUsersModal';
 import { LoginOnlineUsersToast } from './components/LoginOnlineUsersToast';
+import { UserProfileView } from './components/UserProfileView';
 import { Language, AuthUser, UserDirectNotification, Theme } from './types';
 import { officesData } from './data/officesData';
 import { translations } from './data/translations';
@@ -156,18 +158,47 @@ export default function App() {
       setCommunityFeedInitialPeer(null);
       setCommunityFeedOpen(true);
     };
+    const handleCountyUpdated = (e: any) => {
+      if (e?.detail?.county && currentUser) {
+        setCurrentUser((prev) =>
+          prev ? { ...prev, county: e.detail.county, subCounty: e.detail.subCounty } : null
+        );
+      }
+    };
+    const handleAdminNamesUpdated = () => {
+      const freshUser = getCurrentAuthUser();
+      if (freshUser) {
+        setCurrentUser({ ...freshUser });
+      }
+    };
+    const handleNavigateToProfileTab = () => {
+      handleSelectTab('profile');
+      setAuthModalOpen(false);
+      setOnlineUsersModalOpen(false);
+      setCommunityFeedOpen(false);
+      setTokensModalOpen(false);
+      setNotificationsDrawerOpen(false);
+      setOfflineModalOpen(false);
+      setMobileMoreOpen(false);
+    };
 
     window.addEventListener('the_samaritan_user_notification_sent', handleNotifSent);
     window.addEventListener('open_facilitator_tokens_modal', handleOpenTokens);
     window.addEventListener('open_online_users_modal', handleOpenOnlineModal);
     window.addEventListener('open_direct_chat_with_peer', handleOpenDirectChat);
     window.addEventListener('open_community_feed', handleOpenFeed);
+    window.addEventListener('the_samaritan_county_updated', handleCountyUpdated);
+    window.addEventListener('the_samaritan_admin_names_updated', handleAdminNamesUpdated);
+    window.addEventListener('navigate_to_profile_tab', handleNavigateToProfileTab);
     return () => {
       window.removeEventListener('the_samaritan_user_notification_sent', handleNotifSent);
       window.removeEventListener('open_facilitator_tokens_modal', handleOpenTokens);
       window.removeEventListener('open_online_users_modal', handleOpenOnlineModal);
       window.removeEventListener('open_direct_chat_with_peer', handleOpenDirectChat);
       window.removeEventListener('open_community_feed', handleOpenFeed);
+      window.removeEventListener('the_samaritan_county_updated', handleCountyUpdated);
+      window.removeEventListener('the_samaritan_admin_names_updated', handleAdminNamesUpdated);
+      window.removeEventListener('navigate_to_profile_tab', handleNavigateToProfileTab);
     };
   }, [currentUser?.username]);
 
@@ -258,6 +289,7 @@ export default function App() {
       events: 'Civic Events & Barazas',
       action: 'Citizen Action Hub',
       myLearning: 'My Civic Progress',
+      profile: 'Citizen Civic Profile',
       demoMode: 'Facilitator Demo Mode',
       feedback: 'Feedback & Contact',
       admin: 'Admin Dashboard',
@@ -469,6 +501,19 @@ export default function App() {
               />
             )}
 
+            {currentTab === 'profile' && (
+              <UserProfileView
+                currentUser={currentUser}
+                language={language}
+                onLogout={handleLogout}
+                onSelectTab={handleSelectTab}
+                onOpenTokensModal={() => setTokensModalOpen(true)}
+                onOpenCommunityFeed={() => setCommunityFeedOpen(true)}
+                onOpenAuthModal={handleOpenAuthModal}
+                onClose={() => handleSelectTab('home')}
+              />
+            )}
+
             {currentTab === 'demoMode' && (
               <FacilitatorDemoMode
                 language={language}
@@ -560,7 +605,7 @@ export default function App() {
           <button
             onClick={() => setMobileMoreOpen(true)}
             className={`flex flex-col items-center justify-center h-full transition-colors ${
-              ['quiz', 'action', 'myLearning', 'howGov', 'demoMode', 'feedback'].includes(currentTab)
+              ['quiz', 'action', 'myLearning', 'profile', 'howGov', 'demoMode', 'feedback'].includes(currentTab)
                 ? 'text-emerald-700 font-bold'
                 : 'text-slate-500 hover:text-slate-900'
             }`}
@@ -665,6 +710,21 @@ export default function App() {
                 >
                   <Award className="w-5 h-5 text-amber-600 mb-2" />
                   <span className="text-xs font-semibold">{t.nav.myLearning}</span>
+                </button>
+
+                <button
+                  onClick={() => {
+                    handleSelectTab('profile');
+                    setMobileMoreOpen(false);
+                  }}
+                  className={`p-3 rounded-xl border text-left flex flex-col justify-between min-h-[72px] transition-colors ${
+                    currentTab === 'profile'
+                      ? 'bg-emerald-50 border-emerald-500 text-emerald-950 font-bold'
+                      : 'bg-slate-50 border-slate-200 text-slate-700'
+                  }`}
+                >
+                  <User className="w-5 h-5 text-emerald-600 mb-2" />
+                  <span className="text-xs font-semibold">{t.nav.profile || (language === 'en' ? 'Profile' : 'Wasifu')}</span>
                 </button>
 
                 <button

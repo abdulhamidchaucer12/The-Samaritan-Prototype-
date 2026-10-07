@@ -157,11 +157,11 @@ export const OnlineUsersPresenceBar: React.FC<OnlineUsersPresenceBarProps> = ({
                         >
                           <div className="flex items-center gap-2 min-w-0">
                             <div className="relative shrink-0">
-                              <UserBadge username={u.username} size="xs" showAvatar />
+                              <UserBadge username={u.username} size="xs" showAvatar hideName currentUser={currentUser} />
                               <span className="absolute -bottom-0.5 -right-0.5 w-2 h-2 bg-emerald-500 rounded-full border border-white dark:border-slate-900" />
                             </div>
                             <div className="min-w-0">
-                              <div className="font-bold text-xs truncate">{u.username}</div>
+                              <UserBadge username={u.username} size="xs" currentUser={currentUser} />
                               <div className="text-[10px] text-slate-500 dark:text-slate-400 flex items-center gap-1 truncate">
                                 <MapPin className="w-2.5 h-2.5 text-emerald-600 shrink-0" />
                                 <span className="truncate">{county}</span>
@@ -272,13 +272,11 @@ export const OnlineUsersPresenceBar: React.FC<OnlineUsersPresenceBarProps> = ({
                   >
                     <div className="flex items-center gap-2 min-w-0">
                       <div className="relative shrink-0">
-                        <UserBadge username={u.username} size="sm" showAvatar />
+                        <UserBadge username={u.username} size="sm" showAvatar hideName currentUser={currentUser} />
                         <span className="absolute -bottom-0.5 -right-0.5 w-2.5 h-2.5 bg-emerald-500 rounded-full border-2 border-white dark:border-slate-800" />
                       </div>
                       <div className="min-w-0">
-                        <div className="font-bold text-xs text-slate-900 dark:text-slate-100 truncate">
-                          {u.username}
-                        </div>
+                        <UserBadge username={u.username} size="sm" currentUser={currentUser} />
                         <div className="text-[10px] text-slate-500 dark:text-slate-400 flex items-center gap-1 truncate">
                           <MapPin className="w-3 h-3 text-emerald-600 shrink-0" />
                           <span className="truncate">{county}</span>

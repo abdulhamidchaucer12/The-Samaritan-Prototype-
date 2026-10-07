@@ -962,7 +962,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
         <div className="relative z-10 flex flex-col lg:flex-row lg:items-center justify-between gap-6">
           <div className="space-y-2 max-w-2xl">
             <div className="flex flex-wrap items-center gap-2">
-              <UserBadge username={currentUser.username} size="sm" showRoleLabel />
+              <UserBadge username={currentUser.username} size="sm" showRoleLabel currentUser={currentUser} />
               <div className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full bg-emerald-950 border border-emerald-500/40 text-emerald-300 text-xs font-semibold">
                 <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
                 <span>{currentTime || 'Online EAT'}</span>
@@ -1901,8 +1901,8 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
                 </h3>
                 <p className="text-xs text-slate-300 max-w-2xl leading-relaxed">
                   {language === 'en'
-                    ? 'Complete visibility into all users connected across Kwale County and national nodes: inspect who is online in real-time and observe the exact constitutional study modules, tests, or civic questions they are actively reading.'
-                    : 'Mamlaka kamili ya kuona watumiaji wote walioko mtandaoni kote Kwale na nchini: fuatilia shughuli zao za sasa, masomo, na maswali ya kikatiba wanayoshiriki.'}
+                    ? 'Complete visibility into all users connected across The Republic of Kenya (All 47 Counties): inspect who is online in real-time and observe the exact constitutional study modules, tests, or civic questions they are actively reading.'
+                    : 'Mamlaka kamili ya kuona watumiaji wote walioko mtandaoni kote katika Jamhuri ya Kenya (Kaunti zote 47): fuatilia shughuli zao za sasa, masomo, na maswali ya kikatiba wanayoshiriki.'}
                 </p>
               </div>
 
@@ -2009,7 +2009,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
                         <tr key={sess.id} className="hover:bg-slate-50/80 transition-colors">
                           <td className="py-3 px-3">
                             <div className="flex items-center gap-2">
-                              <UserBadge username={sess.username} size="sm" showRoleLabel />
+                              <UserBadge username={sess.username} size="sm" showRoleLabel currentUser={currentUser} />
                             </div>
                           </td>
 

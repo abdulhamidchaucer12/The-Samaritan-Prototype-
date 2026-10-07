@@ -541,13 +541,11 @@ export const MasterCitizenRosterAndIncidents: React.FC<MasterCitizenRosterAndInc
                       className="p-4 sm:p-5 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 hover:bg-slate-50 dark:hover:bg-slate-800/40 transition-colors"
                     >
                       <div className="flex items-start sm:items-center gap-3.5">
-                        <UserBadge username={user.username} size="md" />
+                        <UserBadge username={user.username} size="md" showAvatar hideName currentUser={currentUser} />
 
                         <div>
                           <div className="flex items-center gap-2 flex-wrap">
-                            <span className="font-black text-sm text-slate-900 dark:text-slate-100">
-                              {user.username}
-                            </span>
+                            <UserBadge username={user.username} size="sm" currentUser={currentUser} />
 
                             {/* Online / Offline Pulse Badge */}
                             {online ? (

@@ -4,6 +4,7 @@ import { Language, AuthUser } from '../types';
 import { ActiveUserSession } from '../utils/userPresence';
 import { UserBadge } from './UserBadge';
 import { getUserCounty } from '../utils/authAndQuestions';
+import { getAdminPlatformAddressingName } from '../utils/adminAppointments';
 
 interface LoginOnlineUsersToastProps {
   isOpen: boolean;
@@ -34,6 +35,10 @@ export const LoginOnlineUsersToast: React.FC<LoginOnlineUsersToastProps> = ({
   if (!isOpen || !currentUser) return null;
 
   const count = otherOnlineUsers.length;
+  const addressingName =
+    currentUser.role === 'admin'
+      ? getAdminPlatformAddressingName(currentUser.username)
+      : currentUser.username;
 
   return (
     <div className="fixed bottom-5 right-4 sm:right-6 z-50 max-w-sm sm:max-w-md w-full animate-in fade-in slide-in-from-bottom-5 duration-300">
@@ -42,13 +47,13 @@ export const LoginOnlineUsersToast: React.FC<LoginOnlineUsersToastProps> = ({
         <div className="flex items-start justify-between gap-2.5">
           <div className="flex items-center gap-2.5 min-w-0">
             <div className="relative shrink-0">
-              <UserBadge username={currentUser.username} size="md" showAvatar />
+              <UserBadge username={currentUser.username} size="md" showAvatar currentUser={currentUser} />
               <span className="absolute -bottom-0.5 -right-0.5 w-3 h-3 bg-emerald-500 rounded-full border-2 border-white dark:border-slate-900 shadow-2xs" />
             </div>
             <div className="min-w-0">
               <div className="flex items-center gap-1.5 flex-wrap">
                 <span className="font-extrabold text-xs sm:text-sm text-slate-900 dark:text-slate-100 truncate font-serif">
-                  {language === 'en' ? `Welcome, ${currentUser.username}!` : `Karibu, ${currentUser.username}!`}
+                  {language === 'en' ? `Welcome, ${addressingName}!` : `Karibu, ${addressingName}!`}
                 </span>
                 <span className="px-2 py-0.2 rounded-full text-[10px] font-black bg-emerald-100 dark:bg-emerald-950 text-emerald-800 dark:text-emerald-300 border border-emerald-300 dark:border-emerald-800">
                   ONLINE 🟢
@@ -98,7 +103,7 @@ export const LoginOnlineUsersToast: React.FC<LoginOnlineUsersToastProps> = ({
                     className="inline-block ring-2 ring-white dark:ring-slate-900 rounded-full"
                     title={`${u.username} • ${county} (${u.currentAction || u.currentSection})`}
                   >
-                    <UserBadge username={u.username} size="sm" showAvatar />
+                    <UserBadge username={u.username} size="sm" showAvatar currentUser={currentUser} />
                   </div>
                 );
               })}

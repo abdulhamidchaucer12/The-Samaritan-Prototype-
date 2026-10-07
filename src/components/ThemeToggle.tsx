@@ -104,7 +104,7 @@ export const ThemeToggle: React.FC<ThemeToggleProps> = ({
         type="button"
         id="theme-light-btn"
         onClick={() => onToggleTheme('light')}
-        className={`flex items-center gap-1.5 px-2 py-0.5 text-xs font-bold rounded transition-all cursor-pointer ${
+        className={`flex items-center gap-1.5 px-2 py-1 sm:py-0.5 text-xs font-bold rounded transition-all cursor-pointer ${
           !isDark
             ? 'bg-white text-slate-950 shadow-xs'
             : 'text-slate-400 hover:text-slate-200'
@@ -113,14 +113,14 @@ export const ThemeToggle: React.FC<ThemeToggleProps> = ({
         aria-pressed={!isDark}
       >
         <Sun className={`w-3.5 h-3.5 ${!isDark ? 'text-amber-500' : 'text-slate-400'}`} />
-        <span className="text-[11px]">Light</span>
+        <span className="text-[11px] hidden sm:inline">Light</span>
       </button>
 
       <button
         type="button"
         id="theme-dark-btn"
         onClick={() => onToggleTheme('dark')}
-        className={`flex items-center gap-1.5 px-2 py-0.5 text-xs font-bold rounded transition-all cursor-pointer ${
+        className={`flex items-center gap-1.5 px-2 py-1 sm:py-0.5 text-xs font-bold rounded transition-all cursor-pointer ${
           isDark
             ? 'bg-slate-800 text-amber-300 shadow-xs border border-slate-700'
             : 'text-slate-400 hover:text-slate-200'
@@ -129,7 +129,7 @@ export const ThemeToggle: React.FC<ThemeToggleProps> = ({
         aria-pressed={isDark}
       >
         <Moon className={`w-3.5 h-3.5 ${isDark ? 'text-amber-300' : 'text-slate-400'}`} />
-        <span className="text-[11px]">Dark</span>
+        <span className="text-[11px] hidden sm:inline">Dark</span>
       </button>
     </div>
   );

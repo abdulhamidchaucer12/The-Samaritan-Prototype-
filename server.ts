@@ -5,6 +5,11 @@ import dotenv from "dotenv";
 import { generateConstitutionalAiAnswer } from "./server/constitutionalAi";
 import { developCourseWithOperatorAi } from "./server/operatorCourseDeveloper";
 import { monitorMessageWithOperatorAi } from "./server/operatorSentinel";
+import {
+  getRahamProtocolDocuments,
+  addRahamProtocolDocument,
+  deleteRahamProtocolDocument,
+} from "./server/rahamProtocol";
 
 dotenv.config();
 
@@ -112,6 +117,74 @@ async function startServer() {
       console.error("[Server Error] Operator Sentinel message analysis failed:", error);
       return res.status(500).json({
         error: "Failed to analyze message safety.",
+        message: error?.message || "Internal server error",
+      });
+    }
+  });
+
+  // The Raham Protocol Knowledgebase - Managed by The_Samaritan to guide Operator AI
+  app.get("/api/raham-protocol", (req, res) => {
+    try {
+      const documents = getRahamProtocolDocuments();
+      return res.json({
+        success: true,
+        documents,
+      });
+    } catch (error: any) {
+      console.error("[Server Error] Failed to retrieve Raham Protocol materials:", error);
+      return res.status(500).json({
+        error: "Failed to retrieve Raham Protocol materials.",
+        message: error?.message || "Internal server error",
+      });
+    }
+  });
+
+  app.post("/api/raham-protocol", (req, res) => {
+    try {
+      const { title, category, statutoryAnchors, summary, fullContent, whatIfScenarios, practicalExamples, uploadedBy, sourceType } = req.body;
+      if (!title || !fullContent) {
+        return res.status(400).json({
+          error: "Title and full content are required to append to The Raham Protocol.",
+        });
+      }
+
+      const doc = addRahamProtocolDocument({
+        title,
+        category: category || "custom",
+        statutoryAnchors: statutoryAnchors || "Constitution of Kenya 2010",
+        summary: summary || title,
+        fullContent,
+        whatIfScenarios,
+        practicalExamples,
+        uploadedBy: uploadedBy || "The_Samaritan",
+        isActive: true,
+        sourceType: sourceType || "manual",
+      });
+
+      return res.json({
+        success: true,
+        document: doc,
+      });
+    } catch (error: any) {
+      console.error("[Server Error] Failed to add Raham Protocol document:", error);
+      return res.status(500).json({
+        error: "Failed to add to The Raham Protocol.",
+        message: error?.message || "Internal server error",
+      });
+    }
+  });
+
+  app.delete("/api/raham-protocol/:id", (req, res) => {
+    try {
+      const { id } = req.params;
+      const success = deleteRahamProtocolDocument(id);
+      return res.json({
+        success,
+      });
+    } catch (error: any) {
+      console.error("[Server Error] Failed to delete Raham Protocol document:", error);
+      return res.status(500).json({
+        error: "Failed to remove from The Raham Protocol.",
         message: error?.message || "Internal server error",
       });
     }

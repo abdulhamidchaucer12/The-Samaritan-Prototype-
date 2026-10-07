@@ -52,12 +52,18 @@ export const AdminOnlineStatusBadge: React.FC<AdminOnlineStatusBadgeProps> = ({
 
     return (
       <div
-        className={`inline-flex items-center gap-2 px-2.5 py-1 rounded-full text-xs font-semibold border transition-all ${
+        className={`inline-flex items-center gap-1.5 sm:gap-2 px-2 sm:px-2.5 py-1 rounded-full text-xs font-semibold border transition-all ${
           className ? className : defaultColorClasses
         }`}
-        title={status.dutySchedule[language]}
+        title={
+          status.onlineAdminsCount > 1
+            ? `${status.onlineAdminsCount} admins online • ${status.dutySchedule[language]}`
+            : status.onlineAdminsCount === 1
+            ? `1 admin online • ${status.dutySchedule[language]}`
+            : `Operator online • ${status.dutySchedule[language]}`
+        }
       >
-        <span className="relative flex h-2 w-2">
+        <span className="relative flex h-2 w-2 shrink-0">
           <span
             className={`animate-ping absolute inline-flex h-full w-full rounded-full opacity-75 ${
               isOperator ? 'bg-blue-500' : 'bg-emerald-500'
@@ -69,7 +75,8 @@ export const AdminOnlineStatusBadge: React.FC<AdminOnlineStatusBadgeProps> = ({
             }`}
           />
         </span>
-        <span className="truncate">
+        <Shield className="w-3.5 h-3.5 text-emerald-400 shrink-0" />
+        <span className="hidden sm:inline truncate">
           {status.onlineAdminsCount > 1
             ? language === 'en'
               ? `${status.onlineAdminsCount} admins online`

@@ -134,8 +134,8 @@ export const OnlineUsersModal: React.FC<OnlineUsersModalProps> = ({
               </div>
               <p className="text-xs text-slate-600 dark:text-slate-400 mt-0.5">
                 {language === 'en'
-                  ? 'Real-time peer presence and on-duty civic facilitators across Kwale County and national nodes'
-                  : 'Muonekano wa moja kwa moja wa wananchi na wasimamizi wa kiraia kote Kaunti ya Kwale na taifa'}
+                  ? 'Real-time peer presence and on-duty civic facilitators across The Republic of Kenya (All 47 Counties)'
+                  : 'Muonekano wa moja kwa moja wa wananchi na wasimamizi wa kiraia kote katika Jamhuri ya Kenya (Kaunti zote 47)'}
               </p>
             </div>
           </div>
@@ -312,7 +312,7 @@ export const OnlineUsersModal: React.FC<OnlineUsersModalProps> = ({
                     <div className="flex items-start justify-between gap-2.5">
                       <div className="flex items-center gap-3 min-w-0">
                         <div className="relative shrink-0">
-                          <UserBadge username={user.username} size="md" showAvatar />
+                          <UserBadge username={user.username} size="md" showAvatar hideName currentUser={currentUser} />
                           <span
                             className="absolute -bottom-0.5 -right-0.5 w-3 h-3 bg-emerald-500 rounded-full border-2 border-white dark:border-slate-800 shadow-xs"
                             title="Active Online"
@@ -321,9 +321,7 @@ export const OnlineUsersModal: React.FC<OnlineUsersModalProps> = ({
 
                         <div className="min-w-0">
                           <div className="flex items-center gap-1.5 flex-wrap">
-                            <span className="font-bold text-xs sm:text-sm text-slate-900 dark:text-slate-100 truncate">
-                              {user.username}
-                            </span>
+                            <UserBadge username={user.username} size="sm" currentUser={currentUser} />
 
                             {isMe && (
                               <span className="px-1.5 py-0.2 rounded-md text-[10px] font-black bg-emerald-200 dark:bg-emerald-900 text-emerald-900 dark:text-emerald-100">

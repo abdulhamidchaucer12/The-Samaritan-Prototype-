@@ -187,7 +187,7 @@ export const UserNotificationsDrawer: React.FC<UserNotificationsDrawerProps> = (
                   <div className="pt-2 border-t border-slate-200/60 flex items-center justify-between text-xs">
                     <div className="flex items-center gap-1.5 text-[11px] text-slate-500">
                       <span>{language === 'en' ? 'From:' : 'Kutoka:'}</span>
-                      <UserBadge username={notif.sentBy} size="xs" showRoleLabel />
+                      <UserBadge username={notif.sentBy} size="xs" showRoleLabel currentUser={currentUser} />
                     </div>
 
                     <div className="flex items-center gap-2">

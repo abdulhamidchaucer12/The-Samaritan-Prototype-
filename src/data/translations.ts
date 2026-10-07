@@ -38,6 +38,7 @@ export interface TranslationSchema {
     citizenAction: string;
     myLearning: string;
     qa: string;
+    profile: string;
     demoMode: string;
     feedback: string;
   };
@@ -245,6 +246,7 @@ export const translations: Record<'en' | 'sw', TranslationSchema> = {
       citizenAction: 'Citizen Action Hub',
       myLearning: 'My Learning',
       qa: 'Civic Q&A',
+      profile: 'Profile',
       demoMode: 'Facilitator Deck',
       feedback: 'Contact & Feedback',
     },
@@ -417,12 +419,12 @@ export const translations: Record<'en' | 'sw', TranslationSchema> = {
 
     footer: {
       aboutTitle: 'About The Samaritan',
-      aboutDesc: 'The Samaritan is a bilingual digital civic education and government literacy platform implemented by Kwale Focus Empowerment CBO (KFE). It makes complex constitutional structures accessible in English and Kiswahili to youth, women, learners, and community leaders.',
+      aboutDesc: 'The Samaritan is a bilingual digital civic education and government literacy platform implemented by Kwale Focus Empowerment CBO (KFE). It makes complex constitutional structures accessible in English and Kiswahili to youth, women, learners, and community leaders across all 47 counties of The Republic of Kenya.',
       kfeTitle: 'Kwale Focus Empowerment CBO (KFE)',
       kfeLocation: 'Majengo Mapya Village, Kombani, Kwale County, Kenya',
       disclaimer: 'Legal & Educational Disclaimer: The Samaritan is an educational civic information platform. It does not replace official legal sources, government notices or professional legal advice. Laws, procedures and institutional structures may change and should be verified against current official sources.',
       sourcesTitle: 'Primary Constitutional & Legal Sources',
-      sourcesList: 'Constitution of Kenya 2010 • County Governments Act 2012 • Public Finance Management Act 2012 • Leadership & Integrity Act 2012 • Access to Information Act 2016 • Commission on Administrative Justice Act 2011.',
+      sourcesList: 'Constitution of Kenya 2010 (All 18 Chapters) • County Governments Act 2012 • Public Finance Management Act 2012 • Leadership & Integrity Act 2012 • Access to Information Act 2016 • National Cohesion and Integration Act • Commission on Administrative Justice Act 2011 • Evidence Act.',
       lastUpdated: 'Content Verified & Active: September 2026',
       developerCredit: 'Developed with dedication by Abdulhamid Chaucer for Kwale Focus Empowerment CBO',
       implementationPeriod: 'Implementation Period: Ongoing',
@@ -464,6 +466,7 @@ export const translations: Record<'en' | 'sw', TranslationSchema> = {
       citizenAction: 'Kitovu cha Hatua',
       myLearning: 'Masomo Yangu',
       qa: 'Maswali ya Raia',
+      profile: 'Wasifu',
       demoMode: 'Mwongozo wa Mwezeshaji',
       feedback: 'Wasiliana na KFE',
     },
@@ -617,7 +620,7 @@ export const translations: Record<'en' | 'sw', TranslationSchema> = {
     kfe: {
       name: 'Kwale Focus Empowerment CBO (KFE)',
       tagline: 'Kuziwezesha Jamii Zisizojiweza kwa Suluhu Endelevu Kupitia Ubunifu',
-      about: 'Kwale Focus Empowerment CBO (KFE) ni shirika linaloongozwa na vijana lililoanzishwa mnamo Januari 2020. Makao yake makuu yako Kaunti ya Kwale, likiongoza ustahimilivu wa jamii, elimu ya uraia, uongozi wa vijana na wanawake, uhifadhi wa mazingira, na uwajibikaji wa kijamii.',
+      about: 'Kwale Focus Empowerment CBO (KFE) ni shirika linaloongozwa na vijana lililoanzishwa mnamo Januari 2020. Makao yake makuu yako Kaunti ya Kwale, likiongoza ustahimilivu wa jamii, elimu ya uraia nchi nzima katika Jamhuri ya Kenya, uongozi wa vijana na wanawake, uhifadhi wa mazingira, na uwajibikaji wa kijamii.',
       mission: 'Kuziwezesha jamii zisizojiweza kwa suluhu endelevu kupitia ubunifu.',
       values: 'Uadilifu, Uwajibikaji, Utofauti, Heshima, na Kutanguliza Jamii.',
       location: 'Kijiji cha Majengo Mapya, Kombani, Eneo Bunge la Matuga, kando ya Barabara ya Likoni–Lunga Lunga (karibu na Kombani Homes Limited), Kaunti ya Kwale, Kenya',
@@ -636,12 +639,12 @@ export const translations: Record<'en' | 'sw', TranslationSchema> = {
 
     footer: {
       aboutTitle: 'Kuhusu The Samaritan',
-      aboutDesc: 'The Samaritan ni jukwaa la kidijitali la lugha mbili la elimu ya uraia linaloendeshwa na shirika la Kwale Focus Empowerment CBO (KFE). Linawawezesha wananchi wa Kaunti ya Kwale na Kenya nzima kuelewa uongozi wa serikali, haki za kikatiba, na ushiriki wa umma.',
+      aboutDesc: 'The Samaritan ni jukwaa la kidijitali la lugha mbili la elimu ya uraia linaloendeshwa na shirika la Kwale Focus Empowerment CBO (KFE). Linawawezesha wananchi kote katika Jamhuri ya Kenya (kaunti zote 47) kuelewa uongozi wa serikali, haki zote za kikatiba, na ushiriki wa umma.',
       kfeTitle: 'Kwale Focus Empowerment CBO (KFE)',
       kfeLocation: 'Kijiji cha Majengo Mapya, Kombani, Kaunti ya Kwale, Kenya',
       disclaimer: 'Ilani ya Kisheria na Kielimu: The Samaritan ni jukwaa la kuelimisha umma kuhusu masuala ya uraia. Halichukui nafasi ya sheria rasmi, matangazo ya serikali au ushauri wa kisheria. Sheria, taratibu na mifumo ya kiserikali inaweza kubadilika na inapaswa kuthibitishwa kwenye vyanzo rasmi vya serikali.',
       sourcesTitle: 'Vyanzo Vikuu vya Kikatiba na Kisheria',
-      sourcesList: 'Katiba ya Kenya 2010 • Sheria ya Serikali za Kaunti 2012 • Sheria ya Usimamizi wa Fedha za Umma (PFMA) 2012 • Sheria ya Uongozi na Uadilifu 2012 • Sheria ya Upatikanaji wa Taarifa 2016 • Sheria ya Tume ya Haki za Utawala 2011.',
+      sourcesList: 'Katiba Yote ya Kenya 2010 (Sura Zote 18) • Sheria ya Serikali za Kaunti 2012 • Sheria ya Usimamizi wa Fedha za Umma (PFMA) 2012 • Sheria ya Uongozi na Uadilifu 2012 • Sheria ya Upatikanaji wa Taarifa 2016 • Sheria ya Mshikamano wa Kitaifa (NCIC) • Sheria ya Tume ya Haki za Utawala 2011 • Sheria ya Ushahidi.',
       lastUpdated: 'Maudhui Yamethibitishwa: Septemba 2026',
       developerCredit: 'Imetengenezwa kwa kujitolea na Abdulhamid Chaucer kwa ajili ya Kwale Focus Empowerment CBO',
       implementationPeriod: 'Muda wa Mradi: Unaendelea (Ongoing)',

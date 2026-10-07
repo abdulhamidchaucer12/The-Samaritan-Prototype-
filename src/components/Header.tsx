@@ -30,6 +30,7 @@ import { ThemeToggle } from './ThemeToggle';
 import { getUserTokenBalance } from '../utils/facilitatorTokenRegistry';
 import { getActiveUserSessions, subscribeToUserPresence } from '../utils/userPresence';
 import { getUserCounty } from '../utils/authAndQuestions';
+import { getAdminPlatformAddressingName } from '../utils/adminAppointments';
 
 interface HeaderProps {
   currentTab: string;
@@ -90,6 +91,7 @@ export const Header: React.FC<HeaderProps> = ({
     { id: 'events', label: language === 'en' ? 'Events' : 'Matukio', icon: Calendar },
     { id: 'action', label: t.nav.citizenAction, icon: HelpCircle },
     { id: 'myLearning', label: t.nav.myLearning, icon: Award },
+    { id: 'profile', label: t.nav.profile, icon: User },
     { id: 'demoMode', label: t.nav.demoMode, icon: Presentation },
     { id: 'feedback', label: t.nav.feedback, icon: Mail },
   ];
@@ -100,9 +102,9 @@ export const Header: React.FC<HeaderProps> = ({
       <div className="kenya-ribbon" />
 
       {/* Top Banner for KFE, Theme Switcher and Non-partisan Declaration */}
-      <div className="bg-slate-950 text-slate-200 px-4 sm:px-6 lg:px-8 py-1.5 text-xs font-medium border-b border-slate-800">
-        <div className="max-w-7xl mx-auto w-full flex flex-wrap items-center justify-evenly gap-y-2">
-          {/* Theme Switcher */}
+      <div className="bg-slate-950 text-slate-200 px-3 sm:px-6 lg:px-8 py-1 sm:py-1.5 text-xs font-medium border-b border-slate-800">
+        <div className="max-w-7xl mx-auto w-full flex items-center justify-between sm:justify-evenly gap-1.5 sm:gap-2">
+          {/* Theme Switcher (Icon-only on mobile, words on desktop) */}
           <div className="flex items-center">
             <ThemeToggle
               theme={theme}
@@ -112,7 +114,7 @@ export const Header: React.FC<HeaderProps> = ({
             />
           </div>
 
-          {/* Admin live online status badge */}
+          {/* Admin live online status badge (Icon + pulse dot on mobile, words on desktop) */}
           <div className="flex items-center">
             <AdminOnlineStatusBadge
               language={language}
@@ -121,31 +123,32 @@ export const Header: React.FC<HeaderProps> = ({
             />
           </div>
 
-          {/* 3. Online / Offline Connectivity Status Button */}
+          {/* 3. Online / Offline Connectivity Status Button (Icon-only on mobile, words on desktop) */}
           <div className="flex items-center">
             <button
               onClick={onOpenOfflineModal}
-              className="flex items-center gap-1.5 bg-blue-900/60 hover:bg-blue-900 text-blue-100 px-2.5 py-1 rounded-lg text-xs font-semibold transition-colors border border-blue-800/80 shadow-2xs cursor-pointer"
-              title="PWA Offline Storage Pack"
+              className="flex items-center gap-1.5 bg-blue-900/60 hover:bg-blue-900 text-blue-100 px-2 sm:px-2.5 py-1 rounded-lg text-xs font-semibold transition-colors border border-blue-800/80 shadow-2xs cursor-pointer"
+              title={isOnline ? 'Online • PWA Storage Pack' : 'Offline Mode • Cached Pack'}
             >
               {isOnline ? (
                 <>
-                  <Wifi className="w-3.5 h-3.5 text-emerald-400" />
+                  <Wifi className="w-3.5 h-3.5 text-emerald-400 shrink-0" />
                   <span className="hidden sm:inline">{t.common.online}</span>
                 </>
               ) : (
                 <>
-                  <WifiOff className="w-3.5 h-3.5 text-amber-400" />
-                  <span>{t.common.offline}</span>
+                  <WifiOff className="w-3.5 h-3.5 text-amber-400 shrink-0" />
+                  <span className="hidden sm:inline">{t.common.offline}</span>
                 </>
               )}
-              <DownloadCloud className="w-3 h-3 ml-0.5 text-blue-200" />
+              <DownloadCloud className="w-3 h-3 text-blue-200 shrink-0" />
             </button>
           </div>
 
-          {/* 4. Bilingual English / Kiswahili Switcher */}
+          {/* 4. Bilingual English / Kiswahili Switcher (Strictly Icon-only on mobile without words, full on desktop) */}
           <div className="flex items-center">
-            <div className="flex items-center bg-slate-900/90 p-0.5 rounded-lg border border-slate-700 shadow-2xs">
+            {/* Desktop & Tablet: with words ENG / KISW */}
+            <div className="hidden sm:flex items-center bg-slate-900/90 p-0.5 rounded-lg border border-slate-700 shadow-2xs">
               <Globe className="w-3.5 h-3.5 text-slate-400 ml-1.5 mr-1" />
               <button
                 type="button"
@@ -172,6 +175,17 @@ export const Header: React.FC<HeaderProps> = ({
                 KISW
               </button>
             </div>
+
+            {/* Mobile Phones: strictly icon-only without words */}
+            <button
+              type="button"
+              onClick={() => onToggleLanguage(language === 'en' ? 'sw' : 'en')}
+              className="sm:hidden flex items-center justify-center p-1.5 rounded-lg bg-slate-900 border border-slate-700 hover:border-slate-600 text-slate-200 shadow-2xs cursor-pointer relative"
+              title={language === 'en' ? 'Badili lugha (Kiswahili)' : 'Switch Language (English)'}
+              aria-label="Toggle language"
+            >
+              <Globe className="w-3.5 h-3.5 text-blue-400" />
+            </button>
           </div>
         </div>
       </div>
@@ -203,14 +217,27 @@ export const Header: React.FC<HeaderProps> = ({
                 <div
                   onClick={(e) => {
                     e.stopPropagation();
-                    onOpenAuthModal(currentUser.role === 'admin' ? 'adminSettings' : 'login');
+                    onSelectTab('profile');
                   }}
                   className="flex items-center gap-1.5 mt-0.5 cursor-pointer hover:opacity-80 transition-opacity"
-                  title={currentUser.role === 'admin' ? 'Admin Panel' : 'User Profile'}
+                  title={
+                    currentUser.role === 'admin'
+                      ? language === 'en'
+                        ? `${getAdminPlatformAddressingName(currentUser.username)} Profile`
+                        : `Wasifu wa ${getAdminPlatformAddressingName(currentUser.username)}`
+                      : language === 'en'
+                      ? 'Citizen Profile'
+                      : 'Wasifu wa Mwananchi'
+                  }
                 >
                   <UserBadge username={currentUser.username} size="xs" showAvatar />
                   <span className="text-[10px] text-emerald-700 dark:text-emerald-400 font-semibold hidden sm:inline">
-                    • {currentUser.role === 'admin' ? (language === 'en' ? 'Admin' : 'Msimamizi') : (language === 'en' ? 'Profile' : 'Wasifu')}
+                    •{' '}
+                    {currentUser.role === 'admin'
+                      ? getAdminPlatformAddressingName(currentUser.username)
+                      : language === 'en'
+                      ? 'Profile'
+                      : 'Wasifu'}
                   </span>
                 </div>
               ) : (
@@ -338,7 +365,7 @@ export const Header: React.FC<HeaderProps> = ({
               {currentUser ? (
                 <button
                   onClick={() => {
-                    onOpenAuthModal(currentUser.role === 'admin' ? 'adminSettings' : 'login');
+                    onSelectTab('profile');
                     setMobileMenuOpen(false);
                   }}
                   className="w-full flex items-center justify-between p-3 rounded-xl bg-slate-50 hover:bg-slate-100 border border-slate-200 text-xs font-bold min-h-[44px]"
@@ -352,13 +379,17 @@ export const Header: React.FC<HeaderProps> = ({
                       </div>
                     )}
                     <div className="text-left">
-                      <div className="font-mono text-slate-900">{currentUser.username}</div>
+                      <div className="font-mono text-slate-900 font-bold">
+                        {currentUser.role === 'admin'
+                          ? `${getAdminPlatformAddressingName(currentUser.username)} (${currentUser.username})`
+                          : currentUser.username}
+                      </div>
                       <div className="text-[10px] text-slate-500 font-normal">
                         {currentUser.role === 'admin' ? 'Administrator' : 'Anonymous Citizen'}
                       </div>
                     </div>
                   </div>
-                  <span className="text-blue-900 text-xs font-semibold">Settings →</span>
+                  <span className="text-blue-900 text-xs font-semibold">{language === 'en' ? 'Profile →' : 'Wasifu →'}</span>
                 </button>
               ) : (
                 <button

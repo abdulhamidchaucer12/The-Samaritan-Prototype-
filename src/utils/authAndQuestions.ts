@@ -13,6 +13,7 @@ import {
   sendDirectUserNotification,
 } from './adminManagement';
 import { recordUserDailyLogin } from './userDailyLogins';
+import { getAdminPlatformAddressingName, getAdminAppointedProfile } from './adminAppointments';
 
 const AUTH_USER_KEY = 'the_samaritan_auth_user_v1';
 const SESSION_AUTH_USER_KEY = 'the_samaritan_session_auth_user_v1';
@@ -714,6 +715,18 @@ export function loginUser(usernameInput: string, passwordInput: string): { succe
     if (verifyAdminLogin(canonicalAdmin, passwordInput)) {
       const isSuper = canonicalAdmin === 'The_Samaritan';
       const isExecutive = canonicalAdmin === '@admin.kfe3' || canonicalAdmin === '@admin.kfe4';
+      const addressingName = getAdminPlatformAddressingName(canonicalAdmin);
+      const appointedProfile = getAdminAppointedProfile(canonicalAdmin);
+      const adminPosition =
+        appointedProfile.officialPosition ||
+        (isSuper
+          ? 'Super Administrator & Developer'
+          : isExecutive
+          ? canonicalAdmin === '@admin.kfe4'
+            ? 'Executive Director'
+            : 'Director of Compliance'
+          : 'Program Associate');
+
       const adminUser: AuthUser = {
         id: `admin_${canonicalAdmin.toLowerCase().replace(/[^a-z0-9]/g, '_')}`,
         username: canonicalAdmin,
@@ -726,15 +739,9 @@ export function loginUser(usernameInput: string, passwordInput: string): { succe
       recordUserDailyLogin(canonicalAdmin);
       return {
         success: true,
-        message: `Logged in as ${canonicalAdmin} (${
-          isSuper
-            ? 'Super Administrator & Developer'
-            : isExecutive
-            ? canonicalAdmin === '@admin.kfe4'
-              ? 'Executive Director'
-              : 'Project Officer'
-            : 'Civic Admin'
-        }).`,
+        message: isSuper
+          ? `Welcome ${addressingName}! Logged in as The_Samaritan (${adminPosition}).`
+          : `Welcome ${addressingName}! Logged in as ${canonicalAdmin} (${adminPosition}).`,
         user: adminUser,
       };
     }
@@ -1622,6 +1629,32 @@ export function attachOperatorAnswer(
       en: string;
       sw: string;
     };
+    practicalExamples?: {
+      en: string;
+      sw: string;
+    };
+    whatIfScenarios?: {
+      en: string;
+      sw: string;
+    };
+    webFindings?: {
+      summaryEn: string;
+      summarySw: string;
+      citations: Array<{
+        uri: string;
+        title: string;
+        explanation: {
+          en: string;
+          sw: string;
+        };
+      }>;
+    };
+    rahamProtocolGrounded?: {
+      applied: boolean;
+      protocolTitle?: string;
+      guidanceEn?: string;
+      guidanceSw?: string;
+    };
     recommendedOfficeId?: string;
   }
 ): CivicQuestion | null {
@@ -1647,6 +1680,10 @@ export function attachOperatorAnswer(
     },
     constitutionalArticle: operatorAnswerData.constitutionalArticle,
     howToUseArticles: operatorAnswerData.howToUseArticles,
+    practicalExamples: operatorAnswerData.practicalExamples,
+    whatIfScenarios: operatorAnswerData.whatIfScenarios,
+    webFindings: operatorAnswerData.webFindings,
+    rahamProtocolGrounded: operatorAnswerData.rahamProtocolGrounded,
     recommendedOfficeId: operatorAnswerData.recommendedOfficeId || 'ombudsman',
     answeredAt: new Date().toISOString(),
     isAiGenerated: true,
@@ -1784,6 +1821,10 @@ export async function triggerAiOperatorResponse(
           answerSw: data.answer.answerText.sw,
           constitutionalArticle: data.answer.constitutionalArticle,
           howToUseArticles: data.answer.howToUseArticles,
+          practicalExamples: data.answer.practicalExamples,
+          whatIfScenarios: data.answer.whatIfScenarios,
+          webFindings: data.answer.webFindings,
+          rahamProtocolGrounded: data.answer.rahamProtocolGrounded,
           recommendedOfficeId: data.answer.recommendedOfficeId,
         });
 
@@ -1797,6 +1838,10 @@ export async function triggerAiOperatorResponse(
           answerText: data.answer.answerText,
           constitutionalArticle: data.answer.constitutionalArticle,
           howToUseArticles: data.answer.howToUseArticles,
+          practicalExamples: data.answer.practicalExamples,
+          whatIfScenarios: data.answer.whatIfScenarios,
+          webFindings: data.answer.webFindings,
+          rahamProtocolGrounded: data.answer.rahamProtocolGrounded,
           recommendedOfficeId: data.answer.recommendedOfficeId,
           answeredAt: new Date().toISOString(),
           isAiGenerated: true,

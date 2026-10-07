@@ -974,8 +974,8 @@ export function getCourseQuizQuestions(courseId: string, courseTitle: { en: stri
         id: `${courseId}_q9`,
         category,
         question: {
-          en: `How can Kwale community members organize to ensure ongoing accountability for "${titleEn}"?`,
-          sw: `Wanajamii wa Kwale wanaweza kujiandaa vipi kuhakikisha uwajibikaji endelevu kwa "${titleSw}"?`,
+          en: `How can citizens and communities across The Republic of Kenya organize to ensure ongoing accountability for "${titleEn}"?`,
+          sw: `Wananchi na jamii kote katika Jamhuri ya Kenya wanaweza kujiandaa vipi kuhakikisha uwajibikaji endelevu kwa "${titleSw}"?`,
         },
         options: [
           { id: 'a', text: { en: 'Conduct evidence-based social audits, review budgets, and attend ward citizen fora', sw: 'Kufanya ukaguzi wa kijamii kwa ushahidi, kusoma bajeti na kuhudhuria mabaraza ya wodi' } },

@@ -63,9 +63,11 @@ export const HomeHero: React.FC<HomeHeroProps> = ({
     };
     window.addEventListener('the_samaritan_login_count_updated', handleUpdate);
     window.addEventListener('the_samaritan_signatories_updated', handleUpdate);
+    window.addEventListener('the_samaritan_admin_names_updated', handleUpdate);
     return () => {
       window.removeEventListener('the_samaritan_login_count_updated', handleUpdate);
       window.removeEventListener('the_samaritan_signatories_updated', handleUpdate);
+      window.removeEventListener('the_samaritan_admin_names_updated', handleUpdate);
     };
   }, [effectiveUser?.username]);
 
@@ -543,7 +545,7 @@ export const HomeHero: React.FC<HomeHeroProps> = ({
         </div>
       </section>
 
-      {/* Kwale Focus Community Spotlight Banner */}
+      {/* Republic of Kenya Nationwide Civic Empowerment Spotlight Banner */}
       <section className="bg-emerald-50/70 border border-emerald-200/80 rounded-3xl p-6 sm:p-8">
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 items-center">
           <div className="lg:col-span-2 space-y-3">
@@ -551,32 +553,32 @@ export const HomeHero: React.FC<HomeHeroProps> = ({
               <MapPin className="w-4 h-4 text-emerald-700" />
               <span>
                 {language === 'en'
-                  ? 'Kwale County Civic Empowerment Spotlight'
-                  : 'Mwangaza wa Uraia Katika Kaunti ya Kwale'}
+                  ? 'The Republic of Kenya • Nationwide Civic Empowerment'
+                  : 'Jamhuri ya Kenya • Mwangaza wa Uraia Kitaifa'}
               </span>
             </div>
             <h3 className="text-xl sm:text-2xl font-bold font-serif text-emerald-950">
               {language === 'en'
-                ? 'Empowering Kwale Communities from Matuga to Kinango'
-                : 'Kuziwezesha Jamii za Kwale Kuanzia Matuga Hadi Kinango'}
+                ? 'Empowering Citizen Communities Across All 47 Counties'
+                : 'Kuziwezesha Jamii za Wananchi Kote Katika Kaunti Zote 47'}
             </h3>
             <p className="text-sm text-stone-700 leading-relaxed">
               {language === 'en'
-                ? 'Implemented by Kwale Focus Empowerment CBO (KFE), The Samaritan directly trains youth groups, women\'s chamas, community elders, and secondary school learners across Matuga, Msambweni, Lunga Lunga, and Kinango sub-counties to participate in county budget meetings and audit local devolved projects.'
-                : 'Inayotekelezwa na Shirika la Kwale Focus Empowerment (KFE), mradi wa The Samaritan unafunza vijana, vikundi vya wanawake, wazee wa mitaa, na wanafunzi wa sekondari katika maeneo ya Matuga, Msambweni, Lunga Lunga, na Kinango kushiriki vikao vya bajeti na kukagua miradi ya kaunti.'}
+                ? 'The Samaritan civic platform operates with an overarching implementation scope across The Republic of Kenya. From Coastal counties to the Rift Valley, Western, Central, Nairobi, and Northern frontier counties, we directly train youth groups, women\'s chamas, community elders, and secondary school learners to master the entire Constitution of Kenya 2010, participate in devolved county budget hearings, audit public expenditures, and defend fundamental human rights.'
+                : 'Mfumo wa elimu ya uraia wa The Samaritan unahudumu nchi nzima katika Jamhuri ya Kenya. Kuanzia ukanda wa Pwani hadi Bonde la Ufa, Magharibi, Kati, Nairobi, na Kaunti za Kaskazini, tunafunza vijana, vikundi vya wanawake, wazee wa mitaa, na wanafunzi kuelewa Katiba yote ya Kenya 2010, kushiriki bajeti za kaunti zote 47, na kulinda haki za kikatiba.'}
             </p>
             <div className="flex flex-wrap gap-2 pt-1 text-xs">
               <span className="bg-white px-2.5 py-1 rounded-full border border-emerald-200 font-medium text-emerald-800">
-                Matuga Sub-County
+                {language === 'en' ? 'Coast Region' : 'Kanda ya Pwani'}
               </span>
               <span className="bg-white px-2.5 py-1 rounded-full border border-emerald-200 font-medium text-emerald-800">
-                Msambweni Sub-County
+                {language === 'en' ? 'Rift Valley & Western' : 'Bonde la Ufa na Magharibi'}
               </span>
               <span className="bg-white px-2.5 py-1 rounded-full border border-emerald-200 font-medium text-emerald-800">
-                Lunga Lunga Sub-County
+                {language === 'en' ? 'Central & Nairobi' : 'Mlima Kenya na Nairobi'}
               </span>
               <span className="bg-white px-2.5 py-1 rounded-full border border-emerald-200 font-medium text-emerald-800">
-                Kinango Sub-County
+                {language === 'en' ? 'Northern & Eastern' : 'Kaskazini na Mashariki'}
               </span>
             </div>
           </div>
@@ -588,12 +590,12 @@ export const HomeHero: React.FC<HomeHeroProps> = ({
             </h4>
             <p className="text-xs text-stone-600 leading-relaxed">
               {language === 'en'
-                ? 'Learn how to write an official citizen memorandum for the Kwale County Assembly or report project misuse.'
-                : 'Jifunze jinsi ya kuandika barua rasmi ya maoni (memorandum) au kuripoti fedha za umma zilizopotea.'}
+                ? 'Learn how to write an official citizen memorandum for any County Assembly or report public resource misuse.'
+                : 'Jifunze jinsi ya kuandika barua rasmi ya maoni (memorandum) kwa Bunge lolote la Kaunti au kuripoti fedha za umma zilizopotea.'}
             </p>
             <button
               onClick={() => onSelectTab('action')}
-              className="w-full py-2.5 px-3 bg-emerald-700 hover:bg-emerald-800 text-white text-xs font-bold rounded-xl transition-colors flex items-center justify-center gap-1.5"
+              className="w-full py-2.5 px-3 bg-emerald-700 hover:bg-emerald-800 text-white text-xs font-bold rounded-xl transition-colors flex items-center justify-center gap-1.5 cursor-pointer"
             >
               <span>{language === 'en' ? 'Open Citizen Action Toolkit' : 'Fungua Zana za Mwananchi'}</span>
               <ArrowRight className="w-3.5 h-3.5" />

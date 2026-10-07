@@ -12,9 +12,19 @@ import {
   BookOpen,
 } from 'lucide-react';
 import { getUserRoleMeta } from '../utils/adminManagement';
-import { getUserAvatar, getUserCounty, getUserSubCounty } from '../utils/authAndQuestions';
+import {
+  getUserAvatar,
+  getUserCounty,
+  getUserSubCounty,
+  getCurrentAuthUser,
+} from '../utils/authAndQuestions';
 import { isUserOnline, getActiveUserSessions } from '../utils/userPresence';
 import { getUserProgress } from '../utils/storage';
+import { AuthUser } from '../types';
+import {
+  getAdminPlatformAddressingName,
+  getAdminAppointedProfile,
+} from '../utils/adminAppointments';
 
 export interface UserBadgeProps {
   username?: string | null;
@@ -26,6 +36,8 @@ export interface UserBadgeProps {
   hideName?: boolean;
   showAvatar?: boolean;
   disableHoverCard?: boolean;
+  currentUser?: AuthUser | null;
+  onNavigateToProfile?: () => void;
 }
 
 export const UserBadge: React.FC<UserBadgeProps> = ({
@@ -38,8 +50,21 @@ export const UserBadge: React.FC<UserBadgeProps> = ({
   hideName = false,
   showAvatar = false,
   disableHoverCard = false,
+  currentUser,
+  onNavigateToProfile,
 }) => {
   const [isProfileOpen, setIsProfileOpen] = useState(false);
+  const [, setRerenderTrigger] = useState(0);
+
+  useEffect(() => {
+    const handleAdminUpdate = () => {
+      setRerenderTrigger((prev) => prev + 1);
+    };
+    window.addEventListener('the_samaritan_admin_names_updated', handleAdminUpdate);
+    return () => {
+      window.removeEventListener('the_samaritan_admin_names_updated', handleAdminUpdate);
+    };
+  }, []);
 
   if (!username) return null;
 
@@ -47,6 +72,31 @@ export const UserBadge: React.FC<UserBadgeProps> = ({
   const badgeType = forceGold ? 'gold' : forceBlue ? 'blue' : roleMeta.badgeType;
   const isBoldGold = roleMeta.isBoldGold;
   const userAvatar = showAvatar ? getUserAvatar(username) : null;
+
+  const cleanHandle = username ? username.trim().toLowerCase().replace(/^@/, '') : '';
+  const isTargetAdmin = Boolean(
+    username &&
+      (roleMeta.adminLevel !== 'citizen' ||
+        cleanHandle.startsWith('admin') ||
+        cleanHandle.includes('kfe') ||
+        cleanHandle === 'the_samaritan')
+  );
+
+  const displayHandle =
+    isTargetAdmin
+      ? getAdminPlatformAddressingName(username)
+      : username;
+
+  const adminProfile = isTargetAdmin ? getAdminAppointedProfile(username) : null;
+
+  // Determine if this badge belongs to the current logged-in user
+  const loggedInUser = currentUser !== undefined ? currentUser : getCurrentAuthUser();
+  const isSelf = Boolean(
+    loggedInUser?.username &&
+      username &&
+      loggedInUser.username.trim().toLowerCase().replace(/^@/, '') ===
+        username.trim().toLowerCase().replace(/^@/, '')
+  );
 
   // Sizes for the verified icon
   const iconSizes = {
@@ -72,7 +122,16 @@ export const UserBadge: React.FC<UserBadgeProps> = ({
 
   const handleOpenProfile = (e: React.MouseEvent) => {
     e.stopPropagation();
-    if (!disableHoverCard) {
+    if (disableHoverCard) return;
+
+    if (isSelf) {
+      // By clicking on his/her username, the user must be automatically taken to their profile page.
+      if (onNavigateToProfile) {
+        onNavigateToProfile();
+      }
+      window.dispatchEvent(new CustomEvent('navigate_to_profile_tab'));
+    } else {
+      // If a user clicks on another user's username then a summary of user details must appear.
       setIsProfileOpen(true);
     }
   };
@@ -119,7 +178,13 @@ export const UserBadge: React.FC<UserBadgeProps> = ({
         className={`inline-flex items-center gap-1.5 align-middle ${
           !disableHoverCard ? 'cursor-pointer hover:opacity-90' : ''
         } ${className}`}
-        title={!disableHoverCard ? `View profile for ${username}` : undefined}
+        title={
+          !disableHoverCard
+            ? isSelf
+              ? 'Click to open your Profile page'
+              : `Click to view details summary for ${username}`
+            : undefined
+        }
       >
         {/* Profile Picture / Avatar */}
         {showAvatar && (
@@ -150,7 +215,7 @@ export const UserBadge: React.FC<UserBadgeProps> = ({
                 : 'font-semibold text-slate-800 dark:text-slate-200'
             }`}
           >
-            {username}
+            {displayHandle}
           </span>
         )}
 
@@ -234,14 +299,15 @@ export const UserBadge: React.FC<UserBadgeProps> = ({
             className="w-full sm:max-w-md bg-white dark:bg-slate-900 rounded-t-3xl sm:rounded-2xl shadow-2xl border border-slate-200 dark:border-slate-800 overflow-hidden flex flex-col max-h-[90vh] sm:max-h-[85vh] animate-in slide-in-from-bottom-6 sm:zoom-in-95 duration-200"
           >
             {/* Header with Close X at Top Right Corner */}
-            <div className="p-4 sm:p-5 bg-gradient-to-r from-emerald-50 via-teal-50 to-blue-50 dark:from-emerald-950/50 dark:via-teal-950/40 dark:to-slate-900 border-b border-slate-100 dark:border-slate-800 flex items-center justify-between gap-3 shrink-0">
-              <div className="flex items-center gap-2.5 min-w-0">
+            <div className="p-4 sm:p-5 bg-gradient-to-r from-emerald-50 via-teal-50 to-blue-50 dark:from-emerald-950/50 dark:via-teal-950/40 dark:to-slate-900 border-b border-slate-100 dark:border-slate-800 flex items-center justify-between gap-3 shrink-0 relative overflow-hidden">
+              <div className="absolute top-0 left-0 right-0 h-1 kenya-ribbon" />
+              <div className="flex items-center gap-2.5 min-w-0 pt-1">
                 <div className="w-8 h-8 rounded-xl bg-emerald-600/10 dark:bg-emerald-400/10 flex items-center justify-center text-emerald-600 dark:text-emerald-400 shrink-0">
                   <Shield className="w-4 h-4" />
                 </div>
                 <div>
                   <h3 className="font-extrabold text-sm text-slate-900 dark:text-slate-100 truncate">
-                    Citizen Civic Profile
+                    Citizen Details Summary
                   </h3>
                   <p className="text-[11px] text-slate-500 dark:text-slate-400 truncate">
                     {username}
@@ -253,9 +319,9 @@ export const UserBadge: React.FC<UserBadgeProps> = ({
               <button
                 type="button"
                 onClick={handleClose}
-                className="w-8 h-8 rounded-xl text-slate-400 hover:text-slate-700 dark:hover:text-slate-200 hover:bg-slate-200/60 dark:hover:bg-slate-800 flex items-center justify-center transition-colors cursor-pointer shrink-0"
-                title="Close profile"
-                aria-label="Close"
+                className="w-8 h-8 rounded-xl text-slate-400 hover:text-slate-700 dark:hover:text-slate-200 hover:bg-slate-200/60 dark:hover:bg-slate-800 flex items-center justify-center transition-colors cursor-pointer shrink-0 mt-1"
+                title="Close summary"
+                aria-label="Close summary"
               >
                 <X className="w-5 h-5" />
               </button>
@@ -283,16 +349,21 @@ export const UserBadge: React.FC<UserBadgeProps> = ({
 
                 <div className="min-w-0">
                   <div className="font-extrabold text-base text-slate-900 dark:text-slate-100 truncate flex items-center gap-1.5">
-                    <span>{username}</span>
+                    <span>{displayHandle}</span>
                     {badgeType === 'gold_double_tick' && (
                       <Award className="w-4 h-4 text-amber-500 shrink-0" />
                     )}
                   </div>
+                  {isTargetAdmin && adminProfile && (
+                    <div className="text-xs text-amber-800 dark:text-amber-300 font-bold truncate">
+                      {adminProfile.appointedName} • {adminProfile.officialPosition}
+                    </div>
+                  )}
                   <div className="text-xs font-bold text-emerald-700 dark:text-emerald-400 truncate">
                     {roleMeta.roleTitle.en}
                   </div>
                   <div className="text-[11px] text-slate-500 dark:text-slate-400 truncate mt-0.5">
-                    Constitutional Education Citizen
+                    {isTargetAdmin ? 'Official Devolution Administrator' : 'Constitutional Education Citizen'}
                   </div>
                 </div>
               </div>
@@ -332,6 +403,33 @@ export const UserBadge: React.FC<UserBadgeProps> = ({
                   )}
                 </div>
               </div>
+
+              {/* Executive Devolution Allocation Info Card */}
+              {isTargetAdmin && adminProfile && (
+                <div className="p-3.5 rounded-2xl bg-amber-50/80 dark:bg-amber-950/40 border border-amber-200 dark:border-amber-800/60 space-y-1.5 text-xs">
+                  <div className="flex items-center gap-2 text-amber-900 dark:text-amber-200 font-extrabold">
+                    <Shield className="w-4 h-4 text-amber-600 shrink-0" />
+                    <span>Executive Administrative Appointment</span>
+                  </div>
+                  <div className="text-[11px] text-amber-900/90 dark:text-amber-300 space-y-1 pt-1 border-t border-amber-200/70 dark:border-amber-800/60">
+                    <div>
+                      <strong>Platform Address:</strong> {getAdminPlatformAddressingName(username)}
+                    </div>
+                    <div>
+                      <strong>Appointed Full Name:</strong> {adminProfile.appointedName}
+                    </div>
+                    <div>
+                      <strong>Official Position:</strong> {adminProfile.officialPosition}
+                    </div>
+                    <div>
+                      <strong>Devolution Oversight:</strong> {adminProfile.assignedScope}
+                    </div>
+                    <div className="text-[10px] text-amber-700 dark:text-amber-400 pt-1">
+                      Designated under The_Samaritan Super Authority
+                    </div>
+                  </div>
+                </div>
+              )}
 
               {/* Civic Progress Statistics */}
               <div className="grid grid-cols-2 gap-3 text-center">
@@ -396,7 +494,7 @@ export const UserBadge: React.FC<UserBadgeProps> = ({
                 className="w-full py-2.5 rounded-xl border border-slate-300 dark:border-slate-700 hover:bg-slate-100 dark:hover:bg-slate-800 text-slate-700 dark:text-slate-200 font-bold text-sm transition-colors cursor-pointer flex items-center justify-center gap-2 shadow-2xs"
               >
                 <X className="w-4 h-4" />
-                <span>Close Profile</span>
+                <span>Close Summary</span>
               </button>
             </div>
           </div>
