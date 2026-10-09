@@ -16,6 +16,8 @@ import {
   Brain,
   Layers,
   GraduationCap,
+  HelpCircle,
+  ShieldAlert,
 } from 'lucide-react';
 import { CivicLesson, Language } from '../types';
 import { translations } from '../data/translations';
@@ -28,6 +30,7 @@ import {
 import { markLessonCompleted, getUserProgress } from '../utils/storage';
 import { CourseQuizAndCertificate } from './CourseQuizAndCertificate';
 import { getCategoryLabel } from '../utils/categoryManagement';
+import { getLocalRahamDocuments } from '../utils/rahamProtocolClient';
 import { OnlineUsersPresenceBar } from './OnlineUsersPresenceBar';
 import { getCurrentAuthUser } from '../utils/authAndQuestions';
 
@@ -55,8 +58,41 @@ export const LessonsView: React.FC<LessonsViewProps> = ({
     return getUserProgress().completedLessons;
   });
 
+  const [showWhatIfExpanded, setShowWhatIfExpanded] = useState<boolean>(true);
   const [categoryFilter, setCategoryFilter] = useState<'all' | 'today' | 'foundational' | 'completed' | 'supplementary'>('all');
   const todayDateStr = getTodayDateString();
+
+  // Find matching What-If Scenario grounded in the uploaded materials / The Raham Protocol
+  const matchingWhatIf = useMemo(() => {
+    if (!activeLesson) return null;
+    const docs = getLocalRahamDocuments();
+    if (!docs || docs.length === 0) return null;
+    const title = (activeLesson.title.en + ' ' + activeLesson.title.sw).toLowerCase();
+    const cat = activeLesson.category;
+
+    if (cat === 'environment' || title.includes('environment') || title.includes('mazingira') || title.includes('land') || title.includes('ardhi')) {
+      return docs.find(d => d.id === 'raham_006' || d.id === 'raham_008') || docs[0];
+    }
+    if (cat === 'integrity' || title.includes('integrity') || title.includes('corruption') || title.includes('rushwa') || title.includes('uadilifu')) {
+      return docs.find(d => d.id === 'raham_012') || docs[0];
+    }
+    if (title.includes('police') || title.includes('arrest') || title.includes('bail') || title.includes('kamatwa') || title.includes('dhamana')) {
+      return docs.find(d => d.id === 'raham_004' || d.id === 'raham_014') || docs[0];
+    }
+    if (title.includes('water') || title.includes('health') || title.includes('hospital') || title.includes('maji') || title.includes('afya')) {
+      return docs.find(d => d.id === 'raham_013') || docs[0];
+    }
+    if (cat === 'devolution' || cat === 'public_finance' || title.includes('budget') || title.includes('audit') || title.includes('bajeti')) {
+      return docs.find(d => d.id === 'raham_005') || docs[0];
+    }
+    if (title.includes('cyber') || title.includes('digital') || title.includes('media') || title.includes('mtandao')) {
+      return docs.find(d => d.id === 'raham_009' || d.id === 'raham_003') || docs[0];
+    }
+    if (cat === 'human_rights' || title.includes('rights') || title.includes('haki') || title.includes('bystander')) {
+      return docs.find(d => d.id === 'raham_001' || d.id === 'raham_007' || d.id === 'raham_011') || docs[0];
+    }
+    return docs.find(d => Boolean(d.whatIfScenarios)) || docs[0];
+  }, [activeLesson]);
 
   // Load and sync all courses, with real-time updates when an admin publishes a supplementary course
   useEffect(() => {
@@ -408,6 +444,50 @@ export const LessonsView: React.FC<LessonsViewProps> = ({
                   {activeLesson.citizenActionTip[language]}
                 </p>
               </div>
+
+              {/* Interactive What-If Scenario from Uploaded Materials / The Raham Protocol */}
+              {matchingWhatIf && matchingWhatIf.whatIfScenarios && (
+                <div className="p-5 bg-gradient-to-r from-purple-50/90 to-indigo-50/90 dark:from-purple-950/30 dark:to-indigo-950/30 border border-purple-200 dark:border-purple-800/60 rounded-2xl space-y-3">
+                  <div className="flex items-center justify-between gap-3">
+                    <div className="flex items-center gap-2.5">
+                      <div className="w-8 h-8 rounded-xl bg-purple-600/10 text-purple-700 dark:text-purple-300 flex items-center justify-center shrink-0">
+                        <HelpCircle className="w-4 h-4" />
+                      </div>
+                      <div>
+                        <span className="text-[10px] font-black tracking-wider uppercase text-purple-900 dark:text-purple-300 block">
+                          {language === 'en' ? 'Practical What-If Scenario (The Samaritan Directive)' : 'Hali Halisi ya "Je Iwapo" (Mwongozo wa Msamaria)'}
+                        </span>
+                        <h4 className="text-xs font-bold text-slate-900 dark:text-slate-100">
+                          {matchingWhatIf.title}
+                        </h4>
+                      </div>
+                    </div>
+                    <button
+                      type="button"
+                      onClick={() => setShowWhatIfExpanded(!showWhatIfExpanded)}
+                      className="px-2.5 py-1 rounded-lg bg-purple-100 hover:bg-purple-200 dark:bg-purple-900/40 text-purple-900 dark:text-purple-300 text-[11px] font-bold transition-colors cursor-pointer shrink-0"
+                    >
+                      {showWhatIfExpanded ? (language === 'en' ? 'Collapse' : 'Kunja') : (language === 'en' ? 'Expand Scenario' : 'Fungua Hali')}
+                    </button>
+                  </div>
+
+                  {showWhatIfExpanded && (
+                    <div className="space-y-2.5 pt-1 text-xs text-slate-800 dark:text-slate-200">
+                      <div className="p-3.5 rounded-xl bg-white/90 dark:bg-slate-900/80 border border-purple-200/80 dark:border-purple-900/40 whitespace-pre-line leading-relaxed">
+                        {matchingWhatIf.whatIfScenarios}
+                      </div>
+                      {matchingWhatIf.practicalExamples && (
+                        <div className="p-3 rounded-xl bg-purple-100/60 dark:bg-purple-950/40 border border-purple-200/60 text-purple-950 dark:text-purple-200 text-[11px] font-medium leading-relaxed">
+                          <strong className="block mb-0.5 text-purple-900 dark:text-purple-300 font-bold">
+                            {language === 'en' ? 'Precedent & Real-World Application:' : 'Mfano na Utekelezaji wa Vitendo:'}
+                          </strong>
+                          {matchingWhatIf.practicalExamples}
+                        </div>
+                      )}
+                    </div>
+                  )}
+                </div>
+              )}
 
               {/* High-Impact Quiz Callout Banner */}
               <div className="p-6 bg-gradient-to-r from-stone-900 to-teal-950 text-white rounded-2xl flex flex-col sm:flex-row items-center justify-between gap-4">

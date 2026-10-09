@@ -153,3 +153,17 @@ export function incrementCertificateDownloadCount(serialNumber: string): void {
     saveIssuedCertificates(records);
   }
 }
+
+/**
+ * Directly registers a pre-formed certificate record (used by Merit Graduation Engine)
+ */
+export function registerIssuedCertificate(record: IssuedCertificateRecord): void {
+  const records = getAllIssuedCertificates();
+  const existingIdx = records.findIndex((r) => r.id === record.id);
+  if (existingIdx !== -1) {
+    records[existingIdx] = record;
+  } else {
+    records.unshift(record);
+  }
+  saveIssuedCertificates(records);
+}

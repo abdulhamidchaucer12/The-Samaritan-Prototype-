@@ -17,7 +17,84 @@ async function startServer() {
   const app = express();
   const PORT = 3000;
 
-  app.use(express.json());
+  app.use(express.json({ limit: "50mb" }));
+  app.use(express.urlencoded({ limit: "50mb", extended: true }));
+
+  // 1. Enterprise Security Headers Middleware
+  app.use((req, res, next) => {
+    res.setHeader("X-Content-Type-Options", "nosniff");
+    res.setHeader("X-Frame-Options", "SAMEORIGIN");
+    res.setHeader("X-XSS-Protection", "1; mode=block");
+    res.setHeader("Referrer-Policy", "strict-origin-when-cross-origin");
+    res.setHeader("Permissions-Policy", "camera=(), microphone=(), payment=()");
+    res.setHeader("X-Samaritan-Security-Shield", "Military-Grade-Sentinel-Active");
+    next();
+  });
+
+  // 2. Prototype Pollution & Injection Defense Middleware
+  const cleanObject = (obj: any): any => {
+    if (!obj || typeof obj !== 'object') return obj;
+    if (Array.isArray(obj)) return obj.map(cleanObject);
+    const cleaned: Record<string, any> = {};
+    for (const key of Object.keys(obj)) {
+      if (key === '__proto__' || key === 'constructor' || key === 'prototype') {
+        continue;
+      }
+      cleaned[key] = cleanObject(obj[key]);
+    }
+    return cleaned;
+  };
+
+  app.use((req, res, next) => {
+    if (req.body && typeof req.body === 'object') {
+      req.body = cleanObject(req.body);
+    }
+    next();
+  });
+
+  // 3. In-Memory Sliding Window Rate Limiter
+  interface RateLimitBucket {
+    tokens: number;
+    lastRefill: number;
+  }
+  const rateLimitStore = new Map<string, RateLimitBucket>();
+
+  const createRateLimiter = (limitPerMinute: number = 60) => {
+    return (req: express.Request, res: express.Response, next: express.NextFunction) => {
+      const ip = (req.headers['x-forwarded-for'] as string)?.split(',')[0] || req.socket.remoteAddress || '127.0.0.1';
+      const key = `${ip}:${req.baseUrl || ''}${req.path}`;
+      const now = Date.now();
+
+      let bucket = rateLimitStore.get(key);
+      if (!bucket) {
+        bucket = { tokens: limitPerMinute, lastRefill: now };
+        rateLimitStore.set(key, bucket);
+      } else {
+        const elapsed = (now - bucket.lastRefill) / 1000;
+        const refill = elapsed * (limitPerMinute / 60);
+        bucket.tokens = Math.min(limitPerMinute, bucket.tokens + refill);
+        bucket.lastRefill = now;
+      }
+
+      if (bucket.tokens < 1) {
+        res.setHeader('Retry-After', '60');
+        return res.status(429).json({
+          error: 'Security Rate Limit Exceeded',
+          message: 'The Samaritan Sentinel Shield has throttled requests from this IP to prevent abuse. Please retry in 60 seconds.',
+        });
+      }
+
+      bucket.tokens -= 1;
+      next();
+    };
+  };
+
+  const generalApiLimiter = createRateLimiter(120);
+  const aiGenerationLimiter = createRateLimiter(25);
+  const dataMutationLimiter = createRateLimiter(30);
+
+  // Apply general limiter to /api
+  app.use('/api', generalApiLimiter);
 
   // Health check endpoint
   app.get("/api/health", (req, res) => {
@@ -25,11 +102,17 @@ async function startServer() {
       status: "ok",
       platform: "The Samaritan Civic Education Platform",
       aiAvailable: !!process.env.GEMINI_API_KEY,
+      security: {
+        sentinelShield: "active",
+        headers: "enforced",
+        rateLimiter: "sliding_window_active",
+        antiInjection: "enforced",
+      },
     });
   });
 
   // Automated Constitutional AI Answer endpoint for Operator
-  app.post("/api/constitutional-ai-answer", async (req, res) => {
+  app.post("/api/constitutional-ai-answer", aiGenerationLimiter, async (req, res) => {
     try {
       const { title, details, category, county, userLanguage } = req.body;
 
@@ -61,7 +144,7 @@ async function startServer() {
   });
 
   // Operator AI Course & 10-Question Developer endpoint
-  app.post("/api/operator-develop-course", async (req, res) => {
+  app.post("/api/operator-develop-course", aiGenerationLimiter, async (req, res) => {
     try {
       const { topic, category, summaryEn, summarySw, userLanguage } = req.body;
 
@@ -93,7 +176,7 @@ async function startServer() {
   });
 
   // The Operator AI - Peer-to-Peer Message Safety & Civic Integrity Sentinel
-  app.post("/api/operator-monitor-message", async (req, res) => {
+  app.post("/api/operator-monitor-message", aiGenerationLimiter, async (req, res) => {
     try {
       const { content, senderUsername, recipientUsername } = req.body;
 
@@ -139,12 +222,28 @@ async function startServer() {
     }
   });
 
-  app.post("/api/raham-protocol", (req, res) => {
+  app.post("/api/raham-protocol", dataMutationLimiter, (req, res) => {
     try {
-      const { title, category, statutoryAnchors, summary, fullContent, whatIfScenarios, practicalExamples, uploadedBy, sourceType } = req.body;
-      if (!title || !fullContent) {
+      const {
+        title,
+        category,
+        statutoryAnchors,
+        summary,
+        fullContent,
+        whatIfScenarios,
+        practicalExamples,
+        uploadedBy,
+        sourceType,
+        mediaType,
+        attachments,
+        externalLink,
+        fileName,
+        fileDataUrl,
+        fileSizeBytes,
+      } = req.body;
+      if (!title || (!fullContent && !fileName && !externalLink)) {
         return res.status(400).json({
-          error: "Title and full content are required to append to The Raham Protocol.",
+          error: "Title and content (or document/link) are required to append to The Raham Protocol.",
         });
       }
 
@@ -153,12 +252,18 @@ async function startServer() {
         category: category || "custom",
         statutoryAnchors: statutoryAnchors || "Constitution of Kenya 2010",
         summary: summary || title,
-        fullContent,
+        fullContent: fullContent || `Material document "${fileName || title}" registered in The Raham Protocol.`,
         whatIfScenarios,
         practicalExamples,
         uploadedBy: uploadedBy || "The_Samaritan",
         isActive: true,
-        sourceType: sourceType || "manual",
+        sourceType: sourceType || "upload",
+        mediaType: mediaType || (fileName ? "document" : externalLink ? "link" : "text"),
+        attachments: attachments || [],
+        externalLink,
+        fileName,
+        fileDataUrl,
+        fileSizeBytes,
       });
 
       return res.json({
@@ -174,9 +279,15 @@ async function startServer() {
     }
   });
 
-  app.delete("/api/raham-protocol/:id", (req, res) => {
+  app.delete("/api/raham-protocol/:id", dataMutationLimiter, (req, res) => {
     try {
       const { id } = req.params;
+      // Strict alphanumeric identifier validation to prevent path traversal or injection
+      if (!id || !/^[a-zA-Z0-9_\-]+$/.test(id)) {
+        return res.status(400).json({
+          error: "Invalid document identifier format.",
+        });
+      }
       const success = deleteRahamProtocolDocument(id);
       return res.json({
         success,

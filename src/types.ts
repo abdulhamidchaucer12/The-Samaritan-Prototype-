@@ -214,6 +214,18 @@ export interface WebCitation {
   };
 }
 
+export interface RahamProtocolAttachment {
+  id: string;
+  name: string;
+  type: 'pdf' | 'video' | 'audio' | 'image' | 'link' | 'document';
+  mimeType?: string;
+  sizeBytes?: number;
+  dataUrl?: string; // Base64 data URL for audio, image, video clip, or pdf
+  externalUrl?: string; // For web links, YouTube, Kenya Law gazettes
+  description?: string;
+  uploadedAt: string;
+}
+
 export interface RahamProtocolDocument {
   id: string;
   title: string;
@@ -227,6 +239,13 @@ export interface RahamProtocolDocument {
   uploadedAt: string;
   isActive: boolean;
   sourceType: 'manual' | 'upload' | 'executive_decree';
+  // Rich media upload fields
+  mediaType?: 'text' | 'pdf' | 'video' | 'audio' | 'image' | 'link' | 'document' | 'multimedia';
+  attachments?: RahamProtocolAttachment[];
+  externalLink?: string;
+  fileName?: string;
+  fileDataUrl?: string;
+  fileSizeBytes?: number;
 }
 
 export interface AdminAnswer {
@@ -264,6 +283,9 @@ export interface AdminAnswer {
     protocolTitle?: string;
     guidanceEn?: string;
     guidanceSw?: string;
+    mediaFormat?: string;
+    materialName?: string;
+    materialLink?: string;
   };
   answeredAt: string;
   lastEditedAt?: string;
@@ -494,4 +516,35 @@ export interface TokenExpenditure {
     courseId?: string;
   };
   timestamp: string;
+}
+
+export type VerificationBadgeTier = 'single_tick' | 'double_tick';
+
+export interface UserVerificationRecord {
+  id: string;
+  username: string;
+  displayUsername: string;
+  badgeTier: VerificationBadgeTier;
+  verifiedBy: string; // 'The_Samaritan'
+  verifiedAt: string;
+  badgeTitleEn: string;
+  badgeTitleSw: string;
+  notes?: string;
+  source: 'direct_admin_action' | 'request_granted' | 'merit_graduate';
+}
+
+export interface VerificationRequest {
+  id: string;
+  username: string;
+  displayUsername: string;
+  requestedTier: VerificationBadgeTier;
+  submittedAt: string;
+  status: 'pending' | 'granted' | 'denied';
+  foundationalCoursesCompleted: number; // must be >= 10
+  tokenBalanceAtRequest: number; // must be >= 50
+  userNote?: string;
+  reviewedBy?: string;
+  reviewedAt?: string;
+  decisionReason?: string;
+  grantedTier?: VerificationBadgeTier;
 }

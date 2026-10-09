@@ -10,6 +10,8 @@ import {
 } from '../types';
 import { getAllIssuedCertificates, saveIssuedCertificates, IssuedCertificateRecord } from './certificateRegistry';
 import { getAdminAppointedProfile } from './adminAppointments';
+import { isUserMeritGraduate } from './meritGraduation';
+import { getUserVerification } from './userVerificationService';
 
 const BANNED_USERS_KEY = 'the_samaritan_banned_users_v1';
 const APPOINTED_ADMINS_KEY = 'the_samaritan_appointed_admins_v1';
@@ -838,6 +840,55 @@ export function getUserRoleMeta(username?: string | null): UserRoleMeta {
       isSuperAdmin: false,
       adminLevel: 'temporary',
     };
+  }
+
+  // Check if user is a 100 Civic Courses Merit Graduate (>30 marks on final exam)
+  // Automatically grants the Executive Double Verification Badge (gold double-tick) like executive admins!
+  if (isUserMeritGraduate(clean)) {
+    return {
+      badgeType: 'gold_double_tick',
+      isBoldGold: true,
+      hasDoubleTick: true,
+      roleTitle: {
+        en: 'Civic Scholar & Merit Graduate (100 Courses)',
+        sw: 'Msomi wa Uraia & Mhitimu wa Heshima (Masomo 100)',
+      },
+      canDelete: false,
+      isSuperAdmin: false,
+      adminLevel: 'executive',
+    };
+  }
+
+  // Check if user has an executive verification badge granted by The_Samaritan (single tick or double ticks)
+  const customVerification = getUserVerification(clean);
+  if (customVerification) {
+    if (customVerification.badgeTier === 'double_tick') {
+      return {
+        badgeType: 'gold_double_tick',
+        isBoldGold: true,
+        hasDoubleTick: true,
+        roleTitle: {
+          en: customVerification.badgeTitleEn || 'Verified Civic Scholar (Double Ticks)',
+          sw: customVerification.badgeTitleSw || 'Msomi wa Uraia Aliyethibitishwa (Mihuri Miwili)',
+        },
+        canDelete: false,
+        isSuperAdmin: false,
+        adminLevel: 'citizen',
+      };
+    } else {
+      return {
+        badgeType: 'blue',
+        isBoldGold: false,
+        hasDoubleTick: false,
+        roleTitle: {
+          en: customVerification.badgeTitleEn || 'Verified Citizen (Single Tick)',
+          sw: customVerification.badgeTitleSw || 'Mwananchi Aliyethibitishwa (Mhuri Mmoja)',
+        },
+        canDelete: false,
+        isSuperAdmin: false,
+        adminLevel: 'citizen',
+      };
+    }
   }
 
   return {

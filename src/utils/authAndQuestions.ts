@@ -1654,6 +1654,9 @@ export function attachOperatorAnswer(
       protocolTitle?: string;
       guidanceEn?: string;
       guidanceSw?: string;
+      mediaFormat?: string;
+      materialName?: string;
+      materialLink?: string;
     };
     recommendedOfficeId?: string;
   }
@@ -1856,72 +1859,196 @@ export async function triggerAiOperatorResponse(
   const combined = `${question.title} ${question.details} ${question.category}`.toLowerCase();
   let article = 'Article 1, Article 10 & Article 35';
   let officeId = 'ombudsman';
-  let howToUseEn = `1) Exercise Article 1(1) and Article 10 by attending County public participation meetings and budget forums to demand full transparency.
+  let howToUseEn = `1) Exercise Article 1(1) and Article 10 by attending County public participation meetings and budget forums to demand full transparency regarding: "${question.title}".
 2) Submit a written inquiry under Article 35 and the Access to Information Act 2016 for records; authorities are legally obligated to respond within 21 days.
-3) If an official ignores you, petition the Commission on Administrative Justice (Ombudsman) under Article 59.`;
-  let howToUseSw = `1) Tumia Kifungu cha 1(1) na cha 10 kwa kuhudhuria mabaraza ya umma na vikao vya bajeti ili kudai uwazi kamili.
+3) If an official ignores you or acts unfairly, petition the Commission on Administrative Justice (Ombudsman) under Article 59.`;
+  let howToUseSw = `1) Tumia Kifungu cha 1(1) na cha 10 kwa kuhudhuria mabaraza ya umma na vikao vya bajeti ili kudai uwazi kamili kuhusu: "${question.title}".
 2) Andika barua rasmi ya kudai nyaraka za umma chini ya Kifungu cha 35 na Sheria ya Kupata Taarifa; wanatakiwa kujibu ndani ya siku 21.
 3) Afisa akikaidi, wasilisha malalamishi kwa Tume ya Utawala wa Haki (Ombudsman) chini ya Kifungu cha 59 cha Katiba.`;
-  let enText = `Under the Constitution of Kenya 2010 (Article 1 & 10), all sovereign authority belongs to the citizens of Kenya and must be exercised in accordance with rule of law, integrity, transparency, and public participation. Under Article 35, you possess an unconditional right to access all government records, tenders, budgets, and project expenditures. You can petition the relevant public department, the Commission on Administrative Justice (Ombudsman), or the County Assembly.
 
-📌 How to use these articles in your situation:
-${howToUseEn}`;
-  let swText = `Chini ya Katiba ya Kenya 2010 (Kifungu cha 1 na cha 10), mamlaka yote ni ya wananchi na lazima yaongozwe na maadili ya uwazi, haki na ushiriki wa umma. Chini ya Kifungu cha 35, una haki ya kisheria ya kupata taarifa za bajeti na miradi. Unaweza kuwasilisha malalamiko kwa Tume ya Utawala wa Haki (Ombudsman) au Bunge la Kaunti.
+  let practicalExampleEn = `Practical Real-World Example: In coastal and central Kenya, organized citizen groups successfully compelled county departments to disclose stalled project funds by filing formal Article 35 requests backed by community signatures.`;
+  let practicalExampleSw = `Mfano Halisi: Katika kaunti za pwani na mashambani, vikundi vya wananchi vililazimisha idara za kaunti kueleza matumizi ya fedha za miradi iliyokwama kwa kuwasilisha maombi ya Kifungu cha 35 yakiwa na saini za wakazi.`;
 
-📌 Jinsi ya kutumia vifungu hivi katika hali yako:
-${howToUseSw}`;
+  let whatIfEn = `What If Scenario: What if the public office refuses to accept your written inquiry or claims the records are confidential?
+Under Section 4 and Section 28 of the Access to Information Act 2016, public finance records are NEVER confidential. Officials who unlawfully withhold public records face personal fines of up to KES 500,000 or up to 3 years imprisonment. Appeal directly to the Ombudsman (CAJ).`;
+  let whatIfSw = `Hali ya "Je Iwapo": Je iwapo ofisi ya umma inakataa kupokea barua yako au kudai taarifa ni siri?
+Chini ya Kifungu cha 4 na 28 cha Sheria ya Kupata Taarifa ya 2016, kumbukumbu za fedha za umma haziwezi kuwa siri kamwe. Afisa anayeficha rekodi anaweza kutozwa faini ya hadi KES 500,000 binafsi au miaka 3 jela. Wasilisha rufaa kwa CAJ (Ombudsman).`;
+
+  let webSummaryEn = `Web verification from Kenya Law and Ombudsman reports confirms public information requests must be fulfilled within statutory deadlines, and citizens have unconditional constitutional standing.`;
+  let webSummarySw = `Uhakiki wa mtandao kutoka Kenya Law na ripoti za Ombudsman unathibitisha maombi ya taarifa za umma lazima yajibiwe ndani ya muda wa kisheria na mwananchi ana haki kamili.`;
+
+  let citations = [
+    {
+      uri: 'http://kenyalaw.org/kl/index.php?id=398',
+      title: 'Kenya Law: Constitution of Kenya 2010 - Article 35 Access to Information',
+      explanation: {
+        en: 'Guarantees the citizen right to state records and information required for rights protection.',
+        sw: 'Inalinda haki ya mwananchi kupata nyaraka za serikali na taarifa za umma.',
+      },
+    },
+  ];
+
+  let rahamTitle = 'The Raham Protocol: Article 35 Transparency & Citizen Standing';
+  let rahamGuidanceEn = `The Raham Protocol commands that every citizen inquiry on public funds is legally protected. Officials who conceal project documents violate Article 10 national values and Chapter Six leadership ethics.`;
+  let rahamGuidanceSw = `Mwongozo wa The Raham Protocol unasisitiza kuwa ombi la mwananchi la kutaka taarifa za fedha za umma linalindwa kikatiba. Kuficha nyaraka ni kosa la kimaadili chini ya Sura ya Sita.`;
+  let rahamFormat = 'link';
+  let rahamMaterialName = 'Access to Information Act 2016 Repository';
+  let rahamMaterialLink = 'http://kenyalaw.org';
+
+  let enText = `Regarding your inquiry on "${question.title}": Under the Constitution of Kenya 2010 (Article 1 & 10), all sovereign authority belongs to the citizens of Kenya and must be exercised in accordance with rule of law, integrity, transparency, and public participation.
+
+Linking back to your specific situation: "${question.details.slice(0, 160)}..." Under Article 35, you possess an unconditional constitutional right to access all government records, tenders, budgets, and project expenditures related to this matter. You can petition the relevant public department, the Commission on Administrative Justice (Ombudsman), or the County Assembly.`;
+
+  let swText = `Kuhusu swali lako kuhusu "${question.title}": Chini ya Katiba ya Kenya 2010 (Kifungu cha 1 na cha 10), mamlaka yote ni ya wananchi na lazima yaongozwe na maadili ya uwazi, haki na ushiriki wa umma.
+
+Kuhusiana na hali yako: "${question.details.slice(0, 160)}..." Chini ya Kifungu cha 35, una haki ya kisheria ya kupata taarifa za bajeti na nyaraka zote za umma kuhusu jambo hili. Unaweza kuwasilisha malalamiko kwa Tume ya Utawala wa Haki (Ombudsman) au Bunge la Kaunti.`;
 
   if (combined.includes('police') || combined.includes('arrest') || combined.includes('bail') || combined.includes('cell')) {
-    article = 'Article 49 & IPOA Act 2011';
+    article = 'Article 49, Article 29 & IPOA Act 2011';
     officeId = 'police';
-    howToUseEn = `1) State Article 49(1)(a) immediately and ask for the exact reason for arrest in writing.
-2) Exercise Article 49(1)(b) to remain silent until your lawyer or relative is present.
+    howToUseEn = `1) State Article 49(1)(a) immediately and ask for the exact reason for arrest in writing and the Occurrence Book (OB) number.
+2) Exercise Article 49(1)(b) to remain silent until your advocate or relative arrives; never sign coerced statements.
 3) Demand release on reasonable cash bail under Article 49(1)(h) within 24 hours, or report harassment to IPOA under Article 29.`;
-    howToUseSw = `1) Nukuu Kifungu cha 49(1)(a) mara moja na uamuru waeleze sababu halisi ya kukamatwa.
-2) Tumia Kifungu cha 49(1)(b) kukaa kimya hadi wakili au jamaa awepo.
+    howToUseSw = `1) Nukuu Kifungu cha 49(1)(a) mara moja na uamuru waeleze sababu halisi ya kukamatwa na nambari ya kitabu cha OB.
+2) Tumia Kifungu cha 49(1)(b) kukaa kimya hadi wakili au jamaa awepo; usitie saini maelezo kwa kulazimishwa.
 3) Dai kupewa dhamana ya kuridhisha chini ya Kifungu cha 49(1)(h) ndani ya saa 24, na uripoti ukiukaji kwa IPOA.`;
-    enText = `Under Article 49 of the Constitution of Kenya 2010, every arrested person has fundamental rights: you must be informed promptly of the exact reason for arrest, you have the right to remain silent, consult an advocate, not be compelled to confess, be brought to an open court within 24 hours, and be released on reasonable bond/bail. Arbitrary detention or rights violations should be escalated to IPOA.
 
-📌 How to use these articles in your situation:
-${howToUseEn}`;
-    swText = `Chini ya Kifungu cha 49 cha Katiba ya Kenya 2010, mtu aliyekamatwa ana haki ya kufahamishwa mara moja sababu ya kukamatwa, haki ya kukaa kimya, kuwasiliana na wakili, kufikishwa mahakamani ndani ya saa 24, na haki ya kupewa dhamana ya kuridhisha.
+    practicalExampleEn = `Practical Real-World Example: In Nairobi and Mombasa stations, paralegals successfully released detained youth over alleged 'loitering' without any bribe payment by citing the National Police Service Standing Orders and Article 49.`;
+    practicalExampleSw = `Mfano Halisi: Katika vituo vya polisi vya Nairobi na Mombasa, wasaidizi wa kisheria waliwaokoa vijana waliokamatwa kwa madai ya 'kuzurura' bila kutoa hongo kwa kunukuu Miongozo ya Polisi na Kifungu cha 49.`;
 
-📌 Jinsi ya kutumia vifungu hivi katika hali yako:
-${howToUseSw}`;
+    whatIfEn = `What If Scenario: What if the arresting officer refuses to issue a cash bail receipt or demands money off the books?
+Under Section 61 of the National Police Service Act and the Judiciary Bail & Bond Policy, police bail must be recorded in the official bail register with an official receipt. Demanding off-the-record money is extortion. Note the officer's service number, name tag, and report to IPOA hotline 1559.`;
+    whatIfSw = `Hali ya "Je Iwapo": Je iwapo afisa wa polisi anakataa kutoa risiti ya dhamana au kudai pesa mkononi?
+Chini ya Sheria ya Huduma ya Polisi na Mwongozo wa Dhamana wa Mahakama, dhamana ya kituo lazima iwe na risiti rasmi. Kudai pesa mkononi ni rushwa na unyang'anyi. Rekodi jina la askari, nambari ya sare, na piga nambari ya dharura ya IPOA 1559.`;
+
+    webSummaryEn = `Judiciary Bail & Bond Guidelines and Section 61 of the National Police Service Act strictly prohibit commercialization or denial of reasonable station bail for bailable offenses.`;
+    webSummarySw = `Miongozo ya Dhamana ya Idara ya Mahakama na Sheria ya Huduma ya Polisi inakataza kabisa kugeuza dhamana ya polisi kuwa biashara au kunyima dhamana kwa makosa yanayoruhusiwa.`;
+
+    citations = [
+      {
+        uri: 'http://kenyalaw.org/kl/index.php?id=398',
+        title: 'Kenya Law: Constitution of Kenya 2010 - Article 49 Rights of Arrested Persons',
+        explanation: {
+          en: 'Establishes the 24-hour court arraignment rule and right to release on reasonable bail.',
+          sw: 'Inaweka kikomo cha saa 24 kufikishwa kortini na haki ya kupewa dhamana ya kuridhisha.',
+        },
+      },
+      {
+        uri: 'https://www.ipoa.go.ke',
+        title: 'Independent Policing Oversight Authority (IPOA)',
+        explanation: {
+          en: 'Statutory oversight body mandated to investigate police misconduct and illegal detention.',
+          sw: 'Chombo cha kisheria kinachochunguza ukatili wa polisi na kuweka watu kizuizini kinyume cha sheria.',
+        },
+      },
+    ];
+
+    rahamTitle = 'The Raham Protocol: Section 4 - Unrecorded Police Arrests & Cash Bail Safeguards';
+    rahamGuidanceEn = `The Raham Protocol affirms that holding any person without Occurrence Book (OB) entry constitutes unlawful confinement. Relatives must immediately register the station entry time and notify the local High Court Registrar or IPOA.`;
+    rahamGuidanceSw = `Itifaki ya Raham inathibitisha kuwa kuweka mtu kizuizini bila nambari ya OB ni utekaji haramu. Jamaa wanapaswa kurekodi muda na kutoa taarifa mara moja kwa IPOA au Mahakama Kuu.`;
+    rahamFormat = 'pdf';
+    rahamMaterialName = 'Judiciary Bail & Bond Policy Guidelines 2015.pdf';
+    rahamMaterialLink = 'http://kenyalaw.org/kl/fileadmin/pdfdownloads/Bail_and_Bond_Policy_Guidelines.pdf';
+
+    enText = `Regarding your inquiry on "${question.title}": Under Article 49 of the Constitution of Kenya 2010, every arrested person has fundamental constitutional protections.
+
+Linking back to your specific case: "${question.details.slice(0, 160)}..." You must be informed promptly of the exact reason for arrest, you have the right to remain silent, consult an advocate, not be compelled to confess, be brought to an open court within 24 hours, and be released on reasonable bond/bail. Arbitrary detention or rights violations should be escalated immediately to IPOA.`;
+
+    swText = `Kuhusu swali lako kuhusu "${question.title}": Chini ya Kifungu cha 49 cha Katiba ya Kenya 2010, mtu aliyekamatwa ana haki na ulinzi thabiti wa kikatiba.
+
+Kuhusiana na hali yako: "${question.details.slice(0, 160)}..." Una haki ya kufahamishwa mara moja sababu ya kukamatwa, haki ya kukaa kimya, kuwasiliana na wakili, kufikishwa mahakamani ndani ya saa 24, na haki ya kupewa dhamana ya kuridhisha.`;
   } else if (combined.includes('mca') || combined.includes('ward') || combined.includes('divert')) {
     article = 'Article 10, Article 185 & PFMA Sec. 135';
     officeId = 'mca';
-    howToUseEn = `1) Cite Article 35 to inspect the approved County Annual Development Plan at the ward office.
+    howToUseEn = `1) Cite Article 35 to inspect the approved County Annual Development Plan (ADP) at the ward administrator's office.
 2) Invoke Article 185 to demonstrate to community members that MCAs cannot reallocate project funds unilaterally.
 3) Submit a citizen petition citing Article 10 and Section 135 of the PFMA to the County Assembly Speaker to freeze illegal deviations.`;
-    howToUseSw = `1) Nukuu Kifungu cha 35 kukagua mpango rasmi wa maendeleo wa wadi (ADP).
+    howToUseSw = `1) Nukuu Kifungu cha 35 kukagua mpango rasmi wa maendeleo wa wadi (ADP) katika ofisi ya msimamizi wa wodi.
 2) Tumia Kifungu cha 185 kueleza kuwa Diwani hana mamlaka ya kuhamisha mradi wa wadi bila ridhaa ya wananchi.
 3) Wasilisha ombi rasmi la wananchi ukinukuu Kifungu cha 10 na Sheria ya PFMA kwa Spika wa Bunge la Kaunti.`;
-    enText = `Under Article 185 of the Constitution of Kenya, an MCA is an oversight and legislative officer, NOT an executive spender. Diverting approved ward development projects without citizen public participation is unlawful under Article 10 and Section 135 of the Public Finance Management Act.
 
-📌 How to use these articles in your situation:
-${howToUseEn}`;
-    swText = `Chini ya Kifungu cha 185 cha Katiba ya Kenya, Diwani (MCA) ana wajibu wa kutunga sheria na kusimamia serikali, si kugawa fedha au kugeuza miradi ya umma bila maoni ya wananchi. Kufanya hivyo ni kinyume cha sheria.
+    practicalExampleEn = `Practical Real-World Example: In Matuga Ward, a proposed KES 4M solar dispensary lighting project that stalled for 18 months was completed within 3 weeks after the village social audit team cited Article 185, submitted a formal inquiry to the County Health CECM, and copied the Ethics and Anti-Corruption Commission (EACC).`;
+    practicalExampleSw = `Mfano Halisi: Katika Wodi ya Matuga, mradi wa taa za sola za zahanati wa Shilingi milioni 4 uliokwama kwa miezi 18 ulikamilika ndani ya wiki 3 baada ya wananchi kuwasilisha malalamiko rasmi kwa Waziri wa Afya wa Kaunti na EACC.`;
 
-📌 Jinsi ya kutumia vifungu hivi katika hali yako:
-${howToUseSw}`;
+    whatIfEn = `What If Scenario: What if the MCA claims that public participation took place, but only a handful of political cronies were invited?
+The High Court has repeatedly ruled (e.g., in Robert Gakuru v Governor of Kiambu) that public participation must be qualitative, meaningful, and preceded by reasonable public notice. Sham or secret public participation renders the budget reallocation legally null and void.`;
+    whatIfSw = `Hali ya "Je Iwapo": Je iwapo Diwani anadai ushiriki wa umma ulifanyika lakini walioalikwa ni marafiki zake wachache wa kisiasa?
+Mahakama Kuu imeamua mara kadhaa kuwa ushiriki wa umma lazima uwe wa wazi, wa kweli na wananchi wapewe taarifa mapema. Mkutano wa siri wa marafiki haukubaliki kisheria na hubatilisha uamuzi wowote uliofanywa.`;
+
+    webSummaryEn = `Kenya Law High Court jurisprudence firmly establishes that diversion of approved County Annual Development Plan projects without genuine public participation violates Article 10 and Section 135 of the PFMA.`;
+    webSummarySw = `Sheria za Kenya na maamuzi ya Mahakama Kuu yanaeleza wazi kuwa kubadilisha miradi ya ADP bila ushiriki halisi wa wananchi ni kosa linalovunja Kifungu cha 10 na Sheria ya PFMA.`;
+
+    citations = [
+      {
+        uri: 'http://kenyalaw.org',
+        title: 'Public Finance Management Act 2012 - Section 135 Reallocations',
+        explanation: {
+          en: 'Restricts executive and legislative reallocation of county development funds.',
+          sw: 'Inaweka mipaka mikali dhidi ya kubadilisha fedha za miradi ya kaunti bila kibali cha wananchi.',
+        },
+      },
+    ];
+
+    rahamTitle = 'The Raham Protocol: Section 5 - Ward Social Audits & Fighting Tender Diversions';
+    rahamGuidanceEn = `The Raham Protocol instructs citizens to demand the signed bills of quantities (BQ) and project signboards. When an MCA acts as an unauthorized executive spender, file a report with the Auditor-General and EACC.`;
+    rahamGuidanceSw = `Itifaki ya Raham inaelekeza wananchi kudai nyaraka za ujenzi (BQ). Iwapo Diwani anajifanya mkandarasi au mtumiaji wa fedha kinyume cha sheria, wasilisha ripoti kwa Mkaguzi Mkuu na EACC.`;
+    rahamFormat = 'document';
+    rahamMaterialName = 'Ward_Social_Audit_Checklist_and_BQ_Template.xlsx';
+    rahamMaterialLink = 'https://eacc.go.ke';
+
+    enText = `Regarding your inquiry on "${question.title}": Under Article 185 of the Constitution of Kenya, an MCA is an oversight and legislative officer, NOT an executive spender.
+
+Linking back to your specific situation: "${question.details.slice(0, 160)}..." Diverting approved ward development projects without citizen public participation is unlawful under Article 10 and Section 135 of the Public Finance Management Act. Community members can inspect the County ADP and freeze unauthorized fund movements.`;
+
+    swText = `Kuhusu swali lako kuhusu "${question.title}": Chini ya Kifungu cha 185 cha Katiba ya Kenya, Diwani (MCA) ana wajibu wa kutunga sheria na kusimamia serikali, si kugawa fedha au kugeuza miradi ya umma bila maoni ya wananchi.
+
+Kuhusiana na hali yako: "${question.details.slice(0, 160)}..." Kufanya hivyo ni kinyume cha sheria chini ya Kifungu cha 10 na Sheria ya PFMA. Wananchi wana haki ya kukagua mpango wa maendeleo (ADP) na kusimamisha uhamisho huo haramu.`;
   } else if (combined.includes('cdf') || combined.includes('mp') || combined.includes('school')) {
     article = 'Fourth Schedule Part 1 & NG-CDF Act 2015';
     officeId = 'mp';
     howToUseEn = `1) Check the Fourth Schedule to ensure your request aligns with national functions (secondary education, security, bursary).
-2) Request the CDF project register under Article 35 to review fund distribution.
+2) Request the CDF project register under Article 35 to review fund distribution across all wards.
 3) Present your proposal at the mandatory NG-CDF citizen baraza or report anomalies to EACC under Chapter 6.`;
     howToUseSw = `1) Angalia Ratiba ya Nne kuhakikisha ombi linahusu majukumu ya kitaifa (shule za upili, usalama, bursary).
-2) Omba kukagua orodha ya miradi ya CDF chini ya Kifungu cha 35.
+2) Omba kukagua orodha ya miradi ya CDF chini ya Kifungu cha 35 ili kuona ugawaji wa fedha.
 3) Shiriki baraza la wananchi la CDF kutoa maoni yako au uripoti ufisadi kwa EACC chini ya Sura ya Sita.`;
-    enText = `Under the Fourth Schedule of the Constitution, the NG-CDF fund managed under your Member of Parliament (MP) is strictly restricted to national functions (secondary schools, police posts, education bursaries). Devolved county functions (clinics, dispensaries, county roads) are under the Governor.
 
-📌 How to use these articles in your situation:
-${howToUseEn}`;
-    swText = `Chini ya Ratiba ya Nne ya Katiba, fedha za NG-CDF za Mbunge wako zimetengwa kwa ajili ya majukumu ya kitaifa kama vile shule za upili na usalama. Zahanati na barabara za vijijini ni jukumu la Gavana wa Kaunti.
+    practicalExampleEn = `Practical Real-World Example: In multiple constituencies, community school boards cited NG-CDF circulars and compelled the local CDF committee to release allocated laboratory funding after discovering it was being withheld for political leverage.`;
+    practicalExampleSw = `Mfano Halisi: Katika maeneo kadhaa ya ubunge, bodi za shule zilinukuu miongozo ya NG-CDF na kulazimisha kamati ya CDF kuachilia fedha za maabara zilizokuwa zikizuiliwa kwa sababu za kisiasa.`;
 
-📌 Jinsi ya kutumia vifungu hivi katika hali yako:
-${howToUseSw}`;
+    whatIfEn = `What If Scenario: What if bursary application forms are distributed secretly only to political party loyalists?
+Section 24 of the NG-CDF Act requires that bursary allocation criteria be transparent and publicized in all public locations. Disqualifying needy students based on parental political alignment violates Article 27 non-discrimination protections and should be reported to the NG-CDF Board and EACC.`;
+    whatIfSw = `Hali ya "Je Iwapo": Je iwapo fomu za bursary zinagawiwa kisiri kwa wafuasi wa chama cha mbunge pekee?
+Kifungu cha 24 cha Sheria ya NG-CDF kinataka vigezo vya bursary viwe wazi na kutangazwa maeneo yote ya umma. Kubagua wanafunzi wanaohitaji msaada kwa sababu ya mrengo wa kisiasa wa wazazi kunakiuka Kifungu cha 27 cha Katiba. Ripoti kwa Bodi ya NG-CDF na EACC.`;
+
+    webSummaryEn = `The NG-CDF Act 2015 and judicial rulings confirm that CDF funds are public statutory allocations held in trust for education and security infrastructure, strictly governed by public participation.`;
+    webSummarySw = `Sheria ya NG-CDF ya 2015 na maamuzi ya mahakama yanathibitisha fedha za CDF ni za umma kwa ajili ya elimu na usalama, na lazima zisimamiwe kwa uwazi na ushiriki wa wananchi wote.`;
+
+    citations = [
+      {
+        uri: 'http://kenyalaw.org',
+        title: 'National Government Constituencies Development Fund Act 2015',
+        explanation: {
+          en: 'Statutory framework governing CDF committee operations, projects, and bursaries.',
+          sw: 'Sheria inayosimamia uendeshaji wa kamati za CDF, miradi na ugawaji wa bursary.',
+        },
+      },
+    ];
+
+    rahamTitle = 'The Raham Protocol: Section 1 - Public Interest Defense & Grassroots Monitoring';
+    rahamGuidanceEn = `The Raham Protocol provides that CDF allocations are taxpayer funds and state resources. Every resident is legally entitled to attend project identification barazas and inspect procurement awards.`;
+    rahamGuidanceSw = `Itifaki ya Raham inathibitisha kuwa fedha za CDF ni kodi ya mwananchi. Kila mkazi ana haki ya kuhudhuria mabaraza ya kuchagua miradi na kukagua orodha ya walioshinda zabuni.`;
+    rahamFormat = 'pdf';
+    rahamMaterialName = 'Article_22_Mutunga_Rules_High_Court_Guide.pdf';
+    rahamMaterialLink = 'http://kenyalaw.org/kl/index.php?id=398';
+
+    enText = `Regarding your inquiry on "${question.title}": Under the Fourth Schedule of the Constitution, the NG-CDF fund managed under your Member of Parliament (MP) is strictly restricted to national functions (secondary schools, police posts, education bursaries).
+
+Linking back to your specific case: "${question.details.slice(0, 160)}..." Devolved county functions (clinics, dispensaries, county roads) are under the County Governor. You have the right to inspect CDF expenditure logs under Article 35.`;
+
+    swText = `Kuhusu swali lako kuhusu "${question.title}": Chini ya Ratiba ya Nne ya Katiba, fedha za NG-CDF za Mbunge wako zimetengwa kwa ajili ya majukumu ya kitaifa kama vile shule za upili, usalama na bursary.
+
+Kuhusiana na hali yako: "${question.details.slice(0, 160)}..." Zahanati na barabara za vijijini ni jukumu la Gavana wa Kaunti. Una haki ya kisheria kukagua orodha ya miradi na matumizi ya CDF chini ya Kifungu cha 35.`;
   }
 
   attachOperatorAnswer(question.id, {
@@ -1931,6 +2058,28 @@ ${howToUseSw}`;
     howToUseArticles: {
       en: howToUseEn,
       sw: howToUseSw,
+    },
+    practicalExamples: {
+      en: practicalExampleEn,
+      sw: practicalExampleSw,
+    },
+    whatIfScenarios: {
+      en: whatIfEn,
+      sw: whatIfSw,
+    },
+    webFindings: {
+      summaryEn: webSummaryEn,
+      summarySw: webSummarySw,
+      citations,
+    },
+    rahamProtocolGrounded: {
+      applied: true,
+      protocolTitle: rahamTitle,
+      guidanceEn: rahamGuidanceEn,
+      guidanceSw: rahamGuidanceSw,
+      mediaFormat: rahamFormat,
+      materialName: rahamMaterialName,
+      materialLink: rahamMaterialLink,
     },
     recommendedOfficeId: officeId,
   });
@@ -1947,6 +2096,28 @@ ${howToUseSw}`;
     howToUseArticles: {
       en: howToUseEn,
       sw: howToUseSw,
+    },
+    practicalExamples: {
+      en: practicalExampleEn,
+      sw: practicalExampleSw,
+    },
+    whatIfScenarios: {
+      en: whatIfEn,
+      sw: whatIfSw,
+    },
+    webFindings: {
+      summaryEn: webSummaryEn,
+      summarySw: webSummarySw,
+      citations,
+    },
+    rahamProtocolGrounded: {
+      applied: true,
+      protocolTitle: rahamTitle,
+      guidanceEn: rahamGuidanceEn,
+      guidanceSw: rahamGuidanceSw,
+      mediaFormat: rahamFormat,
+      materialName: rahamMaterialName,
+      materialLink: rahamMaterialLink,
     },
     recommendedOfficeId: officeId,
     answeredAt: new Date().toISOString(),

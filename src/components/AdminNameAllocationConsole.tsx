@@ -41,10 +41,10 @@ export const AdminNameAllocationConsole: React.FC<AdminNameAllocationConsoleProp
 }) => {
   const isSamaritan = Boolean(
     currentUser?.username &&
-      (currentUser.username.toLowerCase() === 'the_samaritan' ||
-        currentUser.username.toLowerCase() === '@the_samaritan' ||
-        currentUser.username.toLowerCase() === 'the samaritan' ||
-        currentUser.username.toLowerCase() === 'sir chaucer')
+      (currentUser.username.toLowerCase().replace(/^@/, '') === 'the_samaritan' ||
+        currentUser.username.toLowerCase().replace(/^@/, '') === 'the samaritan' ||
+        currentUser.username.toLowerCase().replace(/^@/, '') === 'sir chaucer' ||
+        currentUser.role === 'admin')
   );
 
   const [activeFilter, setActiveFilter] = useState<'all' | 'self' | 'subordinates'>('all');
@@ -477,7 +477,9 @@ export const AdminNameAllocationConsole: React.FC<AdminNameAllocationConsoleProp
                     Self-Allocation
                   </span>
                   <span className="text-[10px] font-mono font-bold text-amber-200/80">
-                    The_Samaritan Account
+                    {language === 'en'
+                      ? 'The_Samaritan Account'
+                      : 'Akaunti ya The_Samaritan'}
                   </span>
                 </div>
                 <h3 className="font-serif font-black text-lg sm:text-xl text-white mt-0.5">

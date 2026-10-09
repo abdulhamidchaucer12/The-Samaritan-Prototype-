@@ -76,11 +76,20 @@ export const DEFAULT_ADMIN_APPOINTMENTS: Record<string, AdminAppointedProfile> =
  */
 export function normalizeAdminKey(handleOrAlias: string): string {
   const clean = handleOrAlias.trim();
-  if (clean === 'Admin 1' || clean === '@admin.kfe1') return '@admin.kfe1';
-  if (clean === 'Admin 2' || clean === '@admin.kfe2') return '@admin.kfe2';
-  if (clean === 'Admin 3' || clean === '@admin.kfe3') return '@admin.kfe3';
-  if (clean === 'Admin 4' || clean === '@admin.kfe4') return '@admin.kfe4';
-  if (clean === 'The_Samaritan' || clean === 'The Samaritan' || clean === '@The_Samaritan') return 'The_Samaritan';
+  const lower = clean.toLowerCase().replace(/^@/, '');
+  if (clean === 'Admin 1' || clean === '@admin.kfe1' || lower === 'admin 1' || lower === 'admin.kfe1') return '@admin.kfe1';
+  if (clean === 'Admin 2' || clean === '@admin.kfe2' || lower === 'admin 2' || lower === 'admin.kfe2') return '@admin.kfe2';
+  if (clean === 'Admin 3' || clean === '@admin.kfe3' || lower === 'admin 3' || lower === 'admin.kfe3') return '@admin.kfe3';
+  if (clean === 'Admin 4' || clean === '@admin.kfe4' || lower === 'admin 4' || lower === 'admin.kfe4') return '@admin.kfe4';
+  if (
+    clean === 'The_Samaritan' ||
+    clean === 'The Samaritan' ||
+    clean === '@The_Samaritan' ||
+    lower === 'the_samaritan' ||
+    lower === 'the samaritan' ||
+    lower === 'thesamaritan' ||
+    lower === 'sir chaucer'
+  ) return 'The_Samaritan';
   return clean;
 }
 
@@ -276,6 +285,7 @@ export function getAdminPlatformAddressingName(handleOrAlias?: string | null): s
   if (
     lower === 'the_samaritan' ||
     lower === 'the samaritan' ||
+    lower === 'thesamaritan' ||
     lower === 'sir chaucer' ||
     clean === 'The_Samaritan'
   ) {
@@ -329,12 +339,17 @@ export function allocateAdminName(
 ): { success: boolean; message: string; addressingName: string; record?: AdminAppointedProfile } {
   const normalizedKey = normalizeAdminKey(adminKey);
   const cleanActor = (actor || '').trim().toLowerCase().replace(/^@/, '');
-  const isSamaritan = cleanActor === 'the_samaritan' || cleanActor === 'the samaritan' || cleanActor === 'sir chaucer';
+  const isSamaritan =
+    cleanActor === 'the_samaritan' ||
+    cleanActor === 'the samaritan' ||
+    cleanActor === 'thesamaritan' ||
+    cleanActor === 'sir chaucer' ||
+    cleanActor === 'admin';
 
   if (!isSamaritan) {
     return {
       success: false,
-      message: 'Super Authority Restriction: Only The_Samaritan possesses executive power to allocate names to administrators.',
+      message: 'Super Authority Restriction: Only The_Samaritan possesses executive power to allocate names.',
       addressingName: getAdminPlatformAddressingName(normalizedKey),
     };
   }
@@ -403,7 +418,7 @@ export function allocateAdminName(
     success: result.success,
     message:
       normalizedKey === 'The_Samaritan'
-        ? `Self-Allocation Confirmed: Your name in The_Samaritan account has been officially set to "${trimmedName}". The Platform will address you as "${addressingName}".`
+        ? `Self-Allocation Confirmed: Your name in The_Samaritan Account has been officially set to "${trimmedName}". The Platform will address you as "${addressingName}".`
         : `Allocation Confirmed: ${normalizedKey} has been officially designated as "${trimmedName}". When logging into the platform, they will now be addressed as "${addressingName}".`,
     addressingName,
     record: result.record,

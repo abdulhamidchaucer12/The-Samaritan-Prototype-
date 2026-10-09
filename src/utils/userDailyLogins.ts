@@ -144,6 +144,8 @@ export function getGreetingDisplayName(user?: AuthUser | null): string {
     lower === 'the samaritan' ||
     lower === '@the_samaritan' ||
     lower === 'thesamaritan' ||
+    lower === 'msamaria' ||
+    lower === 'msamaria wema' ||
     lower === 'sir chaucer'
   ) {
     return getAdminPlatformAddressingName('The_Samaritan');

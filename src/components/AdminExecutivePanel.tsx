@@ -19,6 +19,7 @@ import {
   PlusCircle,
   UserCheck,
   Shield,
+  ShieldCheck,
   ExternalLink,
   PenTool,
   Save,
@@ -36,6 +37,9 @@ import {
   Check,
 } from 'lucide-react';
 import { MasterCitizenRosterAndIncidents } from './MasterCitizenRosterAndIncidents';
+import { UserVerificationConsole } from './UserVerificationConsole';
+import { PlatformSecurityConsole } from './PlatformSecurityConsole';
+import { getAllVerificationRequests } from '../utils/userVerificationService';
 import { exportDatabaseToExcel, readExcelDatabaseFile } from '../utils/excelDatabase';
 import {
   getGoogleSheetConfig,
@@ -100,6 +104,7 @@ import {
 } from '../utils/certificateSignatories';
 import { KfeClearBoxIcon } from './KfeClearBoxIcon';
 import { AdminNameAllocationConsole } from './AdminNameAllocationConsole';
+import { RahamProtocolConsole } from './RahamProtocolConsole';
 import { getAdminPlatformAddressingName } from '../utils/adminAppointments';
 
 interface AdminExecutivePanelProps {
@@ -113,6 +118,13 @@ export const AdminExecutivePanel: React.FC<AdminExecutivePanelProps> = ({
   currentUser,
   onRefreshDashboard,
 }) => {
+  const isSamaritan = Boolean(
+    currentUser.username &&
+      ['the_samaritan', '@the_samaritan', 'the samaritan', 'sir chaucer'].includes(
+        currentUser.username.toLowerCase().trim()
+      )
+  );
+
   const [subTab, setSubTab] = useState<
     | 'bans'
     | 'courses'
@@ -123,16 +135,40 @@ export const AdminExecutivePanel: React.FC<AdminExecutivePanelProps> = ({
     | 'notifications'
     | 'appoint'
     | 'allocate_admin_names'
+    | 'raham_protocol'
+    | 'user_verifications'
     | 'events'
     | 'samaritan_super_command'
+    | 'platform_security'
     | 'citizen_roster_sentinel'
     | 'excel_database'
     | 'google_sheet_sync'
   >(
-    currentUser.username === 'The_Samaritan' || currentUser.username === '@The_Samaritan'
+    isSamaritan
       ? 'citizen_roster_sentinel'
       : 'bans'
   );
+
+  // User Verification Badges state
+  const [pendingVerifCount, setPendingVerifCount] = useState<number>(() => {
+    try {
+      return getAllVerificationRequests().filter((r) => r.status === 'pending').length;
+    } catch {
+      return 0;
+    }
+  });
+
+  useEffect(() => {
+    const handleVerifUpdate = () => {
+      try {
+        setPendingVerifCount(getAllVerificationRequests().filter((r) => r.status === 'pending').length);
+      } catch {}
+    };
+    window.addEventListener('the_samaritan_verifications_updated', handleVerifUpdate);
+    return () => {
+      window.removeEventListener('the_samaritan_verifications_updated', handleVerifUpdate);
+    };
+  }, []);
 
   // The Samaritan Super Command state
   const [allCoursesList, setAllCoursesList] = useState(() => getAllCivicCourses());
@@ -552,8 +588,7 @@ export const AdminExecutivePanel: React.FC<AdminExecutivePanelProps> = ({
       {/* Sub-Navigation Buttons */}
       <div className="flex flex-wrap items-center gap-2 border-b border-slate-200 pb-3">
         {[
-          ...(currentUser.username === 'The_Samaritan' ||
-          currentUser.username === '@The_Samaritan'
+          ...(isSamaritan
             ? [
                 {
                   id: 'citizen_roster_sentinel',
@@ -563,15 +598,34 @@ export const AdminExecutivePanel: React.FC<AdminExecutivePanelProps> = ({
                 },
                 {
                   id: 'allocate_admin_names',
-                  labelEn: 'Allocate Admin Names (1-4)',
-                  labelSw: 'Kugawa Majina ya Wasimamizi (1-4)',
+                  labelEn: 'Allocate Admin Names (Self & 1-4)',
+                  labelSw: 'Kugawa Majina ya Wasimamizi (Mwenyewe na 1-4)',
                   icon: UserCheck,
+                },
+                {
+                  id: 'user_verifications',
+                  labelEn: 'User Verification Badges (Single/Double)',
+                  labelSw: 'Nembo za Uthibitishaji (Moja/Mbili)',
+                  icon: ShieldCheck,
+                  badgeCount: pendingVerifCount,
+                },
+                {
+                  id: 'raham_protocol',
+                  labelEn: 'The Raham Protocol (AI Knowledgebase)',
+                  labelSw: 'The Raham Protocol (Hifadhidata ya AI)',
+                  icon: Sparkles,
                 },
                 {
                   id: 'samaritan_super_command',
                   labelEn: 'Super Command (The Samaritan)',
                   labelSw: 'Amri Kuu (The Samaritan)',
                   icon: Crown,
+                },
+                {
+                  id: 'platform_security',
+                  labelEn: 'Platform Security & Sentinel Shield',
+                  labelSw: 'Usalama na Ngao ya Sentinel',
+                  icon: ShieldAlert,
                 },
               ]
             : []),
@@ -658,6 +712,11 @@ export const AdminExecutivePanel: React.FC<AdminExecutivePanelProps> = ({
             >
               <Icon className="w-3.5 h-3.5 shrink-0" />
               <span>{language === 'en' ? tab.labelEn : tab.labelSw}</span>
+              {Boolean((tab as any).badgeCount && (tab as any).badgeCount > 0) && (
+                <span className="px-1.5 py-0.5 rounded-full text-[10px] font-black bg-red-600 text-white leading-none">
+                  {(tab as any).badgeCount}
+                </span>
+              )}
             </button>
           );
         })}
@@ -2282,6 +2341,33 @@ export const AdminExecutivePanel: React.FC<AdminExecutivePanelProps> = ({
           currentUser={currentUser}
           onRefresh={onRefreshDashboard}
         />
+      )}
+
+      {/* ========================================================================= */}
+      {/* THE SAMARITAN CITIZEN VERIFICATION BADGES CONSOLE (SINGLE / DOUBLE TICKS) */}
+      {/* ========================================================================= */}
+      {subTab === 'user_verifications' && (
+        <UserVerificationConsole
+          language={language}
+          actorUsername={currentUser.username}
+        />
+      )}
+
+      {/* ========================================================================= */}
+      {/* THE RAHAM PROTOCOL AI KNOWLEDGEBASE SUBTAB */}
+      {/* ========================================================================= */}
+      {subTab === 'raham_protocol' && (
+        <RahamProtocolConsole
+          language={language}
+          currentUser={currentUser}
+        />
+      )}
+
+      {/* ========================================================================= */}
+      {/* THE SAMARITAN PLATFORM SECURITY & SENTINEL SHIELD */}
+      {/* ========================================================================= */}
+      {subTab === 'platform_security' && (
+        <PlatformSecurityConsole language={language} />
       )}
 
       {/* ========================================================================= */}

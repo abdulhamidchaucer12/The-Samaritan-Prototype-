@@ -42,6 +42,11 @@ import {
 import { exportDatabaseToExcel } from '../utils/excelDatabase';
 import { pushAllDataToGoogleSheet, getGoogleSheetConfig } from '../utils/googleSheetSync';
 import { UserBadge } from './UserBadge';
+import {
+  getUserVerification,
+  verifyUser,
+  revokeVerification,
+} from '../utils/userVerificationService';
 
 interface MasterCitizenRosterAndIncidentsProps {
   currentUser: AuthUser;
@@ -602,6 +607,43 @@ export const MasterCitizenRosterAndIncidents: React.FC<MasterCitizenRosterAndInc
 
                       {/* Quick Samaritan Administrative Actions */}
                       <div className="flex items-center gap-2 w-full sm:w-auto justify-end">
+                        {(() => {
+                          const userVerif = getUserVerification(user.username);
+                          return (
+                            <button
+                              onClick={() => {
+                                if (!userVerif) {
+                                  verifyUser(user.username, 'double_tick', { verifiedBy: currentUser.username });
+                                  showFeedback(`Verified @${user.username} with Double Ticks badge!`, 'success');
+                                } else if (userVerif.badgeTier === 'double_tick') {
+                                  verifyUser(user.username, 'single_tick', { verifiedBy: currentUser.username });
+                                  showFeedback(`Changed @${user.username} to Single Tick badge!`, 'success');
+                                } else {
+                                  revokeVerification(user.username, currentUser.username);
+                                  showFeedback(`Revoked verification for @${user.username}`, 'success');
+                                }
+                                loadData();
+                              }}
+                              className={`p-2 rounded-lg border transition-colors cursor-pointer ${
+                                userVerif?.badgeTier === 'double_tick'
+                                  ? 'bg-amber-100 text-amber-900 border-amber-300 dark:bg-amber-950 dark:text-amber-300 dark:border-amber-700'
+                                  : userVerif?.badgeTier === 'single_tick'
+                                  ? 'bg-blue-100 text-blue-900 border-blue-300 dark:bg-blue-950 dark:text-blue-300 dark:border-blue-700'
+                                  : 'bg-slate-50 dark:bg-slate-800 text-slate-500 border-slate-200 dark:border-slate-700 hover:bg-slate-100'
+                              }`}
+                              title={
+                                userVerif?.badgeTier === 'double_tick'
+                                  ? 'Verified (Double Ticks) - Click to change to Single Tick'
+                                  : userVerif?.badgeTier === 'single_tick'
+                                  ? 'Verified (Single Tick) - Click to revoke'
+                                  : 'Click to quickly verify with Double Ticks badge'
+                              }
+                            >
+                              <ShieldCheck className="w-4 h-4" />
+                            </button>
+                          );
+                        })()}
+
                         {onOpenTokenAwardModal && (
                           <button
                             onClick={() => onOpenTokenAwardModal(user.username)}

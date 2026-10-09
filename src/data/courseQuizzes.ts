@@ -394,6 +394,588 @@ export const courseQuizzesMap: Record<string, QuizQuestion[]> = {
       },
     },
   ],
+
+  // Course 11: Human Rights Advocacy
+  lesson_11: [
+    {
+      id: 'l11_q1',
+      category: 'human_rights',
+      question: {
+        en: 'Under Article 22 of the Constitution of Kenya 2010, who has the legal right to institute court proceedings claiming that a right or fundamental freedom has been denied, violated, or threatened?',
+        sw: 'Chini ya Kifungu cha 22 cha Katiba ya Kenya 2010, ni nani mwenye haki ya kufungua kesi mahakamani akidai haki ya kimsingi imekiukwa au kutishiwa?',
+      },
+      options: [
+        { id: 'a', text: { en: 'Any person acting in their own interest, on behalf of another, or in the public interest', sw: 'Mtu yeyote anayetenda kwa maslahi yake, kwa niaba ya mwingine, au kwa maslahi ya umma' } },
+        { id: 'b', text: { en: 'Only licensed advocates and Senior Counsel', sw: 'Mawakili waliohitimu na Mawakili Wakuu pekee' } },
+        { id: 'c', text: { en: 'Only the Attorney-General and Cabinet Secretaries', sw: 'Mwanasheria Mkuu na Mawaziri pekee' } },
+        { id: 'd', text: { en: 'Only corporate entities registered under the Companies Act', sw: 'Makampuni yaliyosajiliwa chini ya Sheria ya Makampuni pekee' } },
+      ],
+      correctOptionId: 'a',
+      explanation: {
+        en: 'Article 22 completely liberalized standing (locus standi), allowing anyone—including community paralegals and human rights defenders—to approach the High Court without procedural hurdles.',
+        sw: 'Kifungu cha 22 kimefungua milango ya mahakama kwa kila mwananchi, watetezi wa haki, na wasaidizi wa kisheria kutetea haki za wengine na maslahi ya umma.',
+      },
+    },
+    {
+      id: 'l11_q2',
+      category: 'human_rights',
+      question: {
+        en: 'Under Article 22(3)(b), what rule governs court fees for citizens filing human rights enforcement petitions in Kenya?',
+        sw: 'Chini ya Kifungu cha 22(3)(b), ni kanuni gani inayosimamia ada za mahakama kwa wananchi wanaofungua kesi za kutetea haki za binadamu?',
+      },
+      options: [
+        { id: 'a', text: { en: 'The Chief Justice must make rules ensuring court fees are not used as an unreasonable barrier to justice', sw: 'Jaji Mkuu lazima aweke kanuni kuhakikisha ada za mahakama hazitumiki kama kikwazo cha kuzuia haki' } },
+        { id: 'b', text: { en: 'Citizens must pay a mandatory non-refundable cash deposit of KES 500,000', sw: 'Wananchi lazima walipe amana ya lazima ya shilingi 500,000 za Kenya' } },
+        { id: 'c', text: { en: 'Only individuals who own titled land may file petitions', sw: 'Watu wanaomiliki hati miliki za ardhi pekee ndio wanaoweza kufungua kesi' } },
+        { id: 'd', text: { en: 'Court fees must be paid in foreign currency', sw: 'Ada za mahakama lazima zilipwe kwa sarafu ya kigeni' } },
+      ],
+      correctOptionId: 'a',
+      explanation: {
+        en: 'Article 22(3)(b) mandates that rules made by the Chief Justice ensure unreasonable fees do not impede ordinary citizens from accessing justice.',
+        sw: 'Kifungu cha 22(3)(b) kinaagiza kuwa taratibu za mahakama zihakikishe ada hazitumiwi kuwazuia wananchi wa kawaida kupata haki.',
+      },
+    },
+    {
+      id: 'l11_q3',
+      category: 'human_rights',
+      question: {
+        en: 'What is the binding constitutional obligation of the State regarding the Bill of Rights under Article 21(1)?',
+        sw: 'Ni upi wajibu wa kikatiba wa Serikali kuhusu Mswada wa Haki chini ya Kifungu cha 21(1)?',
+      },
+      options: [
+        { id: 'a', text: { en: 'It is a fundamental duty of the State and every state organ to observe, respect, protect, promote, and fulfill the rights and fundamental freedoms', sw: 'Ni wajibu wa msingi wa Serikali na kila chombo cha dola kuheshimu, kulinda, kuendeleza na kutimiza haki za kimsingi' } },
+        { id: 'b', text: { en: 'The State may suspend human rights at will without any constitutional oversight', sw: 'Serikali inaweza kusitisha haki za binadamu inavyotaka bila ukaguzi wa kikatiba' } },
+        { id: 'c', text: { en: 'The State is only responsible for economic investments and not civil liberties', sw: 'Serikali inawajibika tu kwa uwekezaji wa kiuchumi na si uhuru wa raia' } },
+        { id: 'd', text: { en: 'The Bill of Rights applies only during international conferences', sw: 'Mswada wa Haki unatumika tu wakati wa mikutano ya kimataifa' } },
+      ],
+      correctOptionId: 'a',
+      explanation: {
+        en: 'Article 21(1) places an affirmative legal duty on the state to proactively observe, respect, protect, promote, and fulfill all fundamental rights.',
+        sw: 'Kifungu cha 21(1) kinaweka wajibu wa lazima kwa serikali kuheshimu na kutimiza haki za kimsingi za wananchi wote.',
+      },
+    },
+    {
+      id: 'l11_q4',
+      category: 'human_rights',
+      question: {
+        en: 'Which constitutional commission established under Article 59 has the primary mandate to receive, investigate, and redress human rights violations in Kenya?',
+        sw: 'Ni tume gani ya kikatiba iliyoanzishwa chini ya Kifungu cha 59 yenye mamlaka makuu ya kupokea, kuchunguza na kutatua ukiukaji wa haki za binadamu nchini Kenya?',
+      },
+      options: [
+        { id: 'a', text: { en: 'The Kenya National Commission on Human Rights (KNCHR)', sw: 'Tume ya Kitaifa ya Haki za Binadamu ya Kenya (KNCHR)' } },
+        { id: 'b', text: { en: 'The Central Bank of Kenya (CBK)', sw: 'Benki Kuu ya Kenya (CBK)' } },
+        { id: 'c', text: { en: 'The Kenya Revenue Authority (KRA)', sw: 'Mamlaka ya Mapato ya Kenya (KRA)' } },
+        { id: 'd', text: { en: 'The Betting Control and Licensing Board (BCLB)', sw: 'Bodi ya Kudhibiti Kamari na Leseni' } },
+      ],
+      correctOptionId: 'a',
+      explanation: {
+        en: 'KNCHR is an independent Chapter 15 commission with statutory powers to investigate rights violations, visit prisons and detention facilities, and advise the state on compliance.',
+        sw: 'KNCHR ni tume huru ya Sura ya 15 yenye mamlaka ya kuchunguza dhuluma za haki, kutembelea magereza, na kuagiza fidia kwa waathiriwa.',
+      },
+    },
+    {
+      id: 'l11_q5',
+      category: 'human_rights',
+      question: {
+        en: 'Under Article 25 of the Constitution, which of the following rights may NEVER be limited or suspended under any circumstances (non-derogable rights)?',
+        sw: 'Chini ya Kifungu cha 25 cha Katiba, ni ipi kati ya haki zifuatazo isiyoweza kupunguzwa au kusimamishwa chini ya hali yoyote (haki zisizokiukwa)?',
+      },
+      options: [
+        { id: 'a', text: { en: 'Freedom from torture, freedom from slavery, the right to fair trial, and the right to an order of habeas corpus', sw: 'Uhuru dhidi ya mateso, uhuru dhidi ya utumwa, haki ya kesi ya haki, na haki ya amri ya habeas corpus' } },
+        { id: 'b', text: { en: 'The right to hold political campaign rallies past midnight', sw: 'Haki ya kufanya mikutano ya kampeni za kisiasa usiku wa manane' } },
+        { id: 'c', text: { en: 'The right to carry unregistered firearms in public spaces', sw: 'Haki ya kubeba silaha zisizosajiliwa hadharani' } },
+        { id: 'd', text: { en: 'Freedom to evade statutory tax obligations', sw: 'Uhuru wa kukwepa kulipa kodi ya kisheria' } },
+      ],
+      correctOptionId: 'a',
+      explanation: {
+        en: 'Article 25 strictly enshrines four non-derogable rights that cannot be limited even during a state of emergency: freedom from torture/cruelty, freedom from servitude, right to fair trial, and habeas corpus.',
+        sw: 'Kifungu cha 25 kinalinda haki nne zisizoweza kusimamishwa hata wakati wa hali ya hatari: kutoteswa, kutofanywa mtumwa, kesi ya haki, na amri ya kufikishwa mahakamani (habeas corpus).',
+      },
+    },
+    {
+      id: 'l11_q6',
+      category: 'human_rights',
+      question: {
+        en: 'What does "Public Interest Litigation" (PIL) mean in the context of grassroots civic advocacy in Kenya?',
+        sw: 'Nini maana ya "Kesi kwa Maslahi ya Umma" (Public Interest Litigation - PIL) katika muktadha wa utetezi wa kiraia nchini Kenya?',
+      },
+      options: [
+        { id: 'a', text: { en: 'Legal proceedings initiated to protect constitutional rights for the collective benefit of vulnerable communities or the public at large', sw: 'Kesi za kisheria zinazofunguliwa mahakamani kulinda haki za kikatiba kwa manufaa ya jamii nzima au makundi yaliyo hatarini' } },
+        { id: 'b', text: { en: 'Lawsuits filed purely for private monetary extortion against business competitors', sw: 'Kesi zinazofunguliwa kwa ajili ya kujinufaisha kifedha binafsi dhidi ya washindani' } },
+        { id: 'c', text: { en: 'Secret arbitration conducted behind closed doors without citizen knowledge', sw: 'Mikutano ya siri ya usuluhishi bila wananchi kufahamu' } },
+        { id: 'd', text: { en: 'Political rallies organized inside courtroom chambers', sw: 'Mikutano ya kisiasa inayofanyika ndani ya vyumba vya mahakama' } },
+      ],
+      correctOptionId: 'a',
+      explanation: {
+        en: 'PIL empowers civic organizations and paralegals to challenge unconstitutional policies, environmental destruction, or community land grabbing without needing personal direct injury.',
+        sw: 'PIL inawawezesha wananchi na mashirika ya kutetea haki kufungua kesi kutetea misitu, ardhi za jamii au huduma za afya bila kulazimika kuwa muathiriwa binafsi pekee.',
+      },
+    },
+    {
+      id: 'l11_q7',
+      category: 'human_rights',
+      question: {
+        en: 'Under Article 23(3), what remedies may the High Court grant upon hearing a human rights violation petition?',
+        sw: 'Chini ya Kifungu cha 23(3), Mahakama Kuu inaweza kutoa maamuzi na nafuu gani inaposikiliza kesi ya ukiukaji wa haki za binadamu?',
+      },
+      options: [
+        { id: 'a', text: { en: 'Injunctions, judicial declarations of rights, compensation, conservatory orders, or orders of judicial review', sw: 'Amri za zuio (injunction), tamko la kisheria la haki, fidia ya kifedha, na amri za kufuta maamuzi haramu' } },
+        { id: 'b', text: { en: 'Ban citizens from accessing libraries and schools', sw: 'Kuzuia wananchi wasisome kwenye maktaba na shule' } },
+        { id: 'c', text: { en: 'Transfer ownership of community hospitals to overseas banks', sw: 'Kuhamisha hospitali za jamii kwa mabenki ya kigeni' } },
+        { id: 'd', text: { en: 'Dissolve all media stations without a hearing', sw: 'Kufunga vituo vyote vya habari bila usikilizaji' } },
+      ],
+      correctOptionId: 'a',
+      explanation: {
+        en: 'Article 23(3) provides a wide array of judicial remedies, empowering courts to issue injunctions, award damages, declare laws invalid, or halt unlawful evictions.',
+        sw: 'Kifungu cha 23(3) kinaipa Mahakama Kuu nguvu ya kutoa fidia, kusimamisha ubomoaji usio halali, na kubatilisha vitendo vinavyokiuka haki za binadamu.',
+      },
+    },
+    {
+      id: 'l11_q8',
+      category: 'human_rights',
+      question: {
+        en: 'What is the internationally recognized definition of a Human Rights Defender (HRD)?',
+        sw: 'Ni upi ufafanuzi unaotambuliwa kimataifa wa Mteteezi wa Haki za Binadamu (HRD)?',
+      },
+      options: [
+        { id: 'a', text: { en: 'Any person who peacefully promotes and protects universally recognized human rights and fundamental freedoms', sw: 'Mtu yeyote anayechukua hatua za amani kukuza na kulinda haki za binadamu zinazotambuliwa kote ulimwenguni' } },
+        { id: 'b', text: { en: 'Only uniformed armed security personnel on duty', sw: 'Askari waliovaa sare na silaha kazini pekee' } },
+        { id: 'c', text: { en: 'Only foreign diplomats holding red diplomatic passports', sw: 'Mabalozi wa kigeni wenye pasipoti nyekundu za kidiplomasia pekee' } },
+        { id: 'd', text: { en: 'Politicians running for governor or member of parliament', sw: 'Wanasiasa wanaowania ugavana au ubunge' } },
+      ],
+      correctOptionId: 'a',
+      explanation: {
+        en: 'Under UN standards and the Kenyan human rights framework, an HRD is defined by their peaceful actions defending human dignity, regardless of profession or background.',
+        sw: 'Mteteezi wa haki ni mtu yeyote anayetumia njia za amani kupinga dhuluma na kutetea utu wa binadamu, bila kujali kazi au cheo chake.',
+      },
+    },
+    {
+      id: 'l11_q9',
+      category: 'human_rights',
+      question: {
+        en: 'When a grassroots Human Rights Defender faces intimidation or surveillance for exposing corruption, which emergency protocol should be deployed first?',
+        sw: 'Mteteezi wa Haki za Binadamu mashinani anapokabiliwa na vitisho au kufuatiliwa kwa kufichua ufisadi, ni hatua gani ya dharura inayopaswa kuchukuliwa kwanza?',
+      },
+      options: [
+        { id: 'a', text: { en: 'Document threats contemporaneously, activate secure check-in buddy networks, and notify the Defenders Coalition and KNCHR', sw: 'Kuandika vitisho vyote kwa tarehe, kuamsha mtandao salama wa wenzake wa kuaminiana, na kuarifu Defenders Coalition na KNCHR' } },
+        { id: 'b', text: { en: 'Confront the perpetrators alone in secluded areas at night', sw: 'Kukabiliana na watuhumiwa peke yake usiku mahali pasipo na watu' } },
+        { id: 'c', text: { en: 'Destroy all documented evidence and cease civic awareness permanently', sw: 'Kuharibu ushahidi wote na kuacha kabisa kutoa elimu ya uraia' } },
+        { id: 'd', text: { en: 'Pay bribes to the intimidateers to gain temporary protection', sw: 'Kutoa hongo kwa wanaomtisha ili wampe ulinzi wa muda' } },
+      ],
+      correctOptionId: 'a',
+      explanation: {
+        en: 'Security protocol for HRDs requires secure documentation, peer buddy tracking, digital encrypted backups, and rapid escalation to registered human rights protection networks.',
+        sw: 'Mwongozo wa usalama unataka mteteezi kurekodi vitisho, kutumia mawasiliano salama na kutoa taarifa mara moja kwa mtandao wa watetezi wa haki na KNCHR.',
+      },
+    },
+    {
+      id: 'l11_q10',
+      category: 'human_rights',
+      question: {
+        en: 'Under Article 258 of the Constitution, who is entitled to institute court proceedings claiming that the Constitution has been contravened or is threatened with contravention?',
+        sw: 'Chini ya Kifungu cha 258 cha Katiba, nani mwenye haki ya kufungua kesi mahakamani akidai Katiba imekiukwa au inatishiwa kukiukwa?',
+      },
+      options: [
+        { id: 'a', text: { en: 'Every person in Kenya, without needing to prove direct personal injury or proprietary interest', sw: 'Kila mtu nchini Kenya, bila kulazimika kuthibitisha ameumia binafsi au ana maslahi ya mali' } },
+        { id: 'b', text: { en: 'Only Cabinet Secretaries acting with the written approval of the President', sw: 'Mawaziri pekee kwa idhini ya maandishi kutoka kwa Rais' } },
+        { id: 'c', text: { en: 'Only members of the Judicial Service Commission', sw: 'Wajumbe wa Tume ya Huduma za Mahakama pekee' } },
+        { id: 'd', text: { en: 'Foreign embassies stationed in Nairobi', sw: 'Mabalozi wa kigeni waliopo Nairobi' } },
+      ],
+      correctOptionId: 'a',
+      explanation: {
+        en: 'Article 258 establishes universal constitutional standing: every citizen has the constitutional right and duty to institute court proceedings to defend and protect the Constitution.',
+        sw: 'Kifungu cha 258 kinampa kila mkenya haki kamili ya kufika mahakamani kutetea Katiba pale kiongozi au sera inapokiuka misingi ya sheria.',
+      },
+    },
+  ],
+
+  // Course 12: Using Social Media as a Narrative Tool for Peace
+  lesson_12: [
+    {
+      id: 'l12_q1',
+      category: 'participation',
+      question: {
+        en: 'While Article 33(1) protects freedom of expression, what does Article 33(2) explicitly exclude from this constitutional protection?',
+        sw: 'Wakati Kifungu cha 33(1) kinalinda uhuru wa kujieleza, ni mambo gani ambayo Kifungu cha 33(2) kinakataza waziwazi yasilindwe na Katiba?',
+      },
+      options: [
+        { id: 'a', text: { en: 'Propaganda for war, incitement to violence, hate speech, and advocacy of hatred based on ethnicity or identity', sw: 'Propaganda za vita, kuchochea fujo, matamshi ya chuki, na kueneza chuki kwa misingi ya ukabila au utambulisho' } },
+        { id: 'b', text: { en: 'Constructive criticism of county development plans and budgets', sw: 'Ukosoaji wa kimaendeleo kuhusu mipango ya kaunti na bajeti' } },
+        { id: 'c', text: { en: 'Sharing certified audit reports published by the Auditor-General', sw: 'Kusambaza ripoti rasmi zilizothibitishwa za Mkaguzi Mkuu wa Serikali' } },
+        { id: 'd', text: { en: 'Expressing dissatisfaction with public road infrastructure', sw: 'Kueleza kutoridhishwa na hali ya barabara za umma' } },
+      ],
+      correctOptionId: 'a',
+      explanation: {
+        en: 'Article 33(2) clearly demarcates that freedom of expression does not extend to hate speech, ethnic vilification, incitement to violence, or war propaganda.',
+        sw: 'Kifungu cha 33(2) kinaweka mipaka thabiti: uhuru wa kujieleza haujumuishi uchochezi wa kikabila, matamshi ya chuki wala uchochezi wa vurugu.',
+      },
+    },
+    {
+      id: 'l12_q2',
+      category: 'participation',
+      question: {
+        en: 'Under the National Cohesion and Integration Act (NCIC Act), what is the legal penalty for publishing or uttering words intended to stir up ethnic hatred?',
+        sw: 'Chini ya Sheria ya NCIC (National Cohesion and Integration Act), ni nini adhabu ya kisheria kwa kuchapisha au kusema maneno yanayolenga kuchochea chuki za kikabila?',
+      },
+      options: [
+        { id: 'a', text: { en: 'A fine of up to KES 1,000,000, imprisonment for a term of up to three years, or both', sw: 'Faini ya hadi shilingi 1,000,000 za Kenya, kifungo cha hadi miaka mitatu jela, au vyote viwili' } },
+        { id: 'b', text: { en: 'A compulsory apology letter sent to a foreign government', sw: 'Barua ya lazima ya kuomba msamaha kwa serikali ya kigeni' } },
+        { id: 'c', text: { en: 'No penalty as long as the post is published online under a pseudonym', sw: 'Hakuna adhabu mradi tu ujumbe umechapishwa mtandaoni kwa jina bandia' } },
+        { id: 'd', text: { en: 'A reward of civic leadership medals', sw: 'Tuzo ya medali ya uongozi wa kiraia' } },
+      ],
+      correctOptionId: 'a',
+      explanation: {
+        en: 'Section 13 and 62 of the NCIC Act prescribe stringent criminal penalties—including fines up to KES 1M and jail terms up to 3 years—for ethnic hate speech.',
+        sw: 'Kifungu cha 13 na 62 cha Sheria ya NCIC kinaweka faini ya hadi shilingi milioni 1 au kifungo cha hadi miaka 3 jela kwa anayeeneza chuki za kikabila.',
+      },
+    },
+    {
+      id: 'l12_q3',
+      category: 'participation',
+      question: {
+        en: 'How does Section 22 of the Computer Misuse and Cybercrimes Act 2018 address false information published online in Kenya?',
+        sw: 'Kifungu cha 22 cha Sheria ya Makosa ya Mitandao (Cybercrimes Act 2018) kinashughulikia vipi habari za uongo zinazosambazwa mtandaoni nchini Kenya?',
+      },
+      options: [
+        { id: 'a', text: { en: 'It penalizes intentionally publishing false, misleading, or fictitious data calculated to cause panic, violence, or harm', sw: 'Kinatoa adhabu kwa kusambaza kwa makusudi taarifa za uzushi au uongo zinazolenga kuleta taharuki, fujo au madhara' } },
+        { id: 'b', text: { en: 'It requires all smartphone owners to surrender devices to chiefs every week', sw: 'Kinaamuru kila mwenye simu akabidhi simu yake kwa chifu kila wiki' } },
+        { id: 'c', text: { en: 'It bans all civic education organizations from operating websites', sw: 'Kinapiga marufuku mashirika yote ya kiraia kuwa na tovuti' } },
+        { id: 'd', text: { en: 'It grants total immunity to bloggers sharing fabricated riot footage', sw: 'Kinampa kinga kamili mwanablogu anayesambaza video bandia za ghasia' } },
+      ],
+      correctOptionId: 'a',
+      explanation: {
+        en: 'The Cybercrimes Act criminalizes the intentional dissemination of fabricated alarms and false information calculated to disrupt public peace or provoke inter-communal panic.',
+        sw: 'Sheria ya Mitandao inakataza kusambaza habari za uzushi wa makusudi zinazosababisha taharuki na hofu katika jamii.',
+      },
+    },
+    {
+      id: 'l12_q4',
+      category: 'participation',
+      question: {
+        en: 'What is the critical distinction between "misinformation" and "disinformation" in digital communications?',
+        sw: 'Ni upi utofauti mkubwa kati ya "misinformation" na "disinformation" katika mawasiliano ya kidijitali?',
+      },
+      options: [
+        { id: 'a', text: { en: 'Misinformation is false content shared without malicious intent; disinformation is deliberately fabricated falsehood created to mislead or cause damage', sw: 'Misinformation ni habari ya uongo inayosambazwa bila nia mbaya; disinformation ni uzushi wa makusudi uliotungwa ili kupotosha au kudhuru' } },
+        { id: 'b', text: { en: 'Misinformation only occurs in newspapers, while disinformation only occurs on television', sw: 'Misinformation hutokea magazetini pekee na disinformation runingani pekee' } },
+        { id: 'c', text: { en: 'Both terms refer only to foreign weather forecasts', sw: 'Maneno yote mawili yanahusu tu utabiri wa hali ya hewa wa nchi za nje' } },
+        { id: 'd', text: { en: 'Disinformation is legally mandated for all social media administrators', sw: 'Disinformation ni wajibu wa kisheria kwa wakuu wote wa vikundi vya mitandao' } },
+      ],
+      correctOptionId: 'a',
+      explanation: {
+        en: 'Disinformation involves malicious intent and deliberate coordination to deceive, whereas misinformation is often forwarded mistakenly by well-meaning citizens who have not verified the facts.',
+        sw: 'Disinformation inahusisha nia ovu ya kutunga uongo ili kuleta madhara, wakati misinformation ni kosa la kusambaza bila kujua ukweli.',
+      },
+    },
+    {
+      id: 'l12_q5',
+      category: 'participation',
+      question: {
+        en: 'Under Article 10 of the Constitution of Kenya, how should active youth influencers and community admins utilize digital communication?',
+        sw: 'Chini ya Kifungu cha 10 cha Katiba ya Kenya, vijana wenye ushawishi na wasimamizi wa mitandao wanapaswa kutumia vipi mawasiliano ya kidijitali?',
+      },
+      options: [
+        { id: 'a', text: { en: 'To promote national unity, inclusiveness, social justice, transparency, and peaceful conflict resolution', sw: 'Kuendeleza umoja wa kitaifa, ushirikishwaji, haki ya kijamii, uwazi, na utatuzi wa migogoro kwa amani' } },
+        { id: 'b', text: { en: 'To amplify ethnic prejudices and mock minority languages', sw: 'Kukuza ubaguzi wa kikabila na kudharau lugha za jamii ndogo' } },
+        { id: 'c', text: { en: 'To leak confidential private medical records of neighbors', sw: 'Kuvujisha siri za kiafya za majirani zao mitandaoni' } },
+        { id: 'd', text: { en: 'To coordinate illegal road blockades and looting', sw: 'Kupanga njama za kuzuia barabara kinyume cha sheria na uporaji' } },
+      ],
+      correctOptionId: 'a',
+      explanation: {
+        en: 'Article 10 national values bind all persons and digital spaces to advance patriotism, national unity, human dignity, and non-discrimination.',
+        sw: 'Maadili ya Kitaifa ya Kifungu cha 10 yanawaagiza wote kutumia fursa za mitandao kuleta mshikamano, amani na kuheshimiana.',
+      },
+    },
+    {
+      id: 'l12_q6',
+      category: 'participation',
+      question: {
+        en: 'When inflammatory rumors threaten to ignite clashes between neighboring communities, what is the best "peace counter-narrative" approach?',
+        sw: 'Uvumi wa uchochezi unapotishia kusababisha mapigano kati ya jamii jirani, ni ipi mbinu bora ya kutumia "simulizi ya amani" (peace counter-narrative)?',
+      },
+      options: [
+        { id: 'a', text: { en: 'Disseminate factual, verified evidence of common interests, share stories of cross-ethnic solidarity, and quote community leaders calling for calm', sw: 'Kusambaza ushahidi wa ukweli uliohakikiwa, kusimulia mifano ya mshikamano wa jamii, na kunukuu viongozi wanaotuliza jazba' } },
+        { id: 'b', text: { en: 'Retaliate with equally toxic accusations against the other group', sw: 'Kujibu mashambulizi kwa matusi na kashfa kali zaidi dhidi ya kundi lingine' } },
+        { id: 'c', text: { en: 'Log off silently and let violence escalate unchecked', sw: 'Kukaa kimya kabisa na kuacha vurugu ziendelee bila hatua yoyote' } },
+        { id: 'd', text: { en: 'Create sensational clickbait headlines to gain followers', sw: 'Kutunga vichwa vya habari vya kutisha ili kujipatia wafuasi wengi mtandaoni' } },
+      ],
+      correctOptionId: 'a',
+      explanation: {
+        en: 'Effective peace narratives replace polarising sensationalism with grounded facts, joint community voices, and concrete reminders of shared economic and social interdependence.',
+        sw: 'Simulizi bora ya amani hubadilisha uhasama kwa kutoa ukweli, kuonyesha ushirikiano wa amani, na kuwakumbusha wananchi mshikamano wao.',
+      },
+    },
+    {
+      id: 'l12_q7',
+      category: 'participation',
+      question: {
+        en: 'What is a "digital verification check" that every citizen should perform before forwarding an alarming video or audio clip in WhatsApp groups?',
+        sw: 'Ni ukaguzi gani wa kidijitali ambao kila mwananchi anapaswa kufanya kabla ya kusambaza video au sauti yenye kuleta taharuki kwenye vikundi vya WhatsApp?',
+      },
+      options: [
+        { id: 'a', text: { en: 'Check the date, original source, reverse image search key frames, and confirm whether trusted news or official organs reported the occurrence', sw: 'Kukagua tarehe, chanzo cha asili, kufanya reverse image search ya picha, na kuthibitisha iwapo vyombo rasmi vya habari vimeripoti tukio hilo' } },
+        { id: 'b', text: { en: 'Immediately forward it to 10 other family groups with the label "Must Watch Alert"', sw: 'Kuisambaza mara moja kwa vikundi 10 vya familia ukiandika "Ona Hii Haraka"' } },
+        { id: 'c', text: { en: 'Edit the clip to add dramatic background horror music', sw: 'Kuhariri video hiyo na kuongeza muziki wa kuogofya' } },
+        { id: 'd', text: { en: 'Assume that any message with multiple forward arrows is automatically true', sw: 'Kudhani kwamba ujumbe wowote wenye alama ya kusambazwa mara nyingi ni wa kweli moja kwa moja' } },
+      ],
+      correctOptionId: 'a',
+      explanation: {
+        en: 'Digital hygiene requires verifying timestamps, geolocation, and credible corroborating sources before disseminating sensitive media that could trigger public panic.',
+        sw: 'Usafi wa kidijitali unataka mwananchi kuhakiki chanzo, tarehe na ukweli kabla ya kusambaza habari inayoweza kusababisha taharuki na machafuko.',
+      },
+    },
+    {
+      id: 'l12_q8',
+      category: 'participation',
+      question: {
+        en: 'What legal responsibility does an administrator of a public WhatsApp or Facebook community group have under Kenyan jurisprudence?',
+        sw: 'Ni wajibu gani wa kisheria ambao msimamizi wa kikundi cha WhatsApp au Facebook cha umma anao chini ya sheria za Kenya?',
+      },
+      options: [
+        { id: 'a', text: { en: 'Admins must establish clear community rules, caution members against hate speech, delete unlawful defamatory posts, and remove repeat offenders', sw: 'Wasimamizi lazima waweke kanuni wazi, wawaonye wanaotoa matamshi ya chuki, wafute machapisho haramu na kuwaondoa wanaorudia makosa' } },
+        { id: 'b', text: { en: 'Admins have zero responsibilities and can encourage cyberbullying with impunity', sw: 'Wasimamizi hawana wajibu wowote na wanaweza kuchochea unyanyasaji mtandaoni bila kuadhibiwa' } },
+        { id: 'c', text: { en: 'Admins are required by law to delete all messages that criticize public taxes', sw: 'Wasimamizi wanalazimika kufuta jumbe zote zinazokosoa kodi' } },
+        { id: 'd', text: { en: 'Admins must collect membership fees on behalf of county revenue offices', sw: 'Wasimamizi lazima wakusanye ada za uanachama kwa niaba ya kaunti' } },
+      ],
+      correctOptionId: 'a',
+      explanation: {
+        en: 'Group admins who knowingly harbor or facilitate criminal hate speech and defamatory incitement risk being held jointly liable as facilitators or publishers of unlawful content.',
+        sw: 'Wasimamizi wa vikundi wanaoruhusu matamshi ya chuki bila kuyaondoa wanaweza kuwajibika kisheria kama washirika wa kueneza uchochezi.',
+      },
+    },
+    {
+      id: 'l12_q9',
+      category: 'participation',
+      question: {
+        en: 'Which official state body in Kenya provides a dedicated hotline for citizens to report online hate speech, ethnic stereotyping, and digital incitement?',
+        sw: 'Ni asasi gani rasmi ya serikali nchini Kenya inayotoa nambari maalum ya simu kwa wananchi kuripoti matamshi ya chuki mtandaoni, ubaguzi wa kikabila na uchochezi?',
+      },
+      options: [
+        { id: 'a', text: { en: 'The National Cohesion and Integration Commission (NCIC)', sw: 'Tume ya Kitaifa ya Uwiano na Utangamano (NCIC)' } },
+        { id: 'b', text: { en: 'The National Cereals and Produce Board (NCPB)', sw: 'Bodi ya Kitaifa ya Nafaka na Mazao (NCPB)' } },
+        { id: 'c', text: { en: 'The Kenya National Highways Authority (KeNHA)', sw: 'Mamlaka ya Kitaifa ya Barabara Kuu ya Kenya (KeNHA)' } },
+        { id: 'd', text: { en: 'The Postal Corporation of Kenya (Posta)', sw: 'Shirika la Posta la Kenya' } },
+      ],
+      correctOptionId: 'a',
+      explanation: {
+        en: 'NCIC monitors social media spaces, maintains complaints reporting channels (SMS, WhatsApp hotline, email), and partners with ODPP to prosecute hate speech perpetrators.',
+        sw: 'NCIC inafuatilia mitandao ya kijamii na kupokea taarifa za wananchi ili kuwachukulia hatua za kisheria wanaochochea uhasama wa kikabila.',
+      },
+    },
+    {
+      id: 'l12_q10',
+      category: 'participation',
+      question: {
+        en: 'How can citizens harness social media to hold devolved county officials accountable while strictly maintaining peaceful discourse?',
+        sw: 'Wananchi wanawezaje kutumia mitandao ya kijamii kuwawajibisha viongozi wa kaunti huku wakidumisha amani na ustaarabu?',
+      },
+      options: [
+        { id: 'a', text: { en: 'Tag official county handles, cite exact budget line items from County ADPs, attach photos of stalled works, and demand public timeline answers', sw: 'Kutaja kurasa rasmi za kaunti, kunukuu vifungu halisi vya bajeti (ADP), kuweka picha za miradi iliyokwama, na kudai majibu ya ratiba ya utekelezaji' } },
+        { id: 'b', text: { en: 'Use abusive epithets targeting the official\'s clan, tribe, and family', sw: 'Kutukana ukoo, kabila na familia ya kiongozi husika' } },
+        { id: 'c', text: { en: 'Threaten physical destruction of public dispensaries', sw: 'Kutishia kuchoma zahanati za umma' } },
+        { id: 'd', text: { en: 'Circulate fabricated private photos that have no connection to public governance', sw: 'Kusambaza picha bandia za kibinafsi zisizo na uhusiano wowote na usimamizi wa rasilimali za umma' } },
+      ],
+      correctOptionId: 'a',
+      explanation: {
+        en: 'Constructive civic advocacy uses evidence-based factual tracking (budgets, photos, statutory timelines) to demand accountability without resorting to defamatory tribal attacks.',
+        sw: 'Utetezi wenye tija wa kiraia unatumia ushahidi wa nyaraka na picha halisi kuhoji matumizi ya kodi kwa njia ya heshima na amani.',
+      },
+    },
+  ],
+
+  // Course 13: How to Write an Incident Report
+  lesson_13: [
+    {
+      id: 'l13_q1',
+      category: 'integrity',
+      question: {
+        en: 'What are the foundational "5 Ws" that must always anchor the opening narrative of an incident report in Kenya?',
+        sw: 'Ni mambo yapi 5 makuu ("5 Ws") ambayo lazima yaongoze mwanzo wa ripoti ya tukio nchini Kenya?',
+      },
+      options: [
+        { id: 'a', text: { en: 'Who, What, When, Where, and Why / How', sw: 'Nani, Nini, Lini, Wapi, na Kwa Nini / Vipi' } },
+        { id: 'b', text: { en: 'Which, Whom, Wealth, Weight, and Width', sw: 'Kipi, Yupi, Utajiri, Uzito, na Upana' } },
+        { id: 'c', text: { en: 'Whether, Wherefore, Whoever, Whichever, and Whereas', sw: 'Kama, Kwa ajili ya nini, Yeyote, Chochote, na Hali ya kuwa' } },
+        { id: 'd', text: { en: 'Only Where and When; the rest can be left to imagination', sw: 'Wapi na Lini pekee; mengine yanaweza kuachwa kwa ubunifu' } },
+      ],
+      correctOptionId: 'a',
+      explanation: {
+        en: 'The 5 Ws establish the core factual matrix required under the Evidence Act: Who was involved, What occurred, When it happened, Where it took place, and How/Why it transpired.',
+        sw: 'Mambo 5 Makuu (Who, What, When, Where, Why/How) huweka misingi thabiti ya kisheria ya tukio lolote inayohitajika kortini na kwa vyombo vya uchunguzi.',
+      },
+    },
+    {
+      id: 'l13_q2',
+      category: 'integrity',
+      question: {
+        en: 'Why do courts and oversight bodies give immense evidentiary weight to "contemporaneous notes" compiled during or immediately after an incident?',
+        sw: 'Kwa nini mahakama na vyombo vya uchunguzi vinathamini sana "maelezo ya papo hapo" (contemporaneous notes) yaliyoandikwa mara moja tukio linapotokea?',
+      },
+      options: [
+        { id: 'a', text: { en: 'Because human memory fades over time; immediate documentation preserves fresh, unpolluted, and verifiable facts under the Evidence Act (Cap 80)', sw: 'Kwa sababu kumbukumbu ya binadamu husahau kadiri muda unavyopita; uandishi wa papo hapo unalinda ukweli halisi usiochafuliwa chini ya Sheria ya Ushahidi' } },
+        { id: 'b', text: { en: 'Because older notes automatically become classified state secrets', sw: 'Kwa sababu maelezo ya zamani huwa siri za serikali' } },
+        { id: 'c', text: { en: 'Because notes taken later are written on more expensive paper', sw: 'Kwa sababu maelezo yanayoandikwa baadaye hutumia karatasi ghali zaidi' } },
+        { id: 'd', text: { en: 'Because magistrates refuse to read any document written in blue ink', sw: 'Kwa sababu mahakimu wanakataa kusoma nyaraka za wino wa bluu' } },
+      ],
+      correctOptionId: 'a',
+      explanation: {
+        en: 'Under Section 167 of the Evidence Act, contemporaneous records carry prime judicial reliability because they minimize retrospective distortion and memory decay.',
+        sw: 'Sheria ya Ushahidi (Cap 80) inathamini sana rekodi za papo hapo kwa sababu haziathiriwi na kusahaulika au kubadilishwa kwa maelezo baada ya muda kupita.',
+      },
+    },
+    {
+      id: 'l13_q3',
+      category: 'integrity',
+      question: {
+        en: 'What tone and language style should be strictly adhered to when compiling an objective incident report?',
+        sw: 'Ni mtindo gani wa lugha unaopaswa kuzingatiwa kikamilifu wakati wa kuandika ripoti ya tukio isiyo na upendeleo?',
+      },
+      options: [
+        { id: 'a', text: { en: 'Neutral, factual, objective descriptions and verbatim quotes without emotional exaggeration or speculation', sw: 'Maelezo ya ukweli, yasiyoegemea upande wowote, maneno halisi yaliyonukuliwa, na bila chumvi ya kihisia au kubahatisha' } },
+        { id: 'b', text: { en: 'Sensational political rhetoric with dramatic exaggerations', sw: 'Kauli za kisiasa zenye kukuza mambo na hisia kali za hasira' } },
+        { id: 'c', text: { en: 'Poetic verses and fictional allegories', sw: 'Mashairi na hadithi za kubuni' } },
+        { id: 'd', text: { en: 'Rumors gathered from distant social media comment sections', sw: 'Tetesi zilizokusanywa kutoka kwenye maoni ya mitandao ya kijamii' } },
+      ],
+      correctOptionId: 'a',
+      explanation: {
+        en: 'Incident reports must describe facts objectively (e.g. "Officer X said: \'Give me KES 2,000\'", not "The evil officer robbed me"), ensuring credibility during prosecution.',
+        sw: 'Ripoti ya tukio inapaswa kueleza mambo jinsi yalivyokuwa bila chuki au hisia (k.m. "Afisa alisema: \'Leta elfu mbili\'", badala ya "Askari jambazi alituibia").',
+      },
+    },
+    {
+      id: 'l13_q4',
+      category: 'integrity',
+      question: {
+        en: 'What does "Chain of Custody" mean in evidentiary documentation, and why is it essential for incident reporting?',
+        sw: 'Nini maana ya "Mlolongo Salama wa Ushahidi" (Chain of Custody) na kwa nini ni muhimu katika uandishi wa ripoti ya tukio?',
+      },
+      options: [
+        { id: 'a', text: { en: 'The chronological record tracing who collected, received, secured, and handled physical or digital evidence from seizure to court', sw: 'Rekodi ya mpangilio inayoonyesha nani aliyekusanya, aliyepokea, aliyetunza na aliyekabidhi ushahidi kutoka eneo la tukio hadi kortini' } },
+        { id: 'b', text: { en: 'The metal chain used by police to lock cell gates', sw: 'Mlolongo wa chuma unaotumiwa kufunga milango ya korokoroni' } },
+        { id: 'c', text: { en: 'The list of high-ranking state dignitaries attending a public holiday', sw: 'Orodha ya viongozi wakuu wanaohudhuria sikukuu ya kitaifa' } },
+        { id: 'd', text: { en: 'The sequential numbering of bank loans issued to county assemblies', sw: 'Nambari za mikopo ya benki inayotolewa kwa mabunge ya kaunti' } },
+      ],
+      correctOptionId: 'a',
+      explanation: {
+        en: 'Without a clear chain of custody, defense lawyers can claim that evidence (such as CCTV footage, cartridges, or receipts) was contaminated, altered, or fabricated.',
+        sw: 'Bila mlolongo salama wa ushahidi (Chain of Custody), mawakili wa mtuhumiwa wanaweza kupinga mahakamani kuwa ushahidi ulichezewa au kubadilishwa.',
+      },
+    },
+    {
+      id: 'l13_q5',
+      category: 'integrity',
+      question: {
+        en: 'When preserving digital evidence (photos, smartphone videos, audio recordings) for an incident report, what technical rule is crucial?',
+        sw: 'Wakati wa kulinda ushahidi wa kidijitali (picha, video za simu, rekodi za sauti) za ripoti ya tukio, ni kanuni gani ya kiufundi iliyo muhimu sana?',
+      },
+      options: [
+        { id: 'a', text: { en: 'Preserve the original uncompressed files with unchanged EXIF metadata (timestamp, GPS coordinates, camera model) and create secure backups', sw: 'Kuhifadhi faili asili bila kuzibana zikiwa na maelezo ya metadata ya asili (muda, GPS, aina ya simu) na kuweka nakala salama mtandaoni' } },
+        { id: 'b', text: { en: 'Apply beauty filters and social media stickers to make the photos colorful', sw: 'Kuweka vipodozi vya picha (filters) na vibandiko ili picha ivutie' } },
+        { id: 'c', text: { en: 'Crop out the faces of police officers to protect their privacy', sw: 'Kukata sura za maafisa wa polisi ili kulinda faragha yao' } },
+        { id: 'd', text: { en: 'Delete the original file immediately after posting a low-resolution screenshot on X', sw: 'Kufuta faili asili mara tu unapoweka picha ya skrini yenye ukungu kwenye mtandao' } },
+      ],
+      correctOptionId: 'a',
+      explanation: {
+        en: 'Under Section 106B of the Evidence Act, digital evidence admissibility relies on proof of authenticity. Original EXIF metadata proves the exact time, device, and GPS location of the incident.',
+        sw: 'Chini ya Kifungu cha 106B cha Sheria ya Ushahidi, ushahidi wa kielektroniki unahitaji metadata ya asili kuthibitisha mahali halisi, muda na kifaa kilichotumika kupiga picha.',
+      },
+    },
+    {
+      id: 'l13_q6',
+      category: 'integrity',
+      question: {
+        en: 'In incidents involving physical injury or police assault, which medical document is legally required in Kenya to establish the degree of harm in court?',
+        sw: 'Katika matukio yanayohusisha majeraha ya mwili au kipigo cha polisi, ni nyaraka gani ya kimatibabu inayotakiwa kisheria nchini Kenya kuthibitisha ukubwa wa jeraha kortini?',
+      },
+      options: [
+        { id: 'a', text: { en: 'A Kenya Police Medical Examination Form (P3 Form) completed by a certified government medical officer', sw: 'Fomu ya Uchunguzi wa Kimatibabu ya Polisi (Fomu ya P3) iliyojazwa na daktari rasmi wa serikali' } },
+        { id: 'b', text: { en: 'A handwritten pharmacy receipt for painkiller tablets', sw: 'Karatasi ya stakabadhi ya duka la dawa iliyonunuliwa panadol' } },
+        { id: 'c', text: { en: 'A traditional herbalist certificate without clinical stamps', sw: 'Cheti cha mganga wa kienyeji kisicho na muhuri wa hospitali' } },
+        { id: 'd', text: { en: 'A gym membership card', sw: 'Kadi ya uanachama wa mazoezi' } },
+      ],
+      correctOptionId: 'a',
+      explanation: {
+        en: 'The P3 form classifies bodily injury into legal categories (e.g., harm, grievous harm, maim) and constitutes indispensable forensic evidence for assault prosecutions.',
+        sw: 'Fomu ya P3 huainisha kiwango cha majeraha kisheria (harm, grievous harm) na ni ushahidi mkuu wa kimahakama katika kesi za kupigwa na kujeruhiwa.',
+      },
+    },
+    {
+      id: 'l13_q7',
+      category: 'integrity',
+      question: {
+        en: 'How should vulnerable eyewitnesses be handled when drafting an incident report for public advocacy or community filing?',
+        sw: 'Mashahidi walio hatarini wanapaswa kulindwa vipi wakati wa kuandaa ripoti ya tukio kwa ajili ya kutetea haki au kuwasilisha kwa asasi za umma?',
+      },
+      options: [
+        { id: 'a', text: { en: 'Redact names in public copies using secure identifiers (e.g., Witness A), while preserving full details in an encrypted confidential master log under the Witness Protection Act', sw: 'Kuficha majina kwenye nakala za umma kwa kutumia herufi (k.m. Shahidi A), na kutunza majina halisi kwenye faili salama ya siri chini ya Sheria ya Kulinda Mashahidi' } },
+        { id: 'b', text: { en: 'Publish their home addresses and national ID numbers on community billboard posts', sw: 'Kuchapisha anwani za makazi na nambari zao za vitambulisho kwenye mabango ya kijiji' } },
+        { id: 'c', text: { en: 'Force witnesses to confront the suspects without legal counsel present', sw: 'Kuwashurutisha mashahidi wakabiliane na watuhumiwa bila wakili' } },
+        { id: 'd', text: { en: 'Refuse to record any witness accounts under any circumstances', sw: 'Kukataa kabisa kurekodi ushuhuda wa mtu yeyote' } },
+      ],
+      correctOptionId: 'a',
+      explanation: {
+        en: 'Protecting witness safety is a prime duty; redacting identifiers prevents retaliation and allows formal handover to the Witness Protection Agency (WPA) or KNCHR.',
+        sw: 'Kulinda usalama wa mashahidi ni jukumu la kwanza; kuficha majina kwenye ripoti za umma kunazuia vitisho na kulinda familia zao.',
+      },
+    },
+    {
+      id: 'l13_q8',
+      category: 'integrity',
+      question: {
+        en: 'Which oversight body should an incident report be addressed to when it involves extrajudicial violence, refusal of police bail, or harassment by police officers?',
+        sw: 'Ni chombo gani cha usimamizi ambacho ripoti ya tukio inapaswa kuwasilishwa kwake inapohusu ukatili wa polisi, kunyimwa dhamana ya kituo, au unyanyasaji wa askari?',
+      },
+      options: [
+        { id: 'a', text: { en: 'The Independent Policing Oversight Authority (IPOA - Toll-Free 1559)', sw: 'Mamlaka Huru ya Kusimamia Utendaji Kazi wa Polisi (IPOA - Nambari ya Bure 1559)' } },
+        { id: 'b', text: { en: 'The Kenya Wildlife Service Marine Ranger Department', sw: 'Idara ya Walinzi wa Baharini ya KWS' } },
+        { id: 'c', text: { en: 'The Kenya Association of Manufacturers (KAM)', sw: 'Chama cha Wenye Viwanda cha Kenya (KAM)' } },
+        { id: 'd', text: { en: 'The National Transport and Safety Authority Vehicle Inspection Lane', sw: 'Kituo cha Ukaguzi wa Magari cha NTSA' } },
+      ],
+      correctOptionId: 'a',
+      explanation: {
+        en: 'IPOA was established under Section 5 of the IPOA Act 2011 to independently investigate civilian complaints against National Police Service personnel.',
+        sw: 'IPOA imepewa mamlaka ya kisheria kuchunguza malalamiko yote ya wananchi dhidi ya maafisa wa polisi na kupendekeza mashtaka kwa DPP.',
+      },
+    },
+    {
+      id: 'l13_q9',
+      category: 'integrity',
+      question: {
+        en: 'If an incident report documents extortion, demand for bribes by public officers, or diversion of public funds, which primary commission receives the file?',
+        sw: 'Iwapo ripoti ya tukio inaeleza ulaghai, madai ya hongo na maafisa wa umma, au ubadhirifu wa fedha za umma, ni tume gani inayopokea faili hiyo kisheria?',
+      },
+      options: [
+        { id: 'a', text: { en: 'The Ethics and Anti-Corruption Commission (EACC)', sw: 'Tume ya Maadili na Kupambana na Ufisadi (EACC)' } },
+        { id: 'b', text: { en: 'The National Museums of Kenya Antiquities Desk', sw: 'Dawati la Vitu vya Kale la Makumbusho ya Kitaifa ya Kenya' } },
+        { id: 'c', text: { en: 'The Kenya Tourism Board Marketing Office', sw: 'Ofisi ya Masoko ya Bodi ya Utalii ya Kenya' } },
+        { id: 'd', text: { en: 'The Kenya Meat Commission Slaughterhouse', sw: 'Kiwanda cha Nyama cha Kenya (KMC)' } },
+      ],
+      correctOptionId: 'a',
+      explanation: {
+        en: 'The EACC enforces the Anti-Corruption and Economic Crimes Act (ACECA) and Chapter 6 of the Constitution, investigating bribery, procurement fraud, and asset diversion.',
+        sw: 'Tume ya EACC inasimamia Sura ya Sita ya Katiba na Sheria ya Kupambana na Rushwa, ikichunguza hongo na ubadhirifu wa fedha za umma.',
+      },
+    },
+    {
+      id: 'l13_q10',
+      category: 'integrity',
+      question: {
+        en: 'What is the standard closing section of a professionally drafted incident report?',
+        sw: 'Ni sehemu gani ya kawaida ya kufunga ripoti ya tukio iliyoandaliwa kitaalamu?',
+      },
+      options: [
+        { id: 'a', text: { en: 'Reporter declaration of truthfulness, signature, date of compiling, list of attached evidence/annexures, and receiving agency stamp/acknowledgment', sw: 'Tamko la mwandishi kuhusu ukweli wa maelezo, sahihi, tarehe, orodha ya viambatisho vya ushahidi, na muhuri wa kupokelewa kutoka asasi husika' } },
+        { id: 'b', text: { en: 'A poem thanking the suspects for their attendance', sw: 'Shairi la kuwashukuru watuhumiwa kwa kuhudhuria' } },
+        { id: 'c', text: { en: 'A bill requesting payment from the court for writing the document', sw: 'Bili ya kudai pesa kutoka mahakamani kwa kuandika waraka huo' } },
+        { id: 'd', text: { en: 'Leaving the document unsigned without any date or reporter identity', sw: 'Kuacha waraka bila sahihi, bila tarehe wala utambulisho wowote' } },
+      ],
+      correctOptionId: 'a',
+      explanation: {
+        en: 'A valid incident report must conclude with a declaration of truth, the author\'s signature, date, list of numbered annexures (photos/documents), and a receiving stamp upon delivery.',
+        sw: 'Ripoti ya tukio hukamilishwa kwa tamko la ukweli, sahihi, tarehe, orodha ya viambatisho (picha/stakabadhi), na kupigwa muhuri rasmi inapokabidhiwa.',
+      },
+    },
+  ],
 };
 
 /**

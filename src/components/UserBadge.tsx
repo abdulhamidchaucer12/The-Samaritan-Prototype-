@@ -10,6 +10,7 @@ import {
   Compass,
   Activity,
   BookOpen,
+  Crown,
 } from 'lucide-react';
 import { getUserRoleMeta } from '../utils/adminManagement';
 import {
@@ -25,6 +26,7 @@ import {
   getAdminPlatformAddressingName,
   getAdminAppointedProfile,
 } from '../utils/adminAppointments';
+import { getUserVerification } from '../utils/userVerificationService';
 
 export interface UserBadgeProps {
   username?: string | null;
@@ -61,8 +63,10 @@ export const UserBadge: React.FC<UserBadgeProps> = ({
       setRerenderTrigger((prev) => prev + 1);
     };
     window.addEventListener('the_samaritan_admin_names_updated', handleAdminUpdate);
+    window.addEventListener('the_samaritan_verifications_updated', handleAdminUpdate);
     return () => {
       window.removeEventListener('the_samaritan_admin_names_updated', handleAdminUpdate);
+      window.removeEventListener('the_samaritan_verifications_updated', handleAdminUpdate);
     };
   }, []);
 
@@ -88,6 +92,7 @@ export const UserBadge: React.FC<UserBadgeProps> = ({
       : username;
 
   const adminProfile = isTargetAdmin ? getAdminAppointedProfile(username) : null;
+  const customVerification = getUserVerification(username);
 
   // Determine if this badge belongs to the current logged-in user
   const loggedInUser = currentUser !== undefined ? currentUser : getCurrentAuthUser();
@@ -222,7 +227,7 @@ export const UserBadge: React.FC<UserBadgeProps> = ({
         {/* Badges */}
         {badgeType === 'gold_double_tick' && (
           <span
-            title={`${username} • Verified Executive Super Badge (Gold with Double Ticks)`}
+            title={`${username} • ${roleMeta.roleTitle.en} (Double Ticks)`}
             className="inline-flex items-center text-amber-500 hover:text-amber-600 transition-transform hover:scale-110"
           >
             <span className="relative inline-flex items-center justify-center">
@@ -258,7 +263,7 @@ export const UserBadge: React.FC<UserBadgeProps> = ({
 
         {badgeType === 'blue' && (
           <span
-            title={`${username} • Verified Temporary Civic Administrator (Blue Badge)`}
+            title={`${username} • ${roleMeta.roleTitle.en} (Single Tick)`}
             className="inline-flex items-center text-blue-500 hover:text-blue-600 transition-colors"
           >
             <CheckCircle2
@@ -427,6 +432,42 @@ export const UserBadge: React.FC<UserBadgeProps> = ({
                     <div className="text-[10px] text-amber-700 dark:text-amber-400 pt-1">
                       Designated under The_Samaritan Super Authority
                     </div>
+                  </div>
+                </div>
+              )}
+
+              {/* Civic Verification Badge Card (The Samaritan) */}
+              {customVerification && !isTargetAdmin && (
+                <div className="p-3.5 rounded-2xl bg-linear-to-r from-emerald-50/80 to-amber-50/80 dark:from-emerald-950/40 dark:to-amber-950/40 border border-emerald-200 dark:border-emerald-800/60 space-y-1.5 text-xs">
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center gap-1.5 text-slate-900 dark:text-slate-100 font-extrabold">
+                      {customVerification.badgeTier === 'double_tick' ? (
+                        <Crown className="w-4 h-4 text-amber-500 shrink-0" />
+                      ) : (
+                        <CheckCircle2 className="w-4 h-4 text-blue-500 shrink-0" />
+                      )}
+                      <span>
+                        {customVerification.badgeTier === 'double_tick'
+                          ? 'Verified Citizen Scholar (Double Ticks)'
+                          : 'Verified Citizen (Single Tick)'}
+                      </span>
+                    </div>
+                    <span className="text-[10px] font-black px-2 py-0.5 rounded-full bg-emerald-100 text-emerald-800 dark:bg-emerald-950 dark:text-emerald-300">
+                      Official
+                    </span>
+                  </div>
+                  <div className="text-[11px] text-slate-700 dark:text-slate-300 space-y-0.5 pt-1 border-t border-emerald-200/60 dark:border-emerald-800/60">
+                    <div>
+                      <strong>Title:</strong> {customVerification.badgeTitleEn}
+                    </div>
+                    <div>
+                      <strong>Verified By:</strong> {customVerification.verifiedBy} ({new Date(customVerification.verifiedAt).toLocaleDateString()})
+                    </div>
+                    {customVerification.notes && (
+                      <div className="italic text-slate-500 dark:text-slate-400">
+                        &ldquo;{customVerification.notes}&rdquo;
+                      </div>
+                    )}
                   </div>
                 </div>
               )}

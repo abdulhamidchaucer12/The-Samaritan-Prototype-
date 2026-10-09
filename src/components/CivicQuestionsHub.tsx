@@ -1466,6 +1466,142 @@ export const CivicQuestionsHub: React.FC<CivicQuestionsHubProps> = ({
                                     </div>
                                   </div>
                                 )}
+
+                                {/* Practical Real-World Example Callout */}
+                                {ans.practicalExamples && (
+                                  <div className="mt-3.5 p-3.5 sm:p-4 rounded-xl bg-blue-50/90 border border-blue-200/90 text-slate-900 shadow-xs">
+                                    <div className="flex items-center gap-2 font-bold text-xs sm:text-sm text-blue-950 mb-1.5">
+                                      <Lightbulb className="w-4 h-4 text-blue-700 shrink-0" />
+                                      <span>
+                                        {language === 'en'
+                                          ? 'Real-World Practical Example (Kenya):'
+                                          : 'Mfano Halisi wa Vitendo Nchini Kenya:'}
+                                      </span>
+                                    </div>
+                                    <p className="text-xs sm:text-sm text-blue-950/90 leading-relaxed font-normal">
+                                      {ans.practicalExamples[language] || ans.practicalExamples.en}
+                                    </p>
+                                  </div>
+                                )}
+
+                                {/* What-If Scenario Analysis */}
+                                {ans.whatIfScenarios && (
+                                  <div className="mt-3.5 p-3.5 sm:p-4 rounded-xl bg-purple-50/90 border border-purple-200/90 text-slate-900 shadow-xs">
+                                    <div className="flex items-center gap-2 font-bold text-xs sm:text-sm text-purple-950 mb-1.5">
+                                      <HelpCircle className="w-4 h-4 text-purple-700 shrink-0" />
+                                      <span>
+                                        {language === 'en'
+                                          ? 'What-If Scenario & Contingency Resolution:'
+                                          : 'Hali ya "Je-Iwapo" na Njia ya Kuitatua:'}
+                                      </span>
+                                    </div>
+                                    <p className="text-xs sm:text-sm text-purple-950/90 leading-relaxed font-normal">
+                                      {ans.whatIfScenarios[language] || ans.whatIfScenarios.en}
+                                    </p>
+                                  </div>
+                                )}
+
+                                {/* Live Web Research Findings & Citations */}
+                                {ans.webFindings && (
+                                  <div className="mt-3.5 p-3.5 sm:p-4 rounded-xl bg-teal-50/90 border border-teal-200/90 text-slate-900 shadow-xs">
+                                    <div className="flex items-center justify-between gap-2 mb-2">
+                                      <div className="flex items-center gap-2 font-bold text-xs sm:text-sm text-teal-950">
+                                        <Globe className="w-4 h-4 text-teal-700 shrink-0" />
+                                        <span>
+                                          {language === 'en'
+                                            ? 'Live Web Findings & Statutory Explanations:'
+                                            : 'Ufafanuzi wa Matokeo ya Mtandaoni na Sheria:'}
+                                        </span>
+                                      </div>
+                                      <span className="text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded-full bg-teal-200/70 text-teal-900">
+                                        Web Grounded
+                                      </span>
+                                    </div>
+
+                                    <p className="text-xs sm:text-sm text-teal-950/90 leading-relaxed font-normal mb-3">
+                                      {language === 'en' ? ans.webFindings.summaryEn : ans.webFindings.summarySw}
+                                    </p>
+
+                                    {ans.webFindings.citations && ans.webFindings.citations.length > 0 && (
+                                      <div className="space-y-2 pt-2 border-t border-teal-200/70">
+                                        <div className="text-[11px] font-bold text-teal-900 uppercase tracking-wider">
+                                          {language === 'en' ? 'Citations & Explanations Found:' : 'Vyanzo na Ufafanuzi:'}
+                                        </div>
+                                        <div className="grid grid-cols-1 gap-2">
+                                          {ans.webFindings.citations.map((cit, citIdx) => (
+                                            <div
+                                              key={citIdx}
+                                              className="p-2.5 rounded-lg bg-white/90 border border-teal-200 text-xs text-slate-800 space-y-1"
+                                            >
+                                              <div className="flex items-center justify-between gap-2">
+                                                <a
+                                                  href={cit.uri}
+                                                  target="_blank"
+                                                  rel="noopener noreferrer"
+                                                  className="font-bold text-teal-800 hover:text-teal-950 hover:underline flex items-center gap-1.5"
+                                                >
+                                                  <span>{cit.title}</span>
+                                                  <ExternalLink className="w-3 h-3 shrink-0" />
+                                                </a>
+                                              </div>
+                                              <p className="text-[11px] text-slate-600 leading-relaxed font-normal">
+                                                {cit.explanation[language] || cit.explanation.en}
+                                              </p>
+                                            </div>
+                                          ))}
+                                        </div>
+                                      </div>
+                                    )}
+                                  </div>
+                                )}
+
+                                {/* The Raham Protocol Grounded Guidance Badge & Callout */}
+                                {ans.rahamProtocolGrounded?.applied && (
+                                  <div className="mt-3.5 p-3.5 sm:p-4 rounded-xl bg-gradient-to-r from-amber-950 to-slate-900 text-amber-100 border border-amber-500/50 shadow-xs">
+                                    <div className="flex items-center justify-between gap-2 mb-2 flex-wrap">
+                                      <div className="flex items-center gap-2 font-bold text-xs sm:text-sm text-amber-200 font-serif">
+                                        <Sparkles className="w-4 h-4 text-amber-400 shrink-0" />
+                                        <span>
+                                          {ans.rahamProtocolGrounded.protocolTitle || 'The Raham Protocol'}
+                                        </span>
+                                      </div>
+                                      <div className="flex items-center gap-1.5">
+                                        {ans.rahamProtocolGrounded.mediaFormat && (
+                                          <span className="text-[9px] font-black uppercase tracking-wider px-2 py-0.5 rounded-full bg-amber-400/20 text-amber-300 border border-amber-400/40">
+                                            {ans.rahamProtocolGrounded.mediaFormat}
+                                          </span>
+                                        )}
+                                        <span className="text-[10px] font-black uppercase tracking-wider px-2 py-0.5 rounded-full bg-amber-500 text-slate-950">
+                                          Raham Protocol
+                                        </span>
+                                      </div>
+                                    </div>
+                                    <p className="text-xs sm:text-sm text-amber-100/90 leading-relaxed font-normal">
+                                      {language === 'en'
+                                        ? ans.rahamProtocolGrounded.guidanceEn
+                                        : ans.rahamProtocolGrounded.guidanceSw || ans.rahamProtocolGrounded.guidanceEn}
+                                    </p>
+                                    {ans.rahamProtocolGrounded.materialName && (
+                                      <div className="mt-2 text-[11px] font-mono text-amber-200/90 flex items-center gap-1.5">
+                                        <span className="text-amber-400">Referenced Material:</span>
+                                        <span className="font-bold underline">{ans.rahamProtocolGrounded.materialName}</span>
+                                      </div>
+                                    )}
+                                    <div className="text-[10px] text-amber-300/70 pt-2 border-t border-amber-500/20 mt-2 font-mono flex items-center justify-between">
+                                      <span>Grounded in executive knowledgebase established by The_Samaritan</span>
+                                      {ans.rahamProtocolGrounded.materialLink && (
+                                        <a
+                                          href={ans.rahamProtocolGrounded.materialLink}
+                                          target="_blank"
+                                          rel="noopener noreferrer"
+                                          className="underline text-amber-300 hover:text-white"
+                                        >
+                                          Open Source Material ↗
+                                        </a>
+                                      )}
+                                    </div>
+                                  </div>
+                                )}
                               </>
                             )}
 
