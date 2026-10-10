@@ -71,6 +71,10 @@ import {
   recordUserDailyLogin,
   registerSessionVisitIfLoggedIn,
 } from './utils/userDailyLogins';
+import {
+  applyActiveAdaptationStyles,
+  recordInteractionEvent,
+} from './utils/autoLearnEngine';
 
 export default function App() {
   const [currentTab, setCurrentTab] = useState<string>('home');
@@ -96,6 +100,11 @@ export default function App() {
   const handleToggleTheme = (newTheme: Theme) => {
     setTheme(newTheme);
     setStoredTheme(newTheme);
+    recordInteractionEvent({
+      type: 'theme_toggled',
+      userHandle: currentUser?.username,
+      metadata: { targetTheme: newTheme },
+    });
   };
   const [offlineModalOpen, setOfflineModalOpen] = useState<boolean>(false);
   const [mobileMoreOpen, setMobileMoreOpen] = useState<boolean>(false);
@@ -126,13 +135,21 @@ export default function App() {
     setUserNotifications(getUserDirectNotifications(currentUser?.username));
   };
 
-  // Check and expire temporary admin passes
+  // Check and expire temporary admin passes & initialize UI/UX dynamic adaptations
   useEffect(() => {
     checkExpiredTemporaryAdminAppointments();
+    applyActiveAdaptationStyles();
+    const handleAdaptationChange = () => {
+      applyActiveAdaptationStyles();
+    };
+    window.addEventListener('the_samaritan_active_adaptations_changed', handleAdaptationChange);
     const updated = getCurrentAuthUser();
     if (updated && currentUser && (updated.role !== currentUser.role || updated.adminLevel !== currentUser.adminLevel)) {
       setCurrentUser(updated);
     }
+    return () => {
+      window.removeEventListener('the_samaritan_active_adaptations_changed', handleAdaptationChange);
+    };
   }, []);
 
   // Listen for direct notification events & online modal triggers
@@ -309,30 +326,55 @@ export default function App() {
   const handleToggleLanguage = (lang: Language) => {
     setLanguage(lang);
     setStoredLanguage(lang);
+    recordInteractionEvent({
+      type: 'language_toggled',
+      userHandle: currentUser?.username,
+      metadata: { targetLang: lang },
+    });
   };
 
   // Tab navigation handler
   const handleSelectTab = (tab: string) => {
     setCurrentTab(tab);
     window.scrollTo({ top: 0, behavior: 'smooth' });
+    recordInteractionEvent({
+      type: 'office_explored',
+      userHandle: currentUser?.username,
+      metadata: { targetTab: tab },
+    });
   };
 
   const handleSelectOfficeFromHome = (officeId: string) => {
     setSelectedOfficeId(officeId);
     setCurrentTab('explorer');
     window.scrollTo({ top: 0, behavior: 'smooth' });
+    recordInteractionEvent({
+      type: 'office_explored',
+      userHandle: currentUser?.username,
+      metadata: { officeId },
+    });
   };
 
   const handleSelectLessonFromHome = (lessonId: string) => {
     setSelectedLessonId(lessonId);
     setCurrentTab('lessons');
     window.scrollTo({ top: 0, behavior: 'smooth' });
+    recordInteractionEvent({
+      type: 'lesson_read',
+      userHandle: currentUser?.username,
+      metadata: { lessonId },
+    });
   };
 
   const handleNavigateToCompare = (officeId: string) => {
     setComparisonPreselectedId(officeId);
     setCurrentTab('compare');
     window.scrollTo({ top: 0, behavior: 'smooth' });
+    recordInteractionEvent({
+      type: 'office_explored',
+      userHandle: currentUser?.username,
+      metadata: { comparisonWith: officeId },
+    });
   };
 
   const handleToggleBookmarkFromDashboard = (officeId: string) => {

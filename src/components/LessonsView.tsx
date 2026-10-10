@@ -18,6 +18,7 @@ import {
   GraduationCap,
   HelpCircle,
   ShieldAlert,
+  Crown,
 } from 'lucide-react';
 import { CivicLesson, Language } from '../types';
 import { translations } from '../data/translations';
@@ -33,6 +34,11 @@ import { getCategoryLabel } from '../utils/categoryManagement';
 import { getLocalRahamDocuments } from '../utils/rahamProtocolClient';
 import { OnlineUsersPresenceBar } from './OnlineUsersPresenceBar';
 import { getCurrentAuthUser } from '../utils/authAndQuestions';
+import { GrandExamModal } from './GrandExamModal';
+import { hasUserStudiedAll100Courses } from '../utils/grandExamEngine';
+import { isUserMeritGraduate, getMeritGraduateRecord } from '../utils/meritGraduation';
+import { is100CoursesCapReached } from '../utils/dailyCourses';
+import { recordInteractionEvent } from '../utils/autoLearnEngine';
 
 interface LessonsViewProps {
   language: Language;
@@ -59,8 +65,26 @@ export const LessonsView: React.FC<LessonsViewProps> = ({
   });
 
   const [showWhatIfExpanded, setShowWhatIfExpanded] = useState<boolean>(true);
+  const [showGrandExamModal, setShowGrandExamModal] = useState<boolean>(false);
+  const [meritUpdatedTrigger, setMeritUpdatedTrigger] = useState<number>(0);
   const [categoryFilter, setCategoryFilter] = useState<'all' | 'today' | 'foundational' | 'completed' | 'supplementary'>('all');
   const todayDateStr = getTodayDateString();
+
+  const currentUser = getCurrentAuthUser();
+
+  useEffect(() => {
+    const handleMerit = () => setMeritUpdatedTrigger((prev) => prev + 1);
+    window.addEventListener('the_samaritan_merit_graduated', handleMerit);
+    return () => window.removeEventListener('the_samaritan_merit_graduated', handleMerit);
+  }, []);
+
+  const grandExamProgress = useMemo(() => {
+    return hasUserStudiedAll100Courses(currentUser?.username);
+  }, [currentUser?.username, completedIds, allCourses, meritUpdatedTrigger]);
+
+  const isMeritGraduate = useMemo(() => {
+    return isUserMeritGraduate(currentUser?.username);
+  }, [currentUser?.username, meritUpdatedTrigger]);
 
   // Find matching What-If Scenario grounded in the uploaded materials / The Raham Protocol
   const matchingWhatIf = useMemo(() => {
@@ -121,6 +145,11 @@ export const LessonsView: React.FC<LessonsViewProps> = ({
       if (found) {
         setActiveLesson(found);
         setCourseSubView('reading');
+        recordInteractionEvent({
+          type: 'lesson_read',
+          userHandle: currentUser?.username,
+          metadata: { lessonId: found.id, title: found.title.en, category: found.category },
+        });
       }
     }
   }, [selectedLessonId, allCourses]);
@@ -224,6 +253,99 @@ export const LessonsView: React.FC<LessonsViewProps> = ({
           </div>
         </div>
       </div>
+
+      {/* 100 Civic Courses & Grand 40-Marks Timed Exam Banner */}
+      {!activeLesson && (
+        <div className="p-6 rounded-3xl bg-linear-to-r from-amber-950 via-slate-900 to-emerald-950 text-white shadow-xl border border-amber-500/40 relative overflow-hidden">
+          <div className="absolute top-0 left-0 right-0 h-1.5 kenya-ribbon" />
+          <div className="relative z-10 flex flex-col md:flex-row md:items-center justify-between gap-6">
+            <div className="space-y-2 max-w-2xl">
+              <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full text-xs font-black bg-amber-500/20 text-amber-300 border border-amber-400/40">
+                <Crown className="w-4 h-4 text-amber-400" />
+                <span>
+                  {isMeritGraduate
+                    ? 'GRAND CIVIC SCHOLAR MERIT GRADUATE'
+                    : grandExamProgress.hasStudiedAll
+                    ? '100 CIVIC COURSES COMPLETED • FINAL EXAM UNLOCKED'
+                    : `100 CIVIC COURSES CURRICULUM (${grandExamProgress.completedCount}/100 STUDIED)`}
+                </span>
+              </div>
+
+              <h2 className="text-xl sm:text-2xl font-black font-serif text-white">
+                {isMeritGraduate
+                  ? (language === 'en'
+                    ? 'Certified Civic Scholar & Honors Graduate'
+                    : 'Mhitimu Mkuu wa Uraia mwenye Sifa na Heshima')
+                  : grandExamProgress.hasStudiedAll
+                  ? (language === 'en'
+                    ? 'Take Your 40-Marks Timed Final Exam to Graduate'
+                    : 'Fanya Mtihani wako wa Mwisho wa Alama 40 ili Kuhitimu')
+                  : (language === 'en'
+                    ? 'The Complete 100-Courses Civic Curriculum'
+                    : 'Mtaala Kamili wa Masomo 100 ya Uraia')}
+              </h2>
+
+              <p className="text-xs sm:text-sm text-slate-300 leading-relaxed">
+                {isMeritGraduate
+                  ? (language === 'en'
+                    ? 'You have passed the 40-marks timed final exam (>30 marks) and attained your Certificate of Merit with live profile verification QR code, Executive Double Verification Badge, and 5,000 tokens.'
+                    : 'Umefaulu mtihani wa alama 40 na kupokea Cheti cha Sifa chenye msimbo wa QR, Nembo ya Uthibitishaji Miwili (✓✓), na tokeni 5,000.')
+                  : grandExamProgress.hasStudiedAll
+                  ? (language === 'en'
+                    ? 'You have studied all 100 civic courses! Course generation has reached the complete curriculum cap. Sit the 40-marks timed exam (>30 marks to pass) to claim your Certificate of Merit with Profile QR code, Double Verification Badge, and 5,000 tokens!'
+                    : 'Umesoma masomo yote 100! Fanya mtihani wa alama 40 (alama zaidi ya 30 kufaulu) ili upokee Cheti cha Sifa chenye QR, Nembo ya Uthibitishaji Miwili, na tokeni 5,000!')
+                  : (language === 'en'
+                    ? `Study all 100 civic courses (currently ${grandExamProgress.completedCount}/100 completed, ${grandExamProgress.remainingCount} remaining). Once reached, daily course generation automatically concludes and your 40-marks timed final exam unlocks!`
+                    : `Soma masomo yote 100 ya uraia (kwa sasa umekamilisha ${grandExamProgress.completedCount}/100). Ukikamilisha, masomo ya kila siku yatafungwa kiotomatiki na mtihani wa alama 40 utafunguka!`)}
+              </p>
+
+              {/* Progress Bar for the 100 courses */}
+              <div className="w-full max-w-md pt-1 space-y-1">
+                <div className="flex items-center justify-between text-[11px] font-bold text-slate-400">
+                  <span>Curriculum Mastery</span>
+                  <span className="text-amber-400 font-mono">{grandExamProgress.completedCount} / 100 ({grandExamProgress.progressPercent}%)</span>
+                </div>
+                <div className="w-full h-2 bg-slate-800 rounded-full overflow-hidden border border-slate-700">
+                  <div
+                    className="h-full bg-gradient-to-r from-amber-500 to-emerald-400 transition-all duration-500 rounded-full"
+                    style={{ width: `${grandExamProgress.progressPercent}%` }}
+                  />
+                </div>
+              </div>
+            </div>
+
+            <div className="shrink-0 flex flex-col gap-2">
+              {isMeritGraduate ? (
+                <button
+                  type="button"
+                  onClick={() => setShowGrandExamModal(true)}
+                  className="px-5 py-3 rounded-2xl bg-amber-500 hover:bg-amber-400 text-slate-950 font-black text-xs shadow-xl flex items-center justify-center gap-2 cursor-pointer transition-all hover:scale-[1.02]"
+                >
+                  <Award className="w-4 h-4 text-slate-950" />
+                  <span>{language === 'en' ? 'View Certificate of Merit & QR Code' : 'Tazama Cheti cha Sifa na Msimbo wa QR'}</span>
+                </button>
+              ) : grandExamProgress.hasStudiedAll ? (
+                <button
+                  type="button"
+                  onClick={() => setShowGrandExamModal(true)}
+                  className="px-6 py-3.5 rounded-2xl bg-gradient-to-r from-amber-500 to-emerald-400 hover:from-amber-400 hover:to-emerald-300 text-slate-950 font-black text-xs shadow-2xl flex items-center justify-center gap-2 cursor-pointer transition-all hover:scale-[1.03] ring-4 ring-amber-400/30"
+                >
+                  <Sparkles className="w-4 h-4" />
+                  <span>{language === 'en' ? 'Take 40-Marks Timed Exam' : 'Fanya Mtihani wa Alama 40'}</span>
+                  <ArrowRight className="w-4 h-4" />
+                </button>
+              ) : (
+                <div className="p-3 rounded-xl bg-white/10 border border-white/20 text-center text-xs space-y-1">
+                  <span className="text-[10px] font-bold uppercase text-slate-400 block">Exam Unlock Status</span>
+                  <span className="font-bold text-amber-300">
+                    {grandExamProgress.remainingCount} more courses to unlock exam
+                  </span>
+                </div>
+              )}
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* Daily Drop Highlight Banner (Shows when not inside single lesson) */}
       {!activeLesson && (
@@ -805,6 +927,17 @@ export const LessonsView: React.FC<LessonsViewProps> = ({
           </button>
         </div>
       )}
+
+      {/* Grand 40-Marks Timed Exam Modal */}
+      <GrandExamModal
+        isOpen={showGrandExamModal}
+        onClose={() => setShowGrandExamModal(false)}
+        language={language}
+        username={currentUser?.username}
+        onGraduationSuccess={() => {
+          setMeritUpdatedTrigger((prev) => prev + 1);
+        }}
+      />
     </div>
   );
 };

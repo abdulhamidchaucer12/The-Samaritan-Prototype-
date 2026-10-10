@@ -407,7 +407,9 @@ export interface UserDirectNotification {
   senderTitle: string;
   title: string;
   message: string;
-  category: 'notice' | 'commendation' | 'appointment' | 'urgent';
+  category: 'notice' | 'commendation' | 'appointment' | 'urgent' | 'system_proposal';
+  proposalId?: string;
+  proposalType?: 'ui_ux_adaptation' | 'feature_adjustment' | 'policy_update';
   timestamp: string;
   isRead: boolean;
   replies?: NotificationReply[];

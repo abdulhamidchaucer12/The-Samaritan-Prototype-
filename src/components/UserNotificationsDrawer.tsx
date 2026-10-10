@@ -12,12 +12,21 @@ import {
   CornerDownRight,
   User,
   Coins,
+  Sparkles,
+  Check,
+  XCircle,
+  Wand2,
 } from 'lucide-react';
 import { UserDirectNotification, CivicUser } from '../types';
 import {
   markUserNotificationAsRead,
   addReplyToUserNotification,
 } from '../utils/adminManagement';
+import {
+  approveAdaptationProposal,
+  denyAdaptationProposal,
+  getAllAdaptationProposals,
+} from '../utils/autoLearnEngine';
 import { UserBadge } from './UserBadge';
 
 interface UserNotificationsDrawerProps {
@@ -183,6 +192,126 @@ export const UserNotificationsDrawer: React.FC<UserNotificationsDrawerProps> = (
                   <p className="text-xs text-slate-700 leading-relaxed font-normal whitespace-pre-wrap">
                     {notif.message}
                   </p>
+
+                  {/* UI/UX Adaptation Decision Actions for The_Samaritan */}
+                  {notif.category === 'system_proposal' && notif.proposalId && (
+                    <div className="p-3.5 rounded-2xl bg-gradient-to-r from-purple-50 to-indigo-50 border border-purple-200 space-y-3">
+                      <div className="flex items-center justify-between">
+                        <div className="flex items-center gap-1.5 text-xs font-black text-purple-900">
+                          <Wand2 className="w-4 h-4 text-purple-600" />
+                          <span>
+                            {language === 'en'
+                              ? 'Executive Adaptation Decision Required'
+                              : 'Uamuzi wa Marekebisho ya Mfumo Unahitajika'}
+                          </span>
+                        </div>
+                        {(() => {
+                          const prop = getAllAdaptationProposals().find((p) => p.id === notif.proposalId);
+                          if (!prop) return null;
+                          return (
+                            <span
+                              className={`text-[10px] font-black uppercase px-2 py-0.5 rounded-full ${
+                                prop.status === 'approved'
+                                  ? 'bg-emerald-100 text-emerald-800 border border-emerald-300'
+                                  : prop.status === 'rejected'
+                                  ? 'bg-rose-100 text-rose-800 border border-rose-300'
+                                  : 'bg-amber-100 text-amber-800 border border-amber-300 animate-pulse'
+                              }`}
+                            >
+                              {prop.status.replace('_', ' ')}
+                            </span>
+                          );
+                        })()}
+                      </div>
+
+                      {(() => {
+                        const prop = getAllAdaptationProposals().find((p) => p.id === notif.proposalId);
+                        const isSamaritan =
+                          currentUser?.username &&
+                          ['the_samaritan', '@the_samaritan', 'the samaritan'].includes(
+                            currentUser.username.toLowerCase().trim()
+                          );
+
+                        if (prop && prop.status === 'approved') {
+                          return (
+                            <div className="p-2.5 rounded-xl bg-emerald-50 border border-emerald-200 text-xs text-emerald-900 flex items-center gap-2">
+                              <Check className="w-4 h-4 text-emerald-600 shrink-0" />
+                              <span>
+                                {language === 'en'
+                                  ? 'Proposal APPROVED: System has autoadapted this UI/UX change.'
+                                  : 'Imeidhinishwa: Mfumo umetekeleza mabadiliko haya ya mwonekano moja kwa moja.'}
+                              </span>
+                            </div>
+                          );
+                        }
+
+                        if (prop && prop.status === 'rejected') {
+                          return (
+                            <div className="p-2.5 rounded-xl bg-rose-50 border border-rose-200 text-xs text-rose-900 flex items-center gap-2">
+                              <XCircle className="w-4 h-4 text-rose-600 shrink-0" />
+                              <span>
+                                {language === 'en'
+                                  ? 'Proposal DENIED: Platform remains strictly as is.'
+                                  : 'Imekataliwa: Mfumo unaendelea kubaki jinsi ulivyo bila kubadilishwa.'}
+                              </span>
+                            </div>
+                          );
+                        }
+
+                        if (!isSamaritan) {
+                          return (
+                            <p className="text-[11px] text-purple-700 italic">
+                              {language === 'en'
+                                ? 'Only The_Samaritan account holds authority to approve or deny UI/UX adaptations.'
+                                : 'Akaunti ya The_Samaritan pekee ndiyo yenye mamlaka ya kuidhinisha au kukataa marekebisho ya mfumo.'}
+                            </p>
+                          );
+                        }
+
+                        return (
+                          <div className="flex items-center gap-2 pt-1">
+                            <button
+                              type="button"
+                              onClick={() => {
+                                if (currentUser?.username) {
+                                  approveAdaptationProposal(notif.proposalId!, currentUser.username);
+                                  handleMarkRead(notif.id);
+                                  onNotificationRead();
+                                }
+                              }}
+                              className="grow flex items-center justify-center gap-1.5 px-3 py-2 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white font-black text-xs transition shadow-xs cursor-pointer"
+                            >
+                              <Check className="w-3.5 h-3.5" />
+                              <span>
+                                {language === 'en'
+                                  ? 'Approve & Auto-Adapt'
+                                  : 'Idhinisha na Ubadilishe'}
+                              </span>
+                            </button>
+
+                            <button
+                              type="button"
+                              onClick={() => {
+                                if (currentUser?.username) {
+                                  denyAdaptationProposal(notif.proposalId!, currentUser.username);
+                                  handleMarkRead(notif.id);
+                                  onNotificationRead();
+                                }
+                              }}
+                              className="grow flex items-center justify-center gap-1.5 px-3 py-2 rounded-xl bg-rose-600 hover:bg-rose-500 text-white font-black text-xs transition shadow-xs cursor-pointer"
+                            >
+                              <XCircle className="w-3.5 h-3.5" />
+                              <span>
+                                {language === 'en'
+                                  ? 'Deny (Remain As Is)'
+                                  : 'Kataa (Baki Kama Ilivyo)'}
+                              </span>
+                            </button>
+                          </div>
+                        );
+                      })()}
+                    </div>
+                  )}
 
                   <div className="pt-2 border-t border-slate-200/60 flex items-center justify-between text-xs">
                     <div className="flex items-center gap-1.5 text-[11px] text-slate-500">

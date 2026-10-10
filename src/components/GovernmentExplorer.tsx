@@ -19,6 +19,7 @@ import { OfficeProfile, Language, GovernmentBranch, GovernmentLevel } from '../t
 import { translations } from '../data/translations';
 import { officesData } from '../data/officesData';
 import { toggleBookmarkOffice, getUserProgress } from '../utils/storage';
+import { recordInteractionEvent } from '../utils/autoLearnEngine';
 
 interface GovernmentExplorerProps {
   language: Language;
@@ -123,7 +124,16 @@ export const GovernmentExplorer: React.FC<GovernmentExplorerProps> = ({
           <input
             type="text"
             value={searchQuery}
-            onChange={(e) => setSearchQuery(e.target.value)}
+            onChange={(e) => {
+              const val = e.target.value;
+              setSearchQuery(val);
+              if (val.trim().length >= 3) {
+                recordInteractionEvent({
+                  type: 'search_executed',
+                  metadata: { query: val.trim() },
+                });
+              }
+            }}
             placeholder={
               language === 'en'
                 ? 'Search by office name or constitutional article (e.g. Governor, MCA, Art 179)...'
@@ -134,7 +144,7 @@ export const GovernmentExplorer: React.FC<GovernmentExplorerProps> = ({
           {searchQuery && (
             <button
               onClick={() => setSearchQuery('')}
-              className="absolute right-3.5 top-3 text-stone-400 hover:text-stone-600"
+              className="absolute right-3.5 top-3 text-stone-400 hover:text-stone-600 cursor-pointer"
             >
               ✕
             </button>

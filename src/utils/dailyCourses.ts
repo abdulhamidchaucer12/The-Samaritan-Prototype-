@@ -2153,17 +2153,25 @@ export function getDailyCivicCourses(): CivicLesson[] {
       localStorage.setItem(DAILY_COURSES_STORAGE_KEY, JSON.stringify(storedCourses));
     }
 
-    // 3. Check if courses for today already exist
+    // 3. Check if courses for today already exist and enforce 100-courses total cap
+    const MAX_TOTAL_CIVIC_COURSES = 100;
+    const currentTotal = lessonsData.length + supplementary.length + storedCourses.length;
+    const isCapReached = currentTotal >= MAX_TOTAL_CIVIC_COURSES;
     const hasTodayCourses = storedCourses.some((c) => c.publishedDate === todayStr);
 
-    if (!hasTodayCourses) {
-      // Need to add 3 new courses for today with non-colliding lesson numbers and non-repeating topics!
-      const availableNums = getNextAvailableLessonNumbers(3, storedCourses);
-      const newCourses = buildCoursesForDate(todayStr, availableNums, storedCourses);
+    if (!hasTodayCourses && !isCapReached) {
+      // Need to add up to 3 new courses without exceeding 100 total civic courses!
+      const remainingSlots = Math.max(0, MAX_TOTAL_CIVIC_COURSES - currentTotal);
+      const countToAdd = Math.min(3, remainingSlots);
 
-      storedCourses = [...storedCourses, ...newCourses];
-      localStorage.setItem(DAILY_COURSES_STORAGE_KEY, JSON.stringify(storedCourses));
-      localStorage.setItem(DAILY_COURSES_STATE_KEY, JSON.stringify({ lastAddedDate: todayStr }));
+      if (countToAdd > 0) {
+        const availableNums = getNextAvailableLessonNumbers(countToAdd, storedCourses);
+        const newCourses = buildCoursesForDate(todayStr, availableNums, storedCourses);
+
+        storedCourses = [...storedCourses, ...newCourses];
+        localStorage.setItem(DAILY_COURSES_STORAGE_KEY, JSON.stringify(storedCourses));
+        localStorage.setItem(DAILY_COURSES_STATE_KEY, JSON.stringify({ lastAddedDate: todayStr }));
+      }
     }
 
     // 4. Attach 10-question quizzes to all stored courses if missing
@@ -2237,9 +2245,19 @@ export function getTodaysNewCourses(): CivicLesson[] {
  */
 export function addThreeMoreCoursesNow(): CivicLesson[] {
   if (typeof window === 'undefined') return [];
-  const todayStr = getTodayDateString();
   const existing = getDailyCivicCourses();
-  const availableNums = getNextAvailableLessonNumbers(3, existing);
+  const supplementary = getSupplementaryCourses();
+  const totalCount = lessonsData.length + supplementary.length + existing.length;
+  if (totalCount >= 100) {
+    // 100 courses cap achieved: automatically stop generating daily courses
+    return existing;
+  }
+  const remaining = Math.max(0, 100 - totalCount);
+  const countToAdd = Math.min(3, remaining);
+  if (countToAdd <= 0) return existing;
+
+  const todayStr = getTodayDateString();
+  const availableNums = getNextAvailableLessonNumbers(countToAdd, existing);
 
   const nextBatch = buildCoursesForDate(todayStr, availableNums, existing);
   const updated = [...existing, ...nextBatch];
@@ -2247,3 +2265,11 @@ export function addThreeMoreCoursesNow(): CivicLesson[] {
   localStorage.setItem(DAILY_COURSES_STORAGE_KEY, JSON.stringify(updated));
   return updated;
 }
+
+/**
+ * Checks if the complete 100-courses civic curriculum cap has been reached.
+ */
+export function is100CoursesCapReached(): boolean {
+  return getAllCivicCourses().length >= 100;
+}
+

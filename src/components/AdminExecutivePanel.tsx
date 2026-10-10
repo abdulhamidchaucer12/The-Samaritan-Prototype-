@@ -39,7 +39,9 @@ import {
 import { MasterCitizenRosterAndIncidents } from './MasterCitizenRosterAndIncidents';
 import { UserVerificationConsole } from './UserVerificationConsole';
 import { PlatformSecurityConsole } from './PlatformSecurityConsole';
+import { AutoLearnExecutiveConsole } from './AutoLearnExecutiveConsole';
 import { getAllVerificationRequests } from '../utils/userVerificationService';
+import { getAllAdaptationProposals } from '../utils/autoLearnEngine';
 import { exportDatabaseToExcel, readExcelDatabaseFile } from '../utils/excelDatabase';
 import {
   getGoogleSheetConfig,
@@ -140,6 +142,7 @@ export const AdminExecutivePanel: React.FC<AdminExecutivePanelProps> = ({
     | 'events'
     | 'samaritan_super_command'
     | 'platform_security'
+    | 'auto_learn_adaptation'
     | 'citizen_roster_sentinel'
     | 'excel_database'
     | 'google_sheet_sync'
@@ -626,6 +629,13 @@ export const AdminExecutivePanel: React.FC<AdminExecutivePanelProps> = ({
                   labelEn: 'Platform Security & Sentinel Shield',
                   labelSw: 'Usalama na Ngao ya Sentinel',
                   icon: ShieldAlert,
+                },
+                {
+                  id: 'auto_learn_adaptation',
+                  labelEn: 'Auto-Learn & UI/UX Self-Evolution',
+                  labelSw: 'Kujifunza Kiotomatiki & Mwonekano',
+                  icon: Sparkles,
+                  badgeCount: getAllAdaptationProposals().filter((p) => p.status === 'pending_review').length,
                 },
               ]
             : []),
@@ -2368,6 +2378,16 @@ export const AdminExecutivePanel: React.FC<AdminExecutivePanelProps> = ({
       {/* ========================================================================= */}
       {subTab === 'platform_security' && (
         <PlatformSecurityConsole language={language} />
+      )}
+
+      {/* ========================================================================= */}
+      {/* THE SAMARITAN AUTO-LEARN & UI/UX ADAPTATION GOVERNANCE */}
+      {/* ========================================================================= */}
+      {subTab === 'auto_learn_adaptation' && (
+        <AutoLearnExecutiveConsole
+          language={language}
+          currentUser={currentUser}
+        />
       )}
 
       {/* ========================================================================= */}
