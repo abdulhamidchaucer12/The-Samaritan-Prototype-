@@ -57,6 +57,7 @@ import {
   submitVerificationRequest,
   REQUIRED_TOKENS_FOR_VERIFICATION,
 } from '../utils/userVerificationService';
+import { UserDataPrivacySection } from './UserDataPrivacySection';
 
 interface UserProfileViewProps {
   currentUser: AuthUser | null;
@@ -1247,6 +1248,13 @@ export const UserProfileView: React.FC<UserProfileViewProps> = ({
             currentUser={currentUser}
           />
         )}
+
+      {/* 10. CITIZEN DATA RIGHTS, DATA PORTABILITY (DOWNLOAD) & PRIVACY POLICY */}
+      <UserDataPrivacySection
+        currentUser={currentUser}
+        language={language}
+        onLogout={onLogout}
+      />
 
       {/* Bottom Close Button at the bottom of the page */}
       <div className="pt-2 pb-6">
