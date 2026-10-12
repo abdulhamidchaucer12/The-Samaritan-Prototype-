@@ -134,6 +134,14 @@ export function registerAndIssueCertificate(
   records.push(newRecord);
   saveIssuedCertificates(records);
 
+  if (typeof window !== 'undefined') {
+    window.dispatchEvent(
+      new CustomEvent('the_samaritan_certificate_issued', {
+        detail: { record: newRecord },
+      })
+    );
+  }
+
   return {
     success: true,
     record: newRecord,

@@ -21,6 +21,7 @@ import {
   Calendar,
   Users,
   Coins,
+  Sparkles,
 } from 'lucide-react';
 import { Language, AuthUser, Theme } from '../types';
 import { translations } from '../data/translations';
@@ -194,16 +195,20 @@ export const Header: React.FC<HeaderProps> = ({
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex items-center justify-between h-16">
           {/* Logo & Brand with KFE Identity */}
-          <div
-            onClick={() => onSelectTab('home')}
-            className="flex items-center gap-3 cursor-pointer group shrink-0"
-          >
-            <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-blue-900 via-slate-900 to-emerald-900 flex items-center justify-center text-white shadow-md group-hover:scale-105 transition-transform border border-blue-900">
-              <Shield className="w-6 h-6 text-amber-400" />
+          <div className="flex items-center gap-3 shrink-0">
+            <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-blue-900 via-slate-900 to-emerald-900 flex items-center justify-center text-white shadow-md group-hover:scale-105 transition-transform border border-blue-900 shrink-0">
+              <Shield
+                onClick={() => onSelectTab('home')}
+                className="w-6 h-6 text-amber-400 cursor-pointer"
+              />
             </div>
             <div>
-              <div className="flex items-center gap-1.5">
-                <span className="font-extrabold text-lg sm:text-xl tracking-tight text-slate-950 font-serif">
+              <div
+                onClick={() => onSelectTab('home')}
+                className="flex items-center gap-1.5 cursor-pointer group"
+                title={language === 'en' ? 'Return to Home' : 'Rudi Mwanzo'}
+              >
+                <span className="font-extrabold text-lg sm:text-xl tracking-tight text-slate-950 font-serif group-hover:text-blue-900 transition-colors">
                   THE SAMARITAN
                 </span>
                 <span className="bg-amber-100 text-amber-900 text-[10px] font-black px-1.5 py-0.5 rounded border border-amber-300 uppercase tracking-wide">
@@ -213,40 +218,47 @@ export const Header: React.FC<HeaderProps> = ({
                 </span>
               </div>
 
+              {/* Below Logo: Direct Accessible Sign In / Switch Account Controls */}
               {currentUser ? (
-                <div
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    onSelectTab('profile');
-                  }}
-                  className="flex items-center gap-1.5 mt-0.5 cursor-pointer hover:opacity-80 transition-opacity"
-                  title={
-                    currentUser.role === 'admin'
-                      ? language === 'en'
-                        ? `${getAdminPlatformAddressingName(currentUser.username)} Profile`
-                        : `Wasifu wa ${getAdminPlatformAddressingName(currentUser.username)}`
-                      : language === 'en'
-                      ? 'Citizen Profile'
-                      : 'Wasifu wa Mwananchi'
-                  }
-                >
-                  <UserBadge username={currentUser.username} size="xs" showAvatar />
-                  <span className="text-[10px] text-emerald-700 dark:text-emerald-400 font-semibold hidden sm:inline">
-                    •{' '}
-                    {currentUser.role === 'admin'
-                      ? getAdminPlatformAddressingName(currentUser.username)
-                      : language === 'en'
-                      ? 'Profile'
-                      : 'Wasifu'}
-                  </span>
+                <div className="flex items-center gap-2 mt-0.5">
+                  <button
+                    type="button"
+                    onClick={() => onSelectTab('profile')}
+                    className="flex items-center gap-1 cursor-pointer hover:opacity-80 transition-opacity"
+                    title={
+                      currentUser.role === 'admin'
+                        ? language === 'en'
+                          ? `${getAdminPlatformAddressingName(currentUser.username)} Profile`
+                          : `Wasifu wa ${getAdminPlatformAddressingName(currentUser.username)}`
+                        : language === 'en'
+                        ? 'Citizen Profile'
+                        : 'Wasifu wa Mwananchi'
+                    }
+                  >
+                    <UserBadge username={currentUser.username} size="xs" showAvatar />
+                    <span className="text-[10px] text-emerald-700 dark:text-emerald-400 font-semibold hidden sm:inline">
+                      •{' '}
+                      {currentUser.role === 'admin'
+                        ? getAdminPlatformAddressingName(currentUser.username)
+                        : language === 'en'
+                        ? 'Profile'
+                        : 'Wasifu'}
+                    </span>
+                  </button>
+                  <span className="text-slate-300 dark:text-slate-600 text-[10px]">•</span>
+                  <button
+                    type="button"
+                    onClick={() => onOpenAuthModal('login')}
+                    className="text-[10px] sm:text-[11px] font-bold text-blue-700 dark:text-blue-300 hover:text-blue-900 dark:hover:text-blue-100 hover:underline cursor-pointer"
+                    title={language === 'en' ? 'Click to Sign In with another account or Admin credentials' : 'Ingia na akaunti nyingine au ya msimamizi'}
+                  >
+                    {language === 'en' ? 'Switch / Sign In' : 'Badili / Ingia'}
+                  </button>
                 </div>
               ) : (
                 <button
                   type="button"
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    onOpenAuthModal('login');
-                  }}
+                  onClick={() => onOpenAuthModal('login')}
                   className="flex items-center gap-1 mt-0.5 text-left cursor-pointer group/login hover:opacity-90 transition-opacity"
                   title={language === 'en' ? 'Click to Sign In or Access Admin Access' : 'Bonyeza kuingia au kufikia dashibodi ya wasimamizi'}
                 >
@@ -303,6 +315,39 @@ export const Header: React.FC<HeaderProps> = ({
 
           {/* Right Controls: User Profile/Login, Language Switcher & Mobile Menu Trigger */}
           <div className="flex items-center gap-2 sm:gap-3">
+            {/* Quick Desktop & Tablet Log In / Sign Up Access */}
+            {!currentUser ? (
+              <div className="hidden sm:flex items-center gap-1.5">
+                <button
+                  type="button"
+                  onClick={() => onOpenAuthModal('login')}
+                  className="px-2.5 py-1.5 rounded-xl border border-slate-300 dark:border-slate-700 hover:border-blue-700 hover:bg-blue-50/70 dark:hover:bg-slate-800 text-slate-700 dark:text-slate-200 text-xs font-bold transition-all cursor-pointer flex items-center gap-1 shadow-2xs"
+                  title={language === 'en' ? 'Log in as Citizen or Administrator' : 'Ingia kama Mwananchi au Msimamizi'}
+                >
+                  <User className="w-3.5 h-3.5 text-blue-600 dark:text-blue-400" />
+                  <span>{language === 'en' ? 'Log In' : 'Ingia'}</span>
+                </button>
+                <button
+                  type="button"
+                  onClick={() => onOpenAuthModal('register')}
+                  className="px-3 py-1.5 rounded-xl bg-emerald-700 hover:bg-emerald-800 text-white text-xs font-bold transition-all cursor-pointer shadow-xs hover:shadow-md flex items-center gap-1"
+                  title={language === 'en' ? 'Create Free Anonymous Citizen Account' : 'Fungua Akaunti ya Siri Bure'}
+                >
+                  <Sparkles className="w-3.5 h-3.5 text-amber-300" />
+                  <span>{language === 'en' ? 'Sign Up' : 'Jisajili'}</span>
+                </button>
+              </div>
+            ) : (
+              <button
+                type="button"
+                onClick={() => onOpenAuthModal(currentUser.role === 'admin' ? 'adminSettings' : 'login')}
+                className="hidden sm:flex items-center gap-1.5 px-2.5 py-1.5 rounded-xl bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 border border-slate-200 dark:border-slate-700 text-slate-800 dark:text-slate-200 text-xs font-bold transition-colors cursor-pointer shadow-2xs"
+                title={language === 'en' ? 'Account Portal / Switch User' : 'Dhibiti Akaunti / Badilisha'}
+              >
+                <User className="w-3.5 h-3.5 text-emerald-600" />
+                <span className="truncate max-w-[100px]">{currentUser.username}</span>
+              </button>
+            )}
             {/* Live Online Citizens Button */}
             {(onOpenOnlineUsersModal || onOpenCommunityFeed) && (
               <button
@@ -363,45 +408,84 @@ export const Header: React.FC<HeaderProps> = ({
             {/* Mobile User Profile Button */}
             <div className="pb-2 mb-2 border-b border-slate-100">
               {currentUser ? (
-                <button
-                  onClick={() => {
-                    onSelectTab('profile');
-                    setMobileMenuOpen(false);
-                  }}
-                  className="w-full flex items-center justify-between p-3 rounded-xl bg-slate-50 hover:bg-slate-100 border border-slate-200 text-xs font-bold min-h-[44px]"
-                >
-                  <div className="flex items-center gap-2">
-                    {currentUser.role === 'admin' ? (
-                      <Shield className="w-4 h-4 text-amber-500 fill-current" />
-                    ) : (
-                      <div className="w-5 h-5 rounded-full bg-emerald-600 text-white flex items-center justify-center text-[10px] font-mono">
-                        @
-                      </div>
-                    )}
-                    <div className="text-left">
-                      <div className="font-mono text-slate-900 font-bold">
-                        {currentUser.role === 'admin'
-                          ? `${getAdminPlatformAddressingName(currentUser.username)} (${currentUser.username})`
-                          : currentUser.username}
-                      </div>
-                      <div className="text-[10px] text-slate-500 font-normal">
-                        {currentUser.role === 'admin' ? 'Administrator' : 'Anonymous Citizen'}
+                <div className="space-y-1.5">
+                  <button
+                    onClick={() => {
+                      onSelectTab('profile');
+                      setMobileMenuOpen(false);
+                    }}
+                    className="w-full flex items-center justify-between p-3 rounded-xl bg-slate-50 hover:bg-slate-100 border border-slate-200 text-xs font-bold min-h-[44px]"
+                  >
+                    <div className="flex items-center gap-2">
+                      {currentUser.role === 'admin' ? (
+                        <Shield className="w-4 h-4 text-amber-500 fill-current" />
+                      ) : (
+                        <div className="w-5 h-5 rounded-full bg-emerald-600 text-white flex items-center justify-center text-[10px] font-mono">
+                          @
+                        </div>
+                      )}
+                      <div className="text-left">
+                        <div className="font-mono text-slate-900 font-bold">
+                          {currentUser.role === 'admin'
+                            ? `${getAdminPlatformAddressingName(currentUser.username)} (${currentUser.username})`
+                            : currentUser.username}
+                        </div>
+                        <div className="text-[10px] text-slate-500 font-normal">
+                          {currentUser.role === 'admin' ? 'Administrator' : 'Anonymous Citizen'}
+                        </div>
                       </div>
                     </div>
+                    <span className="text-blue-900 text-xs font-semibold">{language === 'en' ? 'Profile →' : 'Wasifu →'}</span>
+                  </button>
+
+                  <div className="grid grid-cols-2 gap-1.5 pt-0.5">
+                    <button
+                      type="button"
+                      onClick={() => {
+                        onOpenAuthModal('login');
+                        setMobileMenuOpen(false);
+                      }}
+                      className="w-full py-2 px-2 rounded-xl bg-blue-900 hover:bg-blue-950 text-white text-xs font-bold flex items-center justify-center gap-1.5 min-h-[40px] cursor-pointer"
+                    >
+                      <User className="w-3.5 h-3.5 text-amber-300" />
+                      <span>{language === 'en' ? 'Switch / Sign In' : 'Badili / Ingia'}</span>
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => {
+                        onOpenAuthModal('register');
+                        setMobileMenuOpen(false);
+                      }}
+                      className="w-full py-2 px-2 rounded-xl bg-emerald-700 hover:bg-emerald-800 text-white text-xs font-bold flex items-center justify-center gap-1.5 min-h-[40px] cursor-pointer"
+                    >
+                      <Sparkles className="w-3.5 h-3.5 text-amber-300" />
+                      <span>{language === 'en' ? 'Sign Up New' : 'Jisajili Mpya'}</span>
+                    </button>
                   </div>
-                  <span className="text-blue-900 text-xs font-semibold">{language === 'en' ? 'Profile →' : 'Wasifu →'}</span>
-                </button>
+                </div>
               ) : (
-                <button
-                  onClick={() => {
-                    onOpenAuthModal('login');
-                    setMobileMenuOpen(false);
-                  }}
-                  className="w-full py-3 px-3 rounded-xl bg-blue-900 hover:bg-blue-950 text-white text-xs font-bold flex items-center justify-center gap-2 min-h-[44px]"
-                >
-                  <User className="w-4 h-4 text-amber-300" />
-                  <span>{language === 'en' ? 'Sign In / Admin Access' : 'Ingia / Msimamizi'}</span>
-                </button>
+                <div className="grid grid-cols-2 gap-2">
+                  <button
+                    onClick={() => {
+                      onOpenAuthModal('login');
+                      setMobileMenuOpen(false);
+                    }}
+                    className="w-full py-2.5 px-2 rounded-xl bg-blue-900 hover:bg-blue-950 text-white text-xs font-bold flex items-center justify-center gap-1.5 min-h-[44px]"
+                  >
+                    <User className="w-4 h-4 text-amber-300" />
+                    <span>{language === 'en' ? 'Log In / Admin' : 'Ingia / Admin'}</span>
+                  </button>
+                  <button
+                    onClick={() => {
+                      onOpenAuthModal('register');
+                      setMobileMenuOpen(false);
+                    }}
+                    className="w-full py-2.5 px-2 rounded-xl bg-emerald-700 hover:bg-emerald-800 text-white text-xs font-bold flex items-center justify-center gap-1.5 min-h-[44px]"
+                  >
+                    <Sparkles className="w-4 h-4 text-amber-300" />
+                    <span>{language === 'en' ? 'Citizen Sign Up' : 'Jisajili'}</span>
+                  </button>
+                </div>
               )}
             </div>
 

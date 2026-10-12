@@ -95,6 +95,10 @@ export function submitFeatureSuggestion(
     console.error('Failed saving suggestion', e);
   }
 
+  if (typeof window !== 'undefined') {
+    window.dispatchEvent(new CustomEvent('the_samaritan_suggestion_added', { detail: { suggestion: newSuggestion } }));
+  }
+
   return {
     success: true,
     suggestion: newSuggestion,
@@ -137,6 +141,10 @@ export function voteOnFeatureSuggestion(
     localStorage.setItem(SUGGESTIONS_STORAGE_KEY, JSON.stringify(suggestions));
   } catch (e) {
     console.error('Failed updating suggestion vote', e);
+  }
+
+  if (typeof window !== 'undefined') {
+    window.dispatchEvent(new CustomEvent('the_samaritan_suggestion_voted', { detail: { suggestionId } }));
   }
 
   return {

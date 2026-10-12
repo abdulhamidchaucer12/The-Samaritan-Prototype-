@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
 import {
   Shield,
@@ -41,6 +41,9 @@ import {
 import { KENYA_47_COUNTIES } from '../data/kenyaCounties';
 import { getUserTokenBalance } from '../utils/facilitatorTokenRegistry';
 import { OnlineUsersPresenceBar } from './OnlineUsersPresenceBar';
+import { loginUserWithCrossDeviceSync, syncAndRestoreUserOnLogin, pushAllDataToGoogleSheet } from '../utils/googleSheetSync';
+
+export type AuthModalMode = 'login' | 'register' | 'adminSettings' | 'recover' | 'profile';
 
 interface AuthModalProps {
   isOpen: boolean;
@@ -49,7 +52,7 @@ interface AuthModalProps {
   currentUser: AuthUser | null;
   onLoginSuccess: (user: AuthUser) => void;
   onLogout: () => void;
-  initialMode?: 'login' | 'register' | 'adminSettings' | 'recover';
+  initialMode?: AuthModalMode;
   onOpenTokensModal?: () => void;
   onOpenCommunityFeed?: () => void;
 }
@@ -65,9 +68,43 @@ export const AuthModal: React.FC<AuthModalProps> = ({
   onOpenTokensModal,
   onOpenCommunityFeed,
 }) => {
-  const [mode, setMode] = useState<'login' | 'register' | 'adminSettings' | 'recover'>(
-    currentUser?.role === 'admin' ? 'adminSettings' : initialMode
-  );
+  const [mode, setMode] = useState<AuthModalMode>(() => {
+    if (initialMode === 'adminSettings' && currentUser?.role === 'admin') return 'adminSettings';
+    if (initialMode === 'profile' && currentUser) return currentUser.role === 'admin' ? 'adminSettings' : 'profile';
+    if (initialMode === 'register') return 'register';
+    if (initialMode === 'recover') return 'recover';
+    return 'login';
+  });
+
+  // Sync mode whenever modal is opened or initialMode / currentUser changes
+  useEffect(() => {
+    if (isOpen) {
+      if (initialMode === 'adminSettings') {
+        setMode(currentUser?.role === 'admin' ? 'adminSettings' : 'login');
+      } else if (initialMode === 'profile') {
+        setMode(currentUser ? (currentUser.role === 'admin' ? 'adminSettings' : 'profile') : 'login');
+      } else if (initialMode === 'register') {
+        setMode('register');
+      } else if (initialMode === 'recover') {
+        setMode('recover');
+      } else {
+        setMode('login');
+      }
+      setErrorMsg(null);
+      setSuccessMsg(null);
+    }
+  }, [isOpen, initialMode, currentUser]);
+
+  // Close on Escape key
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === 'Escape' && isOpen) {
+        onClose();
+      }
+    };
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, [isOpen, onClose]);
 
   // Form states
   const [username, setUsername] = useState('');
@@ -76,6 +113,7 @@ export const AuthModal: React.FC<AuthModalProps> = ({
   const [showPassword, setShowPassword] = useState(false);
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
   const [successMsg, setSuccessMsg] = useState<string | null>(null);
+  const [isLoggingIn, setIsLoggingIn] = useState(false);
 
   // Password Recovery States
   const [recoverUserType, setRecoverUserType] = useState<'citizen' | 'admin'>('citizen');
@@ -184,8 +222,6 @@ export const AuthModal: React.FC<AuthModalProps> = ({
     }
   };
 
-  if (!isOpen) return null;
-
   const handleRegisterSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     setErrorMsg(null);
@@ -220,6 +256,10 @@ export const AuthModal: React.FC<AuthModalProps> = ({
     const result = registerAnonymousUser(username, password, regCounty, regSubCounty);
     if (result.success && result.user) {
       setSuccessMsg(result.message);
+      // Immediately push newly registered citizen to Cloud & Live Google Sheet
+      pushAllDataToGoogleSheet().catch((e) => {
+        console.log('[AuthModal] Registration background sync notice:', e);
+      });
       setTimeout(() => {
         onLoginSuccess(result.user!);
         onClose();
@@ -229,20 +269,27 @@ export const AuthModal: React.FC<AuthModalProps> = ({
     }
   };
 
-  const handleLoginSubmit = (e: React.FormEvent) => {
+  const handleLoginSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setErrorMsg(null);
     setSuccessMsg(null);
+    setIsLoggingIn(true);
 
-    const result = loginUser(username, password);
-    if (result.success && result.user) {
-      setSuccessMsg(result.message);
-      setTimeout(() => {
-        onLoginSuccess(result.user!);
-        onClose();
-      }, 600);
-    } else {
-      setErrorMsg(result.message);
+    try {
+      const result = await loginUserWithCrossDeviceSync(username, password);
+      if (result.success && result.user) {
+        setSuccessMsg(result.message);
+        setTimeout(() => {
+          onLoginSuccess(result.user!);
+          onClose();
+        }, 600);
+      } else {
+        setErrorMsg(result.message);
+      }
+    } catch (err: any) {
+      setErrorMsg(err?.message || 'Login encountered an unexpected error.');
+    } finally {
+      setIsLoggingIn(false);
     }
   };
 
@@ -342,58 +389,76 @@ export const AuthModal: React.FC<AuthModalProps> = ({
     }
   };
 
+  if (!isOpen) return null;
+
+  // Guarantee that an unauthenticated session NEVER lands on profile or adminSettings
+  const activeMode: AuthModalMode = !currentUser && (mode === 'profile' || mode === 'adminSettings')
+    ? 'login'
+    : mode;
+
   return (
-    <div className="fixed inset-0 z-50 flex items-end sm:items-center justify-center p-0 sm:p-4 bg-slate-950/70 backdrop-blur-xs overflow-y-auto">
+    <div
+      onClick={(e) => {
+        if (e.target === e.currentTarget) {
+          onClose();
+        }
+      }}
+      className="fixed inset-0 z-[80] flex items-center justify-center p-3 sm:p-4 bg-slate-950/75 backdrop-blur-xs overflow-y-auto"
+      role="dialog"
+      aria-modal="true"
+      aria-labelledby="auth-modal-title"
+    >
       <motion.div
         initial={{ opacity: 0, scale: 0.96, y: 16 }}
         animate={{ opacity: 1, scale: 1, y: 0 }}
         exit={{ opacity: 0, scale: 0.96, y: 16 }}
-        transition={{ duration: 0.25, ease: 'easeOut' }}
-        className="bg-white dark:bg-slate-900 rounded-t-3xl sm:rounded-2xl max-w-lg w-full shadow-2xl border border-slate-200 dark:border-slate-800 overflow-hidden relative my-0 sm:my-8 max-h-[92vh] sm:max-h-[90vh] flex flex-col"
+        transition={{ duration: 0.2, ease: 'easeOut' }}
+        className="bg-white dark:bg-slate-900 rounded-2xl sm:rounded-3xl max-w-lg w-full shadow-2xl border border-slate-200 dark:border-slate-800 overflow-hidden relative my-auto max-h-[90vh] sm:max-h-[85vh] flex flex-col"
       >
         {/* Top Kenyan Ribbon Accent */}
-        <div className="h-1.5 kenya-ribbon" />
+        <div className="h-1.5 kenya-ribbon shrink-0" />
 
         {/* Modal Header */}
-        <div className="p-4 sm:p-6 border-b border-slate-100 dark:border-slate-800 flex items-center justify-between bg-slate-50/70 dark:bg-slate-900/70 shrink-0">
+        <div className="p-4 sm:p-5 border-b border-slate-100 dark:border-slate-800 flex items-center justify-between bg-slate-50/80 dark:bg-slate-900/80 shrink-0">
           <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-xl bg-blue-900 text-amber-400 flex items-center justify-center shadow-xs">
-              {currentUser?.role === 'admin' ? (
+            <div className="w-10 h-10 rounded-xl bg-blue-900 text-amber-400 flex items-center justify-center shadow-xs shrink-0">
+              {activeMode === 'adminSettings' ? (
                 <ShieldCheck className="w-5 h-5" />
+              ) : activeMode === 'register' ? (
+                <Sparkles className="w-5 h-5 text-amber-300" />
+              ) : activeMode === 'recover' ? (
+                <KeyRound className="w-5 h-5" />
               ) : (
                 <User className="w-5 h-5" />
               )}
             </div>
             <div>
-              <h3 className="font-extrabold text-lg text-slate-900 dark:text-slate-100 font-serif">
-                {currentUser
-                  ? currentUser.role === 'admin'
-                    ? language === 'en'
-                      ? 'Administrator Panel'
-                      : 'Paneli ya Wasimamizi'
-                    : language === 'en'
-                    ? 'Citizen Profile'
-                    : 'Akaunti ya Mwananchi'
-                  : mode === 'register'
-                  ? language === 'en'
-                    ? 'Create Anonymous Account'
-                    : 'Fungua Akaunti ya Siri'
-                  : language === 'en'
-                  ? 'Sign In / Admin Access'
-                  : 'Ingia / Paneli ya Msimamizi'}
+              <h3 id="auth-modal-title" className="font-extrabold text-base sm:text-lg text-slate-900 dark:text-slate-100 font-serif">
+                {activeMode === 'profile'
+                  ? language === 'en' ? 'Citizen Profile' : 'Akaunti ya Mwananchi'
+                  : activeMode === 'adminSettings'
+                  ? language === 'en' ? 'Administrator Panel' : 'Paneli ya Wasimamizi'
+                  : activeMode === 'register'
+                  ? language === 'en' ? 'Create Anonymous Account' : 'Fungua Akaunti ya Siri'
+                  : activeMode === 'recover'
+                  ? language === 'en' ? 'Account Password Recovery' : 'Urejeshaji wa Nenosiri'
+                  : language === 'en' ? 'Sign In / Admin Access' : 'Ingia / Paneli ya Msimamizi'}
               </h3>
-              <p className="text-xs text-slate-500 dark:text-slate-400">
-                {currentUser
-                  ? `Logged in as ${currentUser.username}`
-                  : language === 'en'
-                  ? 'Ask questions & interact with public offices'
-                  : 'Uliza maswali na kujifunza kuhusu serikali'}
+              <p className="text-[11px] sm:text-xs text-slate-500 dark:text-slate-400">
+                {currentUser && (activeMode === 'profile' || activeMode === 'adminSettings')
+                  ? `Active as ${currentUser.username} (${currentUser.role})`
+                  : activeMode === 'register'
+                  ? language === 'en' ? '100% Anonymous civic handle • No phone/email required' : 'Akaunti ya siri bila jina au nambari ya simu'
+                  : activeMode === 'recover'
+                  ? language === 'en' ? 'Verify via Registered Home County or Master Key' : 'Thibitisha kwa Kaunti ya nyumbani'
+                  : language === 'en' ? 'Enter credentials or register anonymous civic identity' : 'Weka nenosiri au fungua akaunti ya uraia'}
               </p>
             </div>
           </div>
 
           {/* Close X at the top right corner */}
           <button
+            type="button"
             onClick={onClose}
             className="w-9 h-9 rounded-xl text-slate-400 hover:text-slate-700 dark:hover:text-slate-200 hover:bg-slate-200/80 dark:hover:bg-slate-800 flex items-center justify-center transition-colors cursor-pointer shrink-0"
             title={language === 'en' ? 'Close' : 'Funga'}
@@ -403,9 +468,143 @@ export const AuthModal: React.FC<AuthModalProps> = ({
           </button>
         </div>
 
-        {/* Logged in state view */}
-        {currentUser ? (
-          <div className="p-5 sm:p-6 space-y-6 overflow-y-auto flex-1">
+        {/* Universal Mode Switcher Navigation Tabs */}
+        <div className="px-4 sm:px-6 pt-3 pb-2.5 bg-slate-50/50 dark:bg-slate-900/50 border-b border-slate-100 dark:border-slate-800 shrink-0">
+          <div className={`grid ${currentUser ? 'grid-cols-4' : 'grid-cols-3'} gap-1 p-1 bg-slate-100 dark:bg-slate-800 rounded-xl`}>
+            {currentUser && (
+              <button
+                type="button"
+                onClick={() => {
+                  setMode(currentUser.role === 'admin' ? 'adminSettings' : 'profile');
+                  setErrorMsg(null);
+                  setSuccessMsg(null);
+                }}
+                className={`py-2 px-1 text-[11px] sm:text-xs font-bold rounded-lg transition-all truncate text-center cursor-pointer ${
+                  activeMode === 'profile' || activeMode === 'adminSettings'
+                    ? 'bg-white dark:bg-slate-700 text-blue-900 dark:text-blue-100 shadow-xs ring-1 ring-slate-200 dark:ring-slate-600'
+                    : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-200'
+                }`}
+              >
+                {currentUser.role === 'admin'
+                  ? language === 'en' ? 'Admin' : 'Admin'
+                  : language === 'en' ? 'My Profile' : 'Wasifu'}
+              </button>
+            )}
+
+            <button
+              type="button"
+              onClick={() => {
+                setMode('login');
+                setErrorMsg(null);
+                setSuccessMsg(null);
+              }}
+              className={`py-2 px-1 text-[11px] sm:text-xs font-bold rounded-lg transition-all truncate text-center cursor-pointer ${
+                activeMode === 'login'
+                  ? 'bg-white dark:bg-slate-700 text-blue-900 dark:text-blue-100 shadow-xs ring-1 ring-slate-200 dark:ring-slate-600'
+                  : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-200'
+              }`}
+            >
+              {currentUser
+                ? language === 'en' ? 'Switch / Login' : 'Badili / Ingia'
+                : language === 'en' ? 'Log In / Admin' : 'Ingia / Admin'}
+            </button>
+
+            <button
+              type="button"
+              onClick={() => {
+                setMode('register');
+                setErrorMsg(null);
+                setSuccessMsg(null);
+              }}
+              className={`py-2 px-1 text-[11px] sm:text-xs font-bold rounded-lg transition-all truncate text-center cursor-pointer ${
+                activeMode === 'register'
+                  ? 'bg-emerald-600 text-white shadow-xs'
+                  : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-200'
+              }`}
+            >
+              {language === 'en' ? 'Citizen Sign Up' : 'Jisajili'}
+            </button>
+
+            <button
+              type="button"
+              onClick={() => {
+                setMode('recover');
+                setErrorMsg(null);
+                setSuccessMsg(null);
+              }}
+              className={`py-2 px-1 text-[11px] sm:text-xs font-bold rounded-lg transition-all truncate text-center cursor-pointer ${
+                activeMode === 'recover'
+                  ? 'bg-amber-600 text-white shadow-xs'
+                  : 'text-amber-800 dark:text-amber-400 hover:text-amber-900'
+              }`}
+            >
+              {language === 'en' ? 'Forgot Pass' : 'Rejesha'}
+            </button>
+          </div>
+        </div>
+
+        {/* Scrollable Modal Content */}
+        <div className="flex-1 min-h-0 overflow-y-auto overscroll-contain p-4 sm:p-6 scrollbar-thin space-y-4">
+          {/* Alerts */}
+          {errorMsg && (
+            <motion.div
+              initial={{ opacity: 0, y: -4 }}
+              animate={{ opacity: 1, y: 0 }}
+              className="p-3 bg-red-50 border border-red-200 text-red-800 text-xs rounded-xl flex items-center gap-2"
+            >
+              <AlertCircle className="w-4 h-4 shrink-0 text-red-600" />
+              <span>{errorMsg}</span>
+            </motion.div>
+          )}
+
+          {successMsg && (
+            <motion.div
+              initial={{ opacity: 0, y: -4 }}
+              animate={{ opacity: 1, y: 0 }}
+              className="p-3 bg-emerald-50 border border-emerald-200 text-emerald-800 text-xs rounded-xl flex items-center gap-2"
+            >
+              <CheckCircle2 className="w-4 h-4 shrink-0 text-emerald-600" />
+              <span>{successMsg}</span>
+            </motion.div>
+          )}
+
+          {/* Active User Switch Banner when viewing Login or Register */}
+          {currentUser && (activeMode === 'login' || activeMode === 'register') && (
+            <div className="p-3 bg-blue-50 dark:bg-blue-950/40 border border-blue-200 dark:border-blue-800 rounded-xl text-xs flex flex-col sm:flex-row sm:items-center justify-between gap-2 text-blue-900 dark:text-blue-200">
+              <div className="flex items-center gap-2">
+                <User className="w-4 h-4 text-blue-600 shrink-0" />
+                <span>
+                  {language === 'en'
+                    ? <>Signed in as <strong>{currentUser.username}</strong> ({currentUser.role}). Enter credentials below to switch accounts or sign in as Admin.</>
+                    : <>Umeingia kama <strong>{currentUser.username}</strong> ({currentUser.role}). Weka nenosiri kubadili akaunti au kuingia kama msimamizi.</>}
+                </span>
+              </div>
+              <div className="flex items-center gap-2 shrink-0">
+                <button
+                  type="button"
+                  onClick={() => {
+                    onLogout();
+                    setMode('login');
+                  }}
+                  className="text-xs text-red-600 dark:text-red-400 font-bold hover:underline cursor-pointer"
+                >
+                  {language === 'en' ? 'Log Out' : 'Ondoka'}
+                </button>
+                <span className="text-slate-300 dark:text-slate-600">•</span>
+                <button
+                  type="button"
+                  onClick={() => setMode(currentUser.role === 'admin' ? 'adminSettings' : 'profile')}
+                  className="text-xs text-blue-700 dark:text-blue-300 font-bold hover:underline cursor-pointer"
+                >
+                  {language === 'en' ? 'Profile' : 'Wasifu'}
+                </button>
+              </div>
+            </div>
+          )}
+
+          {/* Mode 1: Logged In Citizen Profile or Admin Panel */}
+          {(activeMode === 'profile' || activeMode === 'adminSettings') && currentUser ? (
+            <div className="space-y-6">
             {/* User Details Banner */}
             <div className="p-4 rounded-xl bg-emerald-50 border border-emerald-200 flex items-center justify-between">
               <div className="flex items-center gap-3">
@@ -791,6 +990,39 @@ export const AuthModal: React.FC<AuthModalProps> = ({
               </div>
             )}
 
+            {/* Account Switcher & Registration Quick Shortcuts */}
+            <div className="p-4 rounded-xl bg-slate-50 dark:bg-slate-800/60 border border-slate-200 dark:border-slate-700/80 space-y-3">
+              <div className="text-xs font-bold text-slate-700 dark:text-slate-300">
+                {language === 'en' ? 'Account Switching & New Registration' : 'Kubadilisha Akaunti au Kusajili Upya'}
+              </div>
+              <div className="grid grid-cols-2 gap-2">
+                <button
+                  type="button"
+                  onClick={() => {
+                    setMode('login');
+                    setErrorMsg(null);
+                    setSuccessMsg(null);
+                  }}
+                  className="py-2 px-2.5 rounded-lg border border-slate-300 dark:border-slate-600 hover:bg-white dark:hover:bg-slate-700 text-slate-800 dark:text-slate-200 text-xs font-bold transition flex items-center justify-center gap-1.5 shadow-2xs cursor-pointer"
+                >
+                  <User className="w-3.5 h-3.5 text-blue-600 dark:text-blue-400" />
+                  <span>{language === 'en' ? 'Switch / Log In' : 'Badili / Ingia'}</span>
+                </button>
+                <button
+                  type="button"
+                  onClick={() => {
+                    setMode('register');
+                    setErrorMsg(null);
+                    setSuccessMsg(null);
+                  }}
+                  className="py-2 px-2.5 rounded-lg bg-emerald-700 hover:bg-emerald-800 text-white text-xs font-bold transition flex items-center justify-center gap-1.5 shadow-xs cursor-pointer"
+                >
+                  <Sparkles className="w-3.5 h-3.5 text-amber-300" />
+                  <span>{language === 'en' ? 'New Citizen' : 'Jisajili Mpya'}</span>
+                </button>
+              </div>
+            </div>
+
             {/* Dedicated Bottom Close Button */}
             <div className="pt-2 border-t border-slate-200 dark:border-slate-800">
               <button
@@ -804,96 +1036,14 @@ export const AuthModal: React.FC<AuthModalProps> = ({
               </button>
             </div>
           </div>
-        ) : (
-          /* Authentication Forms: Login or Register */
-          <div className="p-6">
-            {/* Mode Switcher Tabs */}
-            <div className="grid grid-cols-3 gap-1 p-1 bg-slate-100 dark:bg-slate-800 rounded-xl mb-6">
-              <button
-                type="button"
-                onClick={() => {
-                  setMode('register');
-                  setErrorMsg(null);
-                  setSuccessMsg(null);
-                }}
-                className={`py-2 text-xs font-bold rounded-lg transition-all ${
-                  mode === 'register'
-                    ? 'bg-white dark:bg-slate-700 text-blue-900 dark:text-blue-100 shadow-xs ring-1 ring-slate-200 dark:ring-slate-600'
-                    : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-200'
-                }`}
-              >
-                {language === 'en' ? 'Citizen Sign Up' : 'Jisajili'}
-              </button>
-              <button
-                type="button"
-                onClick={() => {
-                  setMode('login');
-                  setErrorMsg(null);
-                  setSuccessMsg(null);
-                }}
-                className={`py-2 text-xs font-bold rounded-lg transition-all ${
-                  mode === 'login'
-                    ? 'bg-white dark:bg-slate-700 text-blue-900 dark:text-blue-100 shadow-xs ring-1 ring-slate-200 dark:ring-slate-600'
-                    : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-200'
-                }`}
-              >
-                {language === 'en' ? 'Log In / Admin' : 'Ingia / Admin'}
-              </button>
-              <button
-                type="button"
-                onClick={() => {
-                  setMode('recover');
-                  setErrorMsg(null);
-                  setSuccessMsg(null);
-                }}
-                className={`py-2 text-xs font-bold rounded-lg transition-all ${
-                  mode === 'recover'
-                    ? 'bg-amber-600 text-white shadow-xs'
-                    : 'text-amber-800 dark:text-amber-400 hover:text-amber-900'
-                }`}
-              >
-                {language === 'en' ? 'Forgot Pass' : 'Rejesha'}
-              </button>
-            </div>
+        ) : null}
 
-            {/* Error or Success alerts */}
-            {errorMsg && (
-              <motion.div
-                initial={{ opacity: 0, y: -4 }}
-                animate={{ opacity: 1, y: 0 }}
-                className="mb-4 p-3 bg-red-50 border border-red-200 text-red-800 text-xs rounded-lg flex items-center gap-2"
-              >
-                <AlertCircle className="w-4 h-4 shrink-0 text-red-600" />
-                <span>{errorMsg}</span>
-              </motion.div>
-            )}
-
-            {successMsg && (
-              <motion.div
-                initial={{ opacity: 0, y: -4 }}
-                animate={{ opacity: 1, y: 0 }}
-                className="mb-4 p-3 bg-emerald-50 border border-emerald-200 text-emerald-800 text-xs rounded-lg flex items-center gap-2"
-              >
-                <CheckCircle2 className="w-4 h-4 shrink-0 text-emerald-600" />
-                <span>{successMsg}</span>
-              </motion.div>
-            )}
-
-            {mode === 'register' ? (
-              /* Register Form */
-              <form onSubmit={handleRegisterSubmit} className="space-y-4">
-                <div className="bg-amber-50/80 border border-amber-200/80 p-3 rounded-xl text-xs text-amber-900 leading-relaxed flex items-start gap-2.5">
-                  <Sparkles className="w-4 h-4 text-amber-700 shrink-0 mt-0.5" />
-                  <div>
-                    <strong className="block font-semibold">
-                      {language === 'en' ? 'Instagram-Style Anonymous Handle' : 'Jina la Siri Mtindo wa Instagram'}
-                    </strong>
-                    {language === 'en'
-                      ? 'Pick an anonymous username (e.g. @mwananchi_kwale, @voice_of_tiwi). Both username and password must have at least 8 characters.'
-                      : 'Chagua jina la utani lenye herufi 8 au zaidi kuanzia na @. Nenosiri nalo lazima liwe na herufi 8 au zaidi.'}
-                  </div>
-                </div>
-
+        {/* Authentication Forms: Login, Register, Recover */}
+        {(activeMode === 'login' || activeMode === 'register' || activeMode === 'recover') && (
+          <div className="space-y-4">
+            {activeMode === 'register' ? (
+              /* Register Form - Clean, Compact & Fully Scrollable */
+              <form onSubmit={handleRegisterSubmit} className="space-y-3.5 pb-3">
                 {/* Username Input */}
                 <div>
                   <label className="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1">
@@ -1158,7 +1308,7 @@ export const AuthModal: React.FC<AuthModalProps> = ({
                   <span>{language === 'en' ? 'Close' : 'Funga'}</span>
                 </button>
               </form>
-            ) : mode === 'login' ? (
+            ) : activeMode === 'login' ? (
               /* Login Form */
               <form onSubmit={handleLoginSubmit} className="space-y-4">
                 <div>
@@ -1201,9 +1351,17 @@ export const AuthModal: React.FC<AuthModalProps> = ({
 
                 <button
                   type="submit"
-                  className="w-full py-3 bg-blue-900 hover:bg-blue-950 text-white font-bold text-sm rounded-xl transition-all shadow-md cursor-pointer"
+                  disabled={isLoggingIn}
+                  className="w-full py-3 bg-blue-900 hover:bg-blue-950 disabled:bg-blue-800 disabled:cursor-wait text-white font-bold text-sm rounded-xl transition-all shadow-md cursor-pointer flex items-center justify-center gap-2"
                 >
-                  {language === 'en' ? 'Log In' : 'Ingia'}
+                  {isLoggingIn ? (
+                    <>
+                      <span className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+                      <span>{language === 'en' ? 'Verifying & Syncing...' : 'Inathibitisha na Kusawazisha...'}</span>
+                    </>
+                  ) : (
+                    <span>{language === 'en' ? 'Log In' : 'Ingia'}</span>
+                  )}
                 </button>
 
                 <button
@@ -1419,6 +1577,7 @@ export const AuthModal: React.FC<AuthModalProps> = ({
             )}
           </div>
         )}
+        </div>
       </motion.div>
     </div>
   );

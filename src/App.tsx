@@ -75,6 +75,7 @@ import {
   applyActiveAdaptationStyles,
   recordInteractionEvent,
 } from './utils/autoLearnEngine';
+import { initGoogleSheetSync, syncAndRestoreUserOnLogin } from './utils/googleSheetSync';
 
 export default function App() {
   const [currentTab, setCurrentTab] = useState<string>('home');
@@ -135,10 +136,11 @@ export default function App() {
     setUserNotifications(getUserDirectNotifications(currentUser?.username));
   };
 
-  // Check and expire temporary admin passes & initialize UI/UX dynamic adaptations
+  // Check and expire temporary admin passes & initialize UI/UX dynamic adaptations & Google Sheet Sync
   useEffect(() => {
     checkExpiredTemporaryAdminAppointments();
     applyActiveAdaptationStyles();
+    initGoogleSheetSync();
     const handleAdaptationChange = () => {
       applyActiveAdaptationStyles();
     };
@@ -237,6 +239,8 @@ export default function App() {
     setAuthModalOpen(true);
   };
 
+  const [offlineSyncNotice, setOfflineSyncNotice] = useState<string | null>(null);
+
   const handleLoginSuccess = (user: AuthUser) => {
     setCurrentUser(user);
     setCurrentAuthUser(user);
@@ -245,6 +249,20 @@ export default function App() {
     if (user.role === 'admin' && user.username !== 'The_Samaritan') {
       sendDailyGuidanceNotificationToAdminIfOnline(user.username);
     }
+    // Cross-device multi-server continuity: check Cloud and Live Sheets and restore progress
+    syncAndRestoreUserOnLogin(user.username).then((res) => {
+      if (res.restored) {
+        setOfflineSyncNotice(
+          language === 'en'
+            ? `Synchronized ${res.lessonsRestored} lessons, badges & credentials from ${res.source}.`
+            : `Imerudisha masomo ${res.lessonsRestored}, nembo na vitambulisho kutoka ${res.source}.`
+        );
+        setTimeout(() => setOfflineSyncNotice(null), 5000);
+      }
+    }).catch((err) => {
+      console.warn('[App] Login restore note:', err);
+    });
+
     setUserNotifications(getUserDirectNotifications(user.username));
     // Immediately show other online users welcome toast so the user sees who is online
     setLoginToastOpen(true);
@@ -282,13 +300,21 @@ export default function App() {
   useEffect(() => {
     const handleOnline = () => setIsOnline(true);
     const handleOffline = () => setIsOnline(false);
+    const handleOfflineSynced = (e: any) => {
+      if (e?.detail?.message) {
+        setOfflineSyncNotice(e.detail.message);
+        setTimeout(() => setOfflineSyncNotice(null), 6000);
+      }
+    };
 
     window.addEventListener('online', handleOnline);
     window.addEventListener('offline', handleOffline);
+    window.addEventListener('the_samaritan_offline_autosynced', handleOfflineSynced);
 
     return () => {
       window.removeEventListener('online', handleOnline);
       window.removeEventListener('offline', handleOffline);
+      window.removeEventListener('the_samaritan_offline_autosynced', handleOfflineSynced);
     };
   }, []);
 
@@ -926,6 +952,27 @@ export default function App() {
         }}
         otherOnlineUsers={getOtherOnlineUsers(currentUser?.username)}
       />
+
+      {/* Real-time Multi-Device & Offline Reconnection Toast Notification */}
+      {offlineSyncNotice && (
+        <div className="fixed bottom-20 sm:bottom-6 right-4 sm:right-6 z-50 max-w-sm bg-slate-950 text-white p-4 rounded-2xl shadow-2xl border border-emerald-500/60 animate-in fade-in slide-in-from-bottom-5">
+          <div className="flex items-start gap-3">
+            <span className="w-2.5 h-2.5 rounded-full bg-emerald-400 animate-ping mt-1 shrink-0" />
+            <div className="space-y-1">
+              <h5 className="text-xs font-black uppercase tracking-wider text-emerald-400">
+                {language === 'en' ? 'Multi-Device Sync Active' : 'Usawazishaji wa Vifaa Vingi'}
+              </h5>
+              <p className="text-xs text-slate-200 leading-snug">{offlineSyncNotice}</p>
+            </div>
+            <button
+              onClick={() => setOfflineSyncNotice(null)}
+              className="text-slate-400 hover:text-white p-1 rounded-lg transition"
+            >
+              <X className="w-4 h-4" />
+            </button>
+          </div>
+        </div>
+      )}
 
       {/* Anonymous Citizen Account & Admin Access Modal */}
       <AuthModal

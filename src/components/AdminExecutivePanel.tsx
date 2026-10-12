@@ -35,6 +35,7 @@ import {
   Radio,
   Copy,
   Check,
+  RotateCcw,
 } from 'lucide-react';
 import { MasterCitizenRosterAndIncidents } from './MasterCitizenRosterAndIncidents';
 import { UserVerificationConsole } from './UserVerificationConsole';
@@ -47,8 +48,12 @@ import {
   getGoogleSheetConfig,
   saveGoogleSheetConfig,
   pushAllDataToGoogleSheet,
+  readAllDataFromGoogleSheet,
   testGoogleSheetConnection,
+  isOfflinePendingSync,
+  flushPendingOfflineSync,
   SAMPLE_APPS_SCRIPT_CODE,
+  LIVE_GOOGLE_SHEET_URL,
 } from '../utils/googleSheetSync';
 import {
   AuthUser,
@@ -312,7 +317,11 @@ export const AdminExecutivePanel: React.FC<AdminExecutivePanelProps> = ({
   const [sheetConfig, setSheetConfig] = useState(() => getGoogleSheetConfig());
   const [sheetInputUrl, setSheetInputUrl] = useState(sheetConfig.webAppUrl || '');
   const [isSyncingSheet, setIsSyncingSheet] = useState(false);
+  const [isPullingSheet, setIsPullingSheet] = useState(false);
   const [isTestingSheet, setIsTestingSheet] = useState(false);
+  const [liveSheetData, setLiveSheetData] = useState<any | null>(null);
+  const [sheetInspectorTab, setSheetInspectorTab] = useState<'citizens' | 'presence' | 'progress' | 'tokens' | 'badges' | 'inquiries' | 'certificates' | 'events'>('citizens');
+  const [isOfflinePending, setIsOfflinePending] = useState(() => isOfflinePendingSync());
   const [sheetStatusMsg, setSheetStatusMsg] = useState<{ type: 'success' | 'error' | 'info'; text: string } | null>(null);
   const [copiedCode, setCopiedCode] = useState(false);
 
@@ -339,6 +348,25 @@ export const AdminExecutivePanel: React.FC<AdminExecutivePanelProps> = ({
 
   useEffect(() => {
     reloadAll();
+    const handleSync = () => {
+      const cfg = getGoogleSheetConfig();
+      setSheetConfig(cfg);
+      if (!sheetInputUrl) setSheetInputUrl(cfg.webAppUrl);
+      setIsOfflinePending(isOfflinePendingSync());
+    };
+    const handleOfflineStatus = (e: any) => {
+      if (typeof e?.detail?.pending === 'boolean') {
+        setIsOfflinePending(e.detail.pending);
+      }
+    };
+    window.addEventListener('the_samaritan_google_sheet_synced', handleSync);
+    window.addEventListener('the_samaritan_offline_sync_status_changed', handleOfflineStatus);
+    window.addEventListener('the_samaritan_offline_autosynced', handleSync);
+    return () => {
+      window.removeEventListener('the_samaritan_google_sheet_synced', handleSync);
+      window.removeEventListener('the_samaritan_offline_sync_status_changed', handleOfflineStatus);
+      window.removeEventListener('the_samaritan_offline_autosynced', handleSync);
+    };
   }, []);
 
   // 1. Handle Ban Submit (Strictly by Username / Account Handle - Device ID removed)
@@ -2544,7 +2572,53 @@ export const AdminExecutivePanel: React.FC<AdminExecutivePanelProps> = ({
                 </p>
               </div>
 
-              <div className="flex items-center gap-2 shrink-0">
+              <div className="flex items-center gap-2 shrink-0 flex-wrap">
+                <button
+                  type="button"
+                  disabled={isPullingSheet || !sheetInputUrl.trim()}
+                  onClick={async () => {
+                    if (!sheetInputUrl.trim()) return;
+                    setIsPullingSheet(true);
+                    setSheetStatusMsg(null);
+                    try {
+                      const res = await readAllDataFromGoogleSheet(sheetInputUrl.trim());
+                      if (res.success && res.data) {
+                        setLiveSheetData(res.data);
+                        setSheetStatusMsg({
+                          type: 'success',
+                          text: language === 'en'
+                            ? `Live data pulled successfully from ${res.source === 'google_sheets' ? 'Google Sheets' : 'Google Cloud Backup'}!`
+                            : `Takwimu zimesomwa moja kwa moja kutoka ${res.source === 'google_sheets' ? 'Google Sheets' : 'Wingu'}!`,
+                        });
+                      } else {
+                        setSheetStatusMsg({
+                          type: 'error',
+                          text: res.message || 'Could not read data from Google Sheet.',
+                        });
+                      }
+                    } catch (err: any) {
+                      setSheetStatusMsg({
+                        type: 'error',
+                        text: err?.message || 'Failed reading live records from Google Sheet.',
+                      });
+                    } finally {
+                      setIsPullingSheet(false);
+                    }
+                  }}
+                  className={`flex items-center gap-2 font-black px-4 py-2.5 rounded-xl text-xs sm:text-sm transition-all shadow-md ${
+                    isPullingSheet || !sheetInputUrl.trim()
+                      ? 'bg-slate-700 text-slate-400 cursor-not-allowed'
+                      : 'bg-teal-500 hover:bg-teal-400 text-slate-950 cursor-pointer'
+                  }`}
+                >
+                  <Download className={`w-4 h-4 ${isPullingSheet ? 'animate-bounce' : ''}`} />
+                  <span>
+                    {isPullingSheet
+                      ? (language === 'en' ? 'Reading Sheet...' : 'Inasoma...')
+                      : (language === 'en' ? 'Pull Live Data (Read)' : 'Soma Moja kwa Moja')}
+                  </span>
+                </button>
+
                 <button
                   type="button"
                   disabled={isSyncingSheet || !sheetInputUrl.trim()}
@@ -2556,6 +2630,7 @@ export const AdminExecutivePanel: React.FC<AdminExecutivePanelProps> = ({
                       saveGoogleSheetConfig({ webAppUrl: sheetInputUrl.trim() });
                       setSheetConfig(getGoogleSheetConfig());
                       const res = await pushAllDataToGoogleSheet(sheetInputUrl.trim());
+                      setIsOfflinePending(false);
                       setSheetStatusMsg({
                         type: 'success',
                         text: language === 'en' ? res.message : 'Takwimu zimesawazishwa kikamilifu na Google Sheet!',
@@ -2569,7 +2644,7 @@ export const AdminExecutivePanel: React.FC<AdminExecutivePanelProps> = ({
                       setIsSyncingSheet(false);
                     }
                   }}
-                  className={`flex items-center gap-2 font-black px-5 py-2.5 rounded-xl text-xs sm:text-sm transition-all shadow-md ${
+                  className={`flex items-center gap-2 font-black px-4 py-2.5 rounded-xl text-xs sm:text-sm transition-all shadow-md ${
                     isSyncingSheet || !sheetInputUrl.trim()
                       ? 'bg-slate-700 text-slate-400 cursor-not-allowed'
                       : 'bg-emerald-500 hover:bg-emerald-400 text-slate-950 cursor-pointer'
@@ -2578,6 +2653,34 @@ export const AdminExecutivePanel: React.FC<AdminExecutivePanelProps> = ({
                   <RefreshCw className={`w-4 h-4 ${isSyncingSheet ? 'animate-spin' : ''}`} />
                   <span>{isSyncingSheet ? (language === 'en' ? 'Syncing...' : 'Inasawazisha...') : (language === 'en' ? 'Sync Now (Push Data)' : 'Sawazisha Sasa')}</span>
                 </button>
+
+                {isOfflinePending && (
+                  <button
+                    type="button"
+                    onClick={async () => {
+                      setIsSyncingSheet(true);
+                      try {
+                        const res = await flushPendingOfflineSync();
+                        setIsOfflinePending(false);
+                        setSheetStatusMsg({
+                          type: 'success',
+                          text: res.message,
+                        });
+                      } catch (err: any) {
+                        setSheetStatusMsg({
+                          type: 'error',
+                          text: err?.message || 'Offline flush failed',
+                        });
+                      } finally {
+                        setIsSyncingSheet(false);
+                      }
+                    }}
+                    className="flex items-center gap-1.5 font-black px-3.5 py-2.5 rounded-xl text-xs bg-amber-500 hover:bg-amber-400 text-slate-950 transition shadow-md cursor-pointer animate-pulse"
+                  >
+                    <Upload className="w-3.5 h-3.5" />
+                    <span>{language === 'en' ? 'Flush Offline Queue' : 'Tuma Yaliyohifadhiwa'}</span>
+                  </button>
+                )}
               </div>
             </div>
 
@@ -2609,15 +2712,24 @@ export const AdminExecutivePanel: React.FC<AdminExecutivePanelProps> = ({
                 </h4>
                 <p className="text-xs text-slate-500 mt-1">
                   {language === 'en'
-                    ? 'Deploy the free Apps Script inside your Google Sheet, then paste its Web App execution URL below.'
-                    : 'Weka msimbo wa bure wa Apps Script ndani ya Google Sheet yako, kisha weka anwani ya Web App hapa chini.'}
+                    ? 'Deploy the updated Apps Script inside your Google Sheet, supporting real-time read and write.'
+                    : 'Weka msimbo ulioboreshwa wa Apps Script ndani ya Google Sheet yako, unaowezesha kusoma na kuandika.'}
                 </p>
               </div>
 
               <div className="space-y-3">
-                <label className="block text-xs font-bold text-slate-700">
-                  {language === 'en' ? 'Google Apps Script Web App URL (*ends in /exec)' : 'Anwani ya Web App (*inaishia kwa /exec)'}
-                </label>
+                <div className="flex items-center justify-between">
+                  <label className="block text-xs font-bold text-slate-700">
+                    {language === 'en' ? 'Google Apps Script Web App URL (*ends in /exec)' : 'Anwani ya Web App (*inaishia kwa /exec)'}
+                  </label>
+                  {sheetInputUrl.trim() === LIVE_GOOGLE_SHEET_URL && (
+                    <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-bold bg-emerald-100 text-emerald-800">
+                      <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-ping" />
+                      Live Connected
+                    </span>
+                  )}
+                </div>
+
                 <input
                   type="url"
                   placeholder="https://script.google.com/macros/s/.../exec"
@@ -2626,7 +2738,7 @@ export const AdminExecutivePanel: React.FC<AdminExecutivePanelProps> = ({
                   className="w-full text-xs font-mono px-3.5 py-2.5 rounded-xl border border-slate-300 focus:outline-none focus:ring-2 focus:ring-emerald-500 bg-slate-50"
                 />
 
-                <div className="flex items-center gap-2 pt-1">
+                <div className="flex items-center gap-2 pt-1 flex-wrap">
                   <button
                     type="button"
                     disabled={isTestingSheet || !sheetInputUrl.trim()}
@@ -2666,6 +2778,22 @@ export const AdminExecutivePanel: React.FC<AdminExecutivePanelProps> = ({
                     <Save className="w-3.5 h-3.5" />
                     <span>Save URL</span>
                   </button>
+
+                  {sheetInputUrl.trim() !== LIVE_GOOGLE_SHEET_URL && (
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setSheetInputUrl(LIVE_GOOGLE_SHEET_URL);
+                        saveGoogleSheetConfig({ webAppUrl: LIVE_GOOGLE_SHEET_URL });
+                        setSheetConfig(getGoogleSheetConfig());
+                        setSheetStatusMsg({ type: 'info', text: 'Reset to official live Google Sheet URL.' });
+                      }}
+                      className="flex items-center gap-1.5 px-3 py-1.5 text-xs font-bold rounded-lg bg-emerald-50 text-emerald-700 hover:bg-emerald-100 border border-emerald-200 transition cursor-pointer"
+                    >
+                      <RotateCcw className="w-3.5 h-3.5" />
+                      <span>Use Official Live Sheet</span>
+                    </button>
+                  )}
                 </div>
               </div>
 
@@ -2681,15 +2809,31 @@ export const AdminExecutivePanel: React.FC<AdminExecutivePanelProps> = ({
                       {sheetConfig.lastSyncStatus?.toUpperCase()}
                     </span>
                   </div>
+                  {sheetConfig.lastSyncMessage && (
+                    <p className="text-[10px] text-slate-500 pt-0.5 italic">
+                      {sheetConfig.lastSyncMessage}
+                    </p>
+                  )}
                 </div>
               )}
 
               <div className="pt-2 border-t border-slate-100">
                 <h5 className="text-xs font-bold text-slate-800 mb-2">
-                  {language === 'en' ? 'Data Sheets Created Automatically:' : 'Laha Zitakazoundwa Moja kwa Moja:'}
+                  {language === 'en' ? 'Synchronized Live Google Sheets (10 Collections):' : 'Laha 10 Zinazosawazishwa Moja kwa Moja:'}
                 </h5>
                 <div className="flex flex-wrap gap-1.5">
-                  {['Citizens_Roster', 'Citizen_Inquiries', 'Suggestions', 'Certificates_Issued'].map((sheet) => (
+                  {[
+                    'Citizens_Roster',
+                    'Citizen_Inquiries',
+                    'User_Progress',
+                    'Facilitator_Tokens',
+                    'Verification_Badges',
+                    'Active_Presence',
+                    'Suggestions',
+                    'Certificates_Issued',
+                    'Incidents_Audit',
+                    'AutoLearn_Adaptations',
+                  ].map((sheet) => (
                     <span key={sheet} className="text-[10px] font-mono font-bold px-2 py-0.5 rounded-md bg-emerald-50 text-emerald-800 border border-emerald-200">
                       {sheet}
                     </span>
@@ -2702,12 +2846,17 @@ export const AdminExecutivePanel: React.FC<AdminExecutivePanelProps> = ({
             <div className="lg:col-span-7 bg-white p-6 rounded-3xl border border-slate-200 shadow-xs space-y-4">
               <div className="flex items-center justify-between">
                 <div>
-                  <h4 className="font-serif font-bold text-base text-slate-900 flex items-center gap-2">
-                    <FileSpreadsheet className="w-4 h-4 text-emerald-600" />
-                    {language === 'en' ? 'Free Setup Guide (3 Minutes)' : 'Mwongozo wa Kuanzisha (Dakika 3)'}
-                  </h4>
+                  <div className="flex items-center gap-2">
+                    <h4 className="font-serif font-bold text-base text-slate-900 flex items-center gap-2">
+                      <FileSpreadsheet className="w-4 h-4 text-emerald-600" />
+                      {language === 'en' ? 'Apps Script Code for The_Samaritan' : 'Msimbo wa Apps Script kwa The_Samaritan'}
+                    </h4>
+                    <span className="text-[10px] font-mono font-black px-2 py-0.5 bg-emerald-100 text-emerald-800 rounded-md">
+                      v2.3 Real-Time
+                    </span>
+                  </div>
                   <p className="text-xs text-slate-500">
-                    {language === 'en' ? 'Follow these steps inside your personal Google Account:' : 'Fuata hatua hizi ndani ya Akaunti yako ya Google:'}
+                    {language === 'en' ? 'Enables both real-time POST and GET requests for multi-device sync:' : 'Inawezesha maombi ya kusoma (GET) na kuandika (POST) papo hapo:'}
                   </p>
                 </div>
 
@@ -2726,22 +2875,298 @@ export const AdminExecutivePanel: React.FC<AdminExecutivePanelProps> = ({
               </div>
 
               <ol className="text-xs text-slate-600 space-y-2 list-decimal list-inside bg-slate-50 p-4 rounded-2xl border border-slate-200/80">
-                <li>Create a blank Google Sheet at <strong className="text-slate-900">sheets.new</strong> in your browser.</li>
+                <li>Open your Google Sheet (<strong className="text-slate-900">"The Samaritan LogBook"</strong>).</li>
                 <li>In the top menu, click <strong className="text-slate-900">Extensions</strong> &rarr; <strong className="text-slate-900">Apps Script</strong>.</li>
-                <li>Delete everything inside the editor and paste the copied code (button above).</li>
-                <li>Click <strong className="text-slate-900">Deploy</strong> &rarr; <strong className="text-slate-900">New deployment</strong>.</li>
-                <li>Select type: <strong className="text-slate-900">Web app</strong>. Set Execute as: <strong className="text-slate-900">"Me"</strong> and Who has access: <strong className="text-emerald-700 font-black">"Anyone"</strong>.</li>
-                <li>Click Deploy, approve permissions, and copy the Web App URL (ends in <code className="bg-slate-200 px-1 rounded text-slate-800 font-bold">/exec</code>).</li>
-                <li>Paste the URL on the left and tap <strong className="text-slate-900">Sync Now</strong>.</li>
+                <li>Delete everything inside the editor and paste the copied code (tap <strong className="text-emerald-700">Copy Script Code</strong> above).</li>
+                <li>Click <strong className="text-slate-900">Deploy</strong> &rarr; <strong className="text-slate-900">Manage deployments</strong> &rarr; Edit (pencil icon) &rarr; Version: <strong className="text-slate-900">"New version"</strong> &rarr; Deploy.</li>
+                <li>Ensure <strong className="text-emerald-700 font-black">"Who has access: Anyone"</strong> is selected.</li>
+                <li>Tap <strong className="text-slate-900">Pull Live Data (Read)</strong> or <strong className="text-slate-900">Sync Now (Push Data)</strong> to test.</li>
               </ol>
 
               <div>
-                <span className="text-[11px] font-bold text-slate-700 block mb-1">Preview of Apps Script Code:</span>
+                <span className="text-[11px] font-bold text-slate-700 block mb-1">Preview of Apps Script Code (v2.4 - Full Read, Write, Presence & Events Hub):</span>
                 <pre className="text-[10px] font-mono bg-slate-900 text-emerald-400 p-3 rounded-xl overflow-x-auto max-h-48 scrollbar-thin">
                   {SAMPLE_APPS_SCRIPT_CODE}
                 </pre>
               </div>
             </div>
+          </div>
+
+          {/* Real-Time Live Google Sheet Data Inspector */}
+          <div className="bg-white p-6 rounded-3xl border border-slate-200 shadow-xs space-y-4">
+            <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 border-b border-slate-100 pb-4">
+              <div>
+                <h4 className="font-serif font-bold text-base text-slate-900 flex items-center gap-2">
+                  <FileSpreadsheet className="w-5 h-5 text-emerald-600" />
+                  {language === 'en' ? 'Live Google Sheet & Cloud Records Inspector' : 'Ukaguzi wa Rekodi za Google Sheet & Wingu'}
+                </h4>
+                <p className="text-xs text-slate-500">
+                  {language === 'en'
+                    ? 'Inspect real-time records retrieved from the live Google Sheet & Cloud Backup servers.'
+                    : 'Kagua rekodi zilizosomwa moja kwa moja kutoka Google Sheet na Seva za Wingu.'}
+                </p>
+              </div>
+
+              <div className="flex items-center gap-1.5 bg-slate-100 p-1 rounded-xl flex-wrap">
+                {(['citizens', 'presence', 'progress', 'tokens', 'badges', 'inquiries', 'certificates', 'events'] as const).map((tab) => (
+                  <button
+                    key={tab}
+                    type="button"
+                    onClick={() => setSheetInspectorTab(tab)}
+                    className={`px-3 py-1 rounded-lg text-xs font-bold capitalize transition ${
+                      sheetInspectorTab === tab
+                        ? 'bg-white text-emerald-700 shadow-2xs'
+                        : 'text-slate-600 hover:text-slate-900'
+                    }`}
+                  >
+                    {tab === 'presence' ? 'Active Presence' : tab === 'events' ? 'Civic Events' : tab}
+                    {liveSheetData && liveSheetData[tab === 'presence' ? 'activePresence' : tab] && (
+                      <span className="ml-1 text-[10px] px-1.5 py-0.2 bg-slate-200 text-slate-700 rounded-full">
+                        {Array.isArray(liveSheetData[tab === 'presence' ? 'activePresence' : tab]) ? liveSheetData[tab === 'presence' ? 'activePresence' : tab].length : Object.keys(liveSheetData[tab === 'presence' ? 'activePresence' : tab]).length}
+                      </span>
+                    )}
+                  </button>
+                ))}
+              </div>
+            </div>
+
+            {liveSheetData ? (
+              <div className="overflow-x-auto max-h-80 border border-slate-200 rounded-2xl scrollbar-thin">
+                {sheetInspectorTab === 'citizens' && (
+                  <table className="w-full text-left text-xs border-collapse">
+                    <thead className="bg-slate-100 text-slate-700 font-bold sticky top-0">
+                      <tr>
+                        <th className="p-2.5 border-b">Username</th>
+                        <th className="p-2.5 border-b">County</th>
+                        <th className="p-2.5 border-b">Sub-County</th>
+                        <th className="p-2.5 border-b">Role</th>
+                        <th className="p-2.5 border-b">Registered Date</th>
+                      </tr>
+                    </thead>
+                    <tbody className="divide-y divide-slate-100">
+                      {(liveSheetData.citizens || []).map((c: any, i: number) => (
+                        <tr key={i} className="hover:bg-slate-50 font-mono text-[11px]">
+                          <td className="p-2.5 font-bold text-slate-900">{c.username || c.Username}</td>
+                          <td className="p-2.5">{c.county || c.County || 'Kwale'}</td>
+                          <td className="p-2.5">{c.subcounty || c.subCounty || c.SubCounty || 'N/A'}</td>
+                          <td className="p-2.5">{c.role || c.Role || 'citizen'}</td>
+                          <td className="p-2.5 text-slate-500">{c.registeredat || c.createdAt || c.RegisteredAt || 'N/A'}</td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                )}
+
+                {sheetInspectorTab === 'presence' && (
+                  <table className="w-full text-left text-xs border-collapse">
+                    <thead className="bg-slate-100 text-slate-700 font-bold sticky top-0">
+                      <tr>
+                        <th className="p-2.5 border-b">Username</th>
+                        <th className="p-2.5 border-b">Role / Admin Level</th>
+                        <th className="p-2.5 border-b">County / Jurisdiction</th>
+                        <th className="p-2.5 border-b">Current Action</th>
+                        <th className="p-2.5 border-b">Online Status</th>
+                      </tr>
+                    </thead>
+                    <tbody className="divide-y divide-slate-100">
+                      {(liveSheetData.activePresence || []).map((s: any, i: number) => {
+                        const isOnline = s.isOnline || s.isonline === 'YES' || s.IsOnline === 'YES';
+                        return (
+                          <tr key={i} className="hover:bg-slate-50 text-[11px]">
+                            <td className="p-2.5 font-bold font-mono text-slate-900">{s.username || s.Username}</td>
+                            <td className="p-2.5">
+                              <span className={`px-2 py-0.5 rounded-full text-[10px] font-bold ${
+                                s.role === 'admin' || s.Role === 'admin'
+                                  ? 'bg-amber-100 text-amber-900 border border-amber-300'
+                                  : 'bg-emerald-50 text-emerald-800 border border-emerald-200'
+                              }`}>
+                                {s.adminLevel || s.AdminLevel || s.role || s.Role || 'citizen'}
+                              </span>
+                            </td>
+                            <td className="p-2.5">{s.county || s.County || 'Kwale'}</td>
+                            <td className="p-2.5 text-slate-600 truncate max-w-xs">{s.currentAction || s.currentaction || s.CurrentAction || 'Browsing portal'}</td>
+                            <td className="p-2.5 font-bold">
+                              {isOnline ? (
+                                <span className="inline-flex items-center gap-1.5 text-emerald-600">
+                                  <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
+                                  Online Now
+                                </span>
+                              ) : (
+                                <span className="text-slate-400">Offline</span>
+                              )}
+                            </td>
+                          </tr>
+                        );
+                      })}
+                    </tbody>
+                  </table>
+                )}
+
+                {sheetInspectorTab === 'progress' && (
+                  <table className="w-full text-left text-xs border-collapse">
+                    <thead className="bg-slate-100 text-slate-700 font-bold sticky top-0">
+                      <tr>
+                        <th className="p-2.5 border-b">Username</th>
+                        <th className="p-2.5 border-b">Completed Lessons</th>
+                        <th className="p-2.5 border-b">Quiz Scores</th>
+                        <th className="p-2.5 border-b">Last Active</th>
+                      </tr>
+                    </thead>
+                    <tbody className="divide-y divide-slate-100">
+                      {(liveSheetData.userProgress || []).map((p: any, i: number) => (
+                        <tr key={i} className="hover:bg-slate-50 font-mono text-[11px]">
+                          <td className="p-2.5 font-bold text-slate-900">{p.username || p.Username}</td>
+                          <td className="p-2.5">
+                            {p.completedLessons?.length || p.lessonscompletedcount || p.LessonsCompletedCount || 0} lessons
+                          </td>
+                          <td className="p-2.5 text-slate-600 truncate max-w-xs">
+                            {typeof p.quizScores === 'object' ? JSON.stringify(p.quizScores) : (p.quizscoresjson || p.QuizScoresJSON || '{}')}
+                          </td>
+                          <td className="p-2.5 text-slate-500">{p.lastActiveDate || p.lastactivedate || p.LastActiveDate || 'N/A'}</td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                )}
+
+                {sheetInspectorTab === 'tokens' && (
+                  <table className="w-full text-left text-xs border-collapse">
+                    <thead className="bg-slate-100 text-slate-700 font-bold sticky top-0">
+                      <tr>
+                        <th className="p-2.5 border-b">Recipient</th>
+                        <th className="p-2.5 border-b">Amount</th>
+                        <th className="p-2.5 border-b">Reason</th>
+                        <th className="p-2.5 border-b">Granted By</th>
+                        <th className="p-2.5 border-b">Date</th>
+                      </tr>
+                    </thead>
+                    <tbody className="divide-y divide-slate-100">
+                      {(liveSheetData.tokens || []).map((t: any, i: number) => (
+                        <tr key={i} className="hover:bg-slate-50 font-mono text-[11px]">
+                          <td className="p-2.5 font-bold text-slate-900">{t.recipientUsername || t.recipient || t.Recipient}</td>
+                          <td className="p-2.5 font-bold text-amber-600">+{t.amount || t.Amount}</td>
+                          <td className="p-2.5 text-slate-600 max-w-xs truncate">{t.reason || t.Reason}</td>
+                          <td className="p-2.5">{t.grantedBy || t.grantedby || t.GrantedBy}</td>
+                          <td className="p-2.5 text-slate-500">{t.grantedAt || t.grantedat || t.GrantedAt || 'N/A'}</td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                )}
+
+                {sheetInspectorTab === 'badges' && (
+                  <table className="w-full text-left text-xs border-collapse">
+                    <thead className="bg-slate-100 text-slate-700 font-bold sticky top-0">
+                      <tr>
+                        <th className="p-2.5 border-b">Username</th>
+                        <th className="p-2.5 border-b">Tier</th>
+                        <th className="p-2.5 border-b">Badge Title</th>
+                        <th className="p-2.5 border-b">Verified By</th>
+                        <th className="p-2.5 border-b">Date</th>
+                      </tr>
+                    </thead>
+                    <tbody className="divide-y divide-slate-100">
+                      {(liveSheetData.verificationBadges || []).map((b: any, i: number) => (
+                        <tr key={i} className="hover:bg-slate-50 font-mono text-[11px]">
+                          <td className="p-2.5 font-bold text-slate-900">{b.username || b.Username}</td>
+                          <td className="p-2.5 text-emerald-700 font-bold">{b.badgeTier || b.badgetier || b.BadgeTier}</td>
+                          <td className="p-2.5">{b.badgeTitle || b.badgetitle || b.BadgeTitle}</td>
+                          <td className="p-2.5">{b.verifiedBy || b.verifiedby || b.VerifiedBy}</td>
+                          <td className="p-2.5 text-slate-500">{b.verifiedAt || b.verifiedat || b.VerifiedAt || 'N/A'}</td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                )}
+
+                {sheetInspectorTab === 'inquiries' && (
+                  <table className="w-full text-left text-xs border-collapse">
+                    <thead className="bg-slate-100 text-slate-700 font-bold sticky top-0">
+                      <tr>
+                        <th className="p-2.5 border-b">Title</th>
+                        <th className="p-2.5 border-b">Category</th>
+                        <th className="p-2.5 border-b">Asked By</th>
+                        <th className="p-2.5 border-b">County</th>
+                        <th className="p-2.5 border-b">Status</th>
+                      </tr>
+                    </thead>
+                    <tbody className="divide-y divide-slate-100">
+                      {(liveSheetData.questions || []).map((q: any, i: number) => (
+                        <tr key={i} className="hover:bg-slate-50 text-[11px]">
+                          <td className="p-2.5 font-bold text-slate-900">{q.title || q.Title}</td>
+                          <td className="p-2.5 font-mono">{q.category || q.Category}</td>
+                          <td className="p-2.5 font-mono">{q.askedByAnonymousHandle || q.askedBy || q.AskedBy}</td>
+                          <td className="p-2.5">{q.locationCounty || q.county || q.County || 'Kwale'}</td>
+                          <td className="p-2.5 font-bold text-emerald-700">{q.status || q.Status}</td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                )}
+
+                {sheetInspectorTab === 'certificates' && (
+                  <table className="w-full text-left text-xs border-collapse">
+                    <thead className="bg-slate-100 text-slate-700 font-bold sticky top-0">
+                      <tr>
+                        <th className="p-2.5 border-b">Certificate #</th>
+                        <th className="p-2.5 border-b">Recipient</th>
+                        <th className="p-2.5 border-b">Course / Module</th>
+                        <th className="p-2.5 border-b">Issue Date</th>
+                      </tr>
+                    </thead>
+                    <tbody className="divide-y divide-slate-100">
+                      {(liveSheetData.certificates || []).map((cert: any, i: number) => (
+                        <tr key={i} className="hover:bg-slate-50 font-mono text-[11px]">
+                          <td className="p-2.5 font-bold text-slate-900">{cert.certificateNumber || cert.certnumber || cert.CertNumber}</td>
+                          <td className="p-2.5 font-bold">{cert.recipientName || cert.recipient || cert.Recipient}</td>
+                          <td className="p-2.5">{cert.courseTitle || cert.module || cert.Module}</td>
+                          <td className="p-2.5 text-slate-500">{cert.issueDate || cert.issuedat || cert.IssuedAt}</td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                )}
+
+                {sheetInspectorTab === 'events' && (
+                  <table className="w-full text-left text-xs">
+                    <thead className="bg-slate-50 text-slate-500 font-bold uppercase text-[10px]">
+                      <tr>
+                        <th className="p-2.5 border-b">Event ID</th>
+                        <th className="p-2.5 border-b">Title</th>
+                        <th className="p-2.5 border-b">Category</th>
+                        <th className="p-2.5 border-b">Date / County</th>
+                        <th className="p-2.5 border-b">Attendees</th>
+                      </tr>
+                    </thead>
+                    <tbody className="divide-y divide-slate-100">
+                      {(liveSheetData.events || []).map((ev: any, i: number) => (
+                        <tr key={i} className="hover:bg-slate-50 font-mono text-[11px]">
+                          <td className="p-2.5 font-bold text-slate-900">{ev.id || ev.eventid || ev.EventID}</td>
+                          <td className="p-2.5 font-bold">{ev.title || ev.Title}</td>
+                          <td className="p-2.5">{ev.category || ev.Category}</td>
+                          <td className="p-2.5 text-slate-600">{ev.date || ev.Date} • {ev.county || ev.County}</td>
+                          <td className="p-2.5 text-emerald-700 font-bold">{ev.attendeesCount || ev.attendeescount || 0}</td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                )}
+              </div>
+            ) : (
+              <div className="p-8 text-center bg-slate-50 rounded-2xl border border-dashed border-slate-300 space-y-2">
+                <FileSpreadsheet className="w-8 h-8 text-slate-400 mx-auto" />
+                <p className="text-xs font-semibold text-slate-600">
+                  {language === 'en'
+                    ? 'No live sheet data loaded into inspector yet.'
+                    : 'Hakuna takwimu za laha zilizopakiwa bado.'}
+                </p>
+                <p className="text-[11px] text-slate-500">
+                  {language === 'en'
+                    ? 'Click "Pull Live Data (Read)" in the top header to query all 9 live sheets and review them here in real-time.'
+                    : 'Bonyeza "Soma Moja kwa Moja" hapo juu ili kusoma laha zote 9 na kuzikagua hapa papo hapo.'}
+                </p>
+              </div>
+            )}
           </div>
         </div>
       )}

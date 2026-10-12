@@ -284,7 +284,25 @@ export function recordUserHeartbeat(
 
     localStorage.setItem(ACTIVE_SESSIONS_KEY, JSON.stringify(sessions));
 
-    // Dispatch real-time presence update for Admin 3, 4, and The_Samaritan monitoring consoles
+    // Mirror presence heartbeat to Cloud server in background so all other devices receive it
+    if (typeof fetch !== 'undefined') {
+      fetch('/api/cloud-backup/presence', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(sessionData),
+      })
+        .then((res) => (res.ok ? res.json() : null))
+        .then((data) => {
+          if (data && data.activeSessions && Array.isArray(data.activeSessions)) {
+            mergeRemoteCloudPresenceSessions(data.activeSessions);
+          }
+        })
+        .catch(() => {
+          // graceful offline fallback
+        });
+    }
+
+    // Dispatch real-time presence update across components
     if (typeof window !== 'undefined') {
       window.dispatchEvent(
         new CustomEvent('the_samaritan_presence_updated', {
@@ -298,7 +316,58 @@ export function recordUserHeartbeat(
 }
 
 /**
- * Real-time presence subscription for administrative consoles (Admin 3, Admin 4, The_Samaritan)
+ * Merge real-time sessions retrieved from Cloud Server so all connected devices show identical presence
+ */
+function mergeRemoteCloudPresenceSessions(remoteSessions: any[]): void {
+  if (typeof window === 'undefined') return;
+  try {
+    const raw = localStorage.getItem(ACTIVE_SESSIONS_KEY);
+    const local: ActiveUserSession[] = raw ? JSON.parse(raw) : [];
+    const mySessionId = getCurrentSessionId();
+    const now = Date.now();
+    const fifteenMinsAgo = now - 15 * 60 * 1000;
+
+    const map = new Map<string, ActiveUserSession>();
+
+    local.filter((s) => s.lastActive > fifteenMinsAgo).forEach((s) => {
+      map.set(s.id, s);
+    });
+
+    remoteSessions.forEach((rem) => {
+      if (!rem || rem.id === mySessionId) return;
+      if (rem.lastActive > fifteenMinsAgo) {
+        map.set(rem.id, rem);
+      }
+    });
+
+    const merged = Array.from(map.values());
+    localStorage.setItem(ACTIVE_SESSIONS_KEY, JSON.stringify(merged));
+  } catch {
+    // silent
+  }
+}
+
+/**
+ * Polls the cloud presence endpoint so multi-device online status is synchronized in real time
+ */
+export async function syncPresenceFromCloud(): Promise<void> {
+  if (typeof window === 'undefined' || (typeof navigator !== 'undefined' && !navigator.onLine)) return;
+  try {
+    const res = await fetch('/api/cloud-backup/presence');
+    if (res.ok) {
+      const data = await res.json();
+      if (data && data.activeSessions && Array.isArray(data.activeSessions)) {
+        mergeRemoteCloudPresenceSessions(data.activeSessions);
+      }
+    }
+  } catch {
+    // silent
+  }
+}
+
+/**
+ * Real-time presence subscription for administrative consoles and navigation bars.
+ * Periodically syncs with Cloud backup server to capture users logged in on other devices.
  */
 export function subscribeToUserPresence(callback: () => void): () => void {
   if (typeof window === 'undefined') return () => {};
@@ -306,12 +375,20 @@ export function subscribeToUserPresence(callback: () => void): () => void {
   window.addEventListener('the_samaritan_presence_updated', handler);
   window.addEventListener('the_samaritan_auth_changed', handler);
   window.addEventListener('storage', handler);
-  const interval = setInterval(handler, 3000); // 3-second live refresh
+
+  // Poll cloud presence every 4 seconds to sync online users from other devices
+  const cloudInterval = setInterval(() => {
+    syncPresenceFromCloud().then(() => callback()).catch(() => {});
+  }, 4000);
+
+  const localInterval = setInterval(handler, 3000);
+
   return () => {
     window.removeEventListener('the_samaritan_presence_updated', handler);
     window.removeEventListener('the_samaritan_auth_changed', handler);
     window.removeEventListener('storage', handler);
-    clearInterval(interval);
+    clearInterval(cloudInterval);
+    clearInterval(localInterval);
   };
 }
 
@@ -323,7 +400,9 @@ export function setUserCurrentAction(actionDetail: string, sectionName?: string)
 }
 
 /**
- * Retrieves all active sessions, tagging online status (active within 5 minutes)
+ * Retrieves all active sessions, tagging online status (active within 5 minutes).
+ * Genuine presence only: Displays administrators ONLY when they are actively online,
+ * strictly honoring the requirement to stop showing an admin when they are offline.
  */
 export function getActiveUserSessions(): {
   onlineCount: number;
@@ -344,116 +423,46 @@ export function getActiveUserSessions(): {
     const raw = localStorage.getItem(ACTIVE_SESSIONS_KEY);
     let sessions: ActiveUserSession[] = raw ? JSON.parse(raw) : [];
 
-    // Filter out dummy sessions
+    // Filter out dummy mock sessions and stale entries
     sessions = sessions.filter(
-      (s) => !DUMMY_SESSION_IDS.has(s.id) && !DUMMY_PRESENCE_USERNAMES.has(s.username.toLowerCase())
+      (s) =>
+        !DUMMY_SESSION_IDS.has(s.id) &&
+        !DUMMY_PRESENCE_USERNAMES.has(s.username.toLowerCase()) &&
+        !s.id.startsWith('duty_admin_') &&
+        !s.id.startsWith('duty_the_samaritan')
     );
 
     const now = Date.now();
     const fiveMinsAgo = now - 5 * 60 * 1000;
     const fifteenMinsAgo = now - 15 * 60 * 1000;
 
-    // Filter out very old stale sessions
+    // Filter out sessions older than 15 minutes
     sessions = sessions.filter((s) => s.lastActive > fifteenMinsAgo);
 
-    // Save cleaned genuine sessions
     localStorage.setItem(ACTIVE_SESSIONS_KEY, JSON.stringify(sessions));
 
-    // Determine online status
+    // Determine online status based strictly on genuine activity within the last 5 minutes
     const mapped = sessions.map((s) => ({
       ...s,
       isOnline: s.lastActive >= fiveMinsAgo,
     }));
 
-    // Sort: Admins first, then by last active timestamp descending
+    // Sort: Online users first, admins first, then by last active timestamp descending
     mapped.sort((a, b) => {
+      if (a.isOnline && !b.isOnline) return -1;
+      if (!a.isOnline && b.isOnline) return 1;
       if (a.role === 'admin' && b.role !== 'admin') return -1;
       if (b.role === 'admin' && a.role !== 'admin') return 1;
       return b.lastActive - a.lastActive;
     });
 
-    const onlineCount = mapped.filter((s) => s.isOnline).length;
+    const totalOnlineCount = mapped.filter((s) => s.isOnline).length;
     const registered = getRegisteredUsers();
-
-    // Ensure the on-duty administrative team has active duty presence so logged-in citizens can always see civic officers online
-    const hasAdminKfe1 = mapped.some((s) => s.username.toLowerCase().includes('admin.kfe1') || s.username === 'Admin 1');
-    const hasAdminKfe2 = mapped.some((s) => s.username.toLowerCase().includes('admin.kfe2') || s.username === 'Admin 2');
-    const hasSamaritan = mapped.some((s) => s.username.toLowerCase().includes('the_samaritan'));
-
-    const dutyAdmins: ActiveUserSession[] = [];
-
-    if (!hasAdminKfe1) {
-      dutyAdmins.push({
-        id: 'duty_admin_kfe1',
-        username: '@admin.kfe1',
-        role: 'admin',
-        adminLevel: 'standard',
-        county: 'Kwale Focus HQ (Matuga)',
-        subCounty: 'Matuga Sub-County',
-        currentSection: 'Civic Questions Hub',
-        currentAction: 'Reviewing citizen inquiries & vetting constitutional citations',
-        deviceType: 'desktop',
-        browser: 'Desktop Browser',
-        lastActive: now - 35 * 1000,
-        isOnline: true,
-        ipCity: 'Matuga / Kwale',
-        joinedAt: new Date(now - 7200 * 1000).toISOString(),
-      });
-    }
-
-    if (!hasAdminKfe2) {
-      dutyAdmins.push({
-        id: 'duty_admin_kfe2',
-        username: '@admin.kfe2',
-        role: 'admin',
-        adminLevel: 'standard',
-        county: 'Kwale Focus HQ (Matuga)',
-        subCounty: 'Matuga Sub-County',
-        currentSection: 'Constitutional Lessons',
-        currentAction: 'Monitoring community baraza & Bill of Rights module learning',
-        deviceType: 'desktop',
-        browser: 'Desktop Browser',
-        lastActive: now - 75 * 1000,
-        isOnline: true,
-        ipCity: 'Matuga / Kwale',
-        joinedAt: new Date(now - 10800 * 1000).toISOString(),
-      });
-    }
-
-    if (!hasSamaritan) {
-      dutyAdmins.push({
-        id: 'duty_the_samaritan',
-        username: 'The_Samaritan',
-        role: 'admin',
-        adminLevel: 'super',
-        county: 'Kwale County',
-        subCounty: 'Coast Region HQ',
-        currentSection: 'Executive Oversight',
-        currentAction: 'Platform Architect • Supervising civic modules & security audit',
-        deviceType: 'desktop',
-        browser: 'Desktop Browser',
-        lastActive: now - 20 * 1000,
-        isOnline: true,
-        ipCity: 'Coast Region / Kwale',
-        joinedAt: new Date(now - 14400 * 1000).toISOString(),
-      });
-    }
-
-    const allSessions = [...mapped, ...dutyAdmins];
-
-    // Sort: Admins first, then by last active timestamp descending
-    allSessions.sort((a, b) => {
-      if (a.role === 'admin' && b.role !== 'admin') return -1;
-      if (b.role === 'admin' && a.role !== 'admin') return 1;
-      return b.lastActive - a.lastActive;
-    });
-
-    const totalOnlineCount = allSessions.filter((s) => s.isOnline).length;
 
     return {
       onlineCount: totalOnlineCount,
-      totalRecentSessions: allSessions.length,
-      sessions: allSessions,
+      totalRecentSessions: mapped.length,
+      sessions: mapped,
       registeredUsersCount: registered.length,
     };
   } catch (err) {

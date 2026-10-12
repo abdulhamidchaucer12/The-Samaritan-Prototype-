@@ -10,6 +10,14 @@ import {
   addRahamProtocolDocument,
   deleteRahamProtocolDocument,
 } from "./server/rahamProtocol";
+import {
+  saveUserCloudBackup,
+  getUserCloudBackup,
+  saveFullCloudPlatformSnapshot,
+  getFullCloudPlatformSnapshot,
+  recordCloudPresence,
+  getCloudPresence,
+} from "./server/cloudBackup";
 
 dotenv.config();
 
@@ -296,6 +304,132 @@ async function startServer() {
       console.error("[Server Error] Failed to delete Raham Protocol document:", error);
       return res.status(500).json({
         error: "Failed to remove from The Raham Protocol.",
+        message: error?.message || "Internal server error",
+      });
+    }
+  });
+
+  // -------------------------------------------------------------
+  // Google Cloud Server Backup & Cross-Device Sync Endpoints
+  // -------------------------------------------------------------
+  app.post("/api/cloud-backup/sync", async (req, res) => {
+    try {
+      const { username, progress, tokenBalance, tokenGrants, verificationBadge, issuedCertificates, dailyVisits, county, subCounty, avatarUrl, platformData } = req.body;
+
+      if (!username && !platformData) {
+        return res.status(400).json({ error: "Username or platform snapshot data required." });
+      }
+
+      let updatedUser = null;
+      if (username) {
+        updatedUser = saveUserCloudBackup(username, {
+          progress,
+          tokenBalance,
+          tokenGrants,
+          verificationBadge,
+          issuedCertificates,
+          dailyVisits,
+          county,
+          subCounty,
+          avatarUrl,
+        });
+      }
+
+      if (platformData && typeof platformData === "object") {
+        saveFullCloudPlatformSnapshot(platformData);
+      }
+
+      return res.json({
+        success: true,
+        message: "Successfully mirrored progress and credentials to cloud backup.",
+        timestamp: new Date().toISOString(),
+        userBackup: updatedUser,
+      });
+    } catch (error: any) {
+      console.error("[Server Error] Cloud backup sync failed:", error);
+      return res.status(500).json({
+        error: "Failed to persist to cloud backup.",
+        message: error?.message || "Internal server error",
+      });
+    }
+  });
+
+  app.get("/api/cloud-backup/user/:username", (req, res) => {
+    try {
+      const { username } = req.params;
+      if (!username) {
+        return res.status(400).json({ error: "Username parameter is required." });
+      }
+
+      const backup = getUserCloudBackup(username);
+      return res.json({
+        success: true,
+        found: !!backup,
+        backup,
+        timestamp: new Date().toISOString(),
+      });
+    } catch (error: any) {
+      console.error("[Server Error] Failed retrieving user cloud backup:", error);
+      return res.status(500).json({
+        error: "Failed to retrieve cloud backup for user.",
+        message: error?.message || "Internal server error",
+      });
+    }
+  });
+
+  app.get("/api/cloud-backup/snapshot", (req, res) => {
+    try {
+      const snapshot = getFullCloudPlatformSnapshot();
+      return res.json({
+        success: true,
+        snapshot,
+      });
+    } catch (error: any) {
+      console.error("[Server Error] Failed retrieving platform snapshot:", error);
+      return res.status(500).json({
+        error: "Failed to retrieve full platform cloud snapshot.",
+        message: error?.message || "Internal server error",
+      });
+    }
+  });
+
+  // Real-Time Cloud Presence Sync:
+  // Post user/admin heartbeat to the cloud so all online devices and live sheets can immediately see genuine presence
+  app.post("/api/cloud-backup/presence", (req, res) => {
+    try {
+      const session = req.body;
+      if (!session || (!session.id && !session.username)) {
+        return res.status(400).json({ error: "Session payload with id or username is required." });
+      }
+      const activeSessions = recordCloudPresence(session);
+      return res.json({
+        success: true,
+        activeSessions,
+        onlineCount: activeSessions.filter((s) => s.isOnline).length,
+        timestamp: new Date().toISOString(),
+      });
+    } catch (error: any) {
+      console.error("[Server Error] Failed recording cloud presence:", error);
+      return res.status(500).json({
+        error: "Failed to record presence in cloud.",
+        message: error?.message || "Internal server error",
+      });
+    }
+  });
+
+  app.get("/api/cloud-backup/presence", (req, res) => {
+    try {
+      const activeSessions = getCloudPresence();
+      return res.json({
+        success: true,
+        activeSessions,
+        onlineCount: activeSessions.filter((s) => s.isOnline).length,
+        timestamp: new Date().toISOString(),
+      });
+    } catch (error: any) {
+      console.error("[Server Error] Failed retrieving cloud presence:", error);
+      return res.status(500).json({
+        error: "Failed to retrieve presence from cloud.",
         message: error?.message || "Internal server error",
       });
     }

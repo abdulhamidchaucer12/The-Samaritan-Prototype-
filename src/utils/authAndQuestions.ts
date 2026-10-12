@@ -17,7 +17,7 @@ import { getAdminPlatformAddressingName, getAdminAppointedProfile } from './admi
 
 const AUTH_USER_KEY = 'the_samaritan_auth_user_v1';
 const SESSION_AUTH_USER_KEY = 'the_samaritan_session_auth_user_v1';
-const REGISTERED_USERS_KEY = 'the_samaritan_registered_users_v1';
+export const REGISTERED_USERS_KEY = 'the_samaritan_registered_users_v1';
 const ADMIN_CREDS_KEY = 'the_samaritan_admin_creds_v1';
 const QUESTIONS_KEY = 'the_samaritan_questions_v1';
 const NOTIFICATIONS_KEY = 'the_samaritan_admin_notifications_v1';
@@ -1525,6 +1525,10 @@ export function saveCivicQuestion(newQ: Omit<CivicQuestion, 'id' | 'createdAt' |
   // Trigger admin notification routing to both Admin 1 & Admin 2
   notifyAdminsOfNewQuestion(created);
 
+  if (typeof window !== 'undefined') {
+    window.dispatchEvent(new CustomEvent('the_samaritan_question_created', { detail: { question: created } }));
+  }
+
   return created;
 }
 
@@ -1563,6 +1567,11 @@ export function answerCivicQuestion(
 
   // Automatically remove request from admin alerts once it has been reviewed and answered
   removeNotificationsForQuestion(questionId);
+
+  if (typeof window !== 'undefined') {
+    window.dispatchEvent(new CustomEvent('the_samaritan_question_answered', { detail: { question: targetQuestion } }));
+  }
+
   return targetQuestion;
 }
 
