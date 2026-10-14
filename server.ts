@@ -17,7 +17,17 @@ import {
   getFullCloudPlatformSnapshot,
   recordCloudPresence,
   getCloudPresence,
+  removeCloudPresenceSession,
+  saveCloudDirectMessage,
+  getCloudDirectMessages,
+  markCloudMessagesRead,
+  saveCloudNotification,
+  getCloudNotifications,
+  markCloudNotificationRead,
+  saveCloudSupplementaryCourse,
+  getCloudSupplementaryCourses,
 } from "./server/cloudBackup";
+import { handleRahamAdminChat } from "./server/rahamAiAssistant";
 
 dotenv.config();
 
@@ -31,7 +41,6 @@ async function startServer() {
   // 1. Enterprise Security Headers Middleware
   app.use((req, res, next) => {
     res.setHeader("X-Content-Type-Options", "nosniff");
-    res.setHeader("X-Frame-Options", "SAMEORIGIN");
     res.setHeader("X-XSS-Protection", "1; mode=block");
     res.setHeader("Referrer-Policy", "strict-origin-when-cross-origin");
     res.setHeader("Permissions-Policy", "camera=(), microphone=(), payment=()");
@@ -430,6 +439,253 @@ async function startServer() {
       console.error("[Server Error] Failed retrieving cloud presence:", error);
       return res.status(500).json({
         error: "Failed to retrieve presence from cloud.",
+        message: error?.message || "Internal server error",
+      });
+    }
+  });
+
+  // Dedicated endpoint to remove allocated guest session or mark offline when user logs in with their own name
+  app.post("/api/cloud-backup/presence/offline", (req, res) => {
+    try {
+      const { id, username } = req.body || {};
+      if (!id && !username) {
+        return res.status(400).json({ error: "Session id or username required to mark offline." });
+      }
+      const activeSessions = removeCloudPresenceSession({ id, username });
+      return res.json({
+        success: true,
+        activeSessions,
+        onlineCount: activeSessions.filter((s) => s.isOnline).length,
+        message: "Session successfully removed and set offline.",
+      });
+    } catch (error: any) {
+      console.error("[Server Error] Failed marking presence offline:", error);
+      return res.status(500).json({
+        error: "Failed to mark presence offline.",
+        message: error?.message || "Internal server error",
+      });
+    }
+  });
+
+  // ---------------------------------------------------------------
+  // Real-Time Peer-to-Peer Messages & Recipient Notification APIs
+  // ---------------------------------------------------------------
+
+  // Retrieve messages (optionally filtered by username or timestamp)
+  app.get("/api/messages", (req, res) => {
+    try {
+      const username = req.query.username as string | undefined;
+      const since = req.query.since as string | undefined;
+      const messages = getCloudDirectMessages(username, since);
+      return res.json({
+        success: true,
+        messages,
+        serverTime: new Date().toISOString(),
+      });
+    } catch (error: any) {
+      console.error("[Server Error] Failed retrieving direct messages:", error);
+      return res.status(500).json({
+        error: "Failed to retrieve messages.",
+        message: error?.message || "Internal server error",
+      });
+    }
+  });
+
+  // Post a direct message to be instantly available to recipient
+  app.post("/api/messages", dataMutationLimiter, (req, res) => {
+    try {
+      const { message } = req.body;
+      if (!message || !message.senderUsername || !message.recipientUsername || (!message.content && !message.attachment)) {
+        return res.status(400).json({ error: "Missing required message fields (senderUsername, recipientUsername, content or attachment)." });
+      }
+
+      const cleanMsg = {
+        id: message.id || 'msg_' + Date.now() + '_' + Math.random().toString(36).substring(2, 6),
+        senderUsername: message.senderUsername.trim(),
+        recipientUsername: message.recipientUsername.trim(),
+        content: (message.content || '').trim(),
+        timestamp: message.timestamp || new Date().toISOString(),
+        isRead: Boolean(message.isRead),
+        status: message.status || 'delivered',
+        isSuspicious: Boolean(message.isSuspicious),
+        operatorFlagReason: message.operatorFlagReason,
+        operatorCategory: message.operatorCategory,
+        riskScore: message.riskScore,
+        attachment: message.attachment ? {
+          id: message.attachment.id || 'att_' + Date.now(),
+          name: String(message.attachment.name || 'document').slice(0, 150),
+          type: message.attachment.type || 'file',
+          mimeType: message.attachment.mimeType || 'application/octet-stream',
+          size: Number(message.attachment.size) || 0,
+          dataUrl: String(message.attachment.dataUrl || ''),
+        } : undefined,
+      };
+
+      const result = saveCloudDirectMessage(cleanMsg);
+
+      // Automatically construct and store recipient notification in cloud if safe and delivered
+      if (cleanMsg.status === 'delivered') {
+        const notifSnippet = cleanMsg.content
+          ? (cleanMsg.content.length > 90 ? cleanMsg.content.substring(0, 90) + '...' : cleanMsg.content)
+          : (cleanMsg.attachment ? `📎 Document: ${cleanMsg.attachment.name}` : 'New message');
+
+        const notif = {
+          id: 'msg_notif_' + cleanMsg.id,
+          targetUsername: cleanMsg.recipientUsername,
+          recipientUsername: cleanMsg.recipientUsername,
+          sentBy: cleanMsg.senderUsername,
+          senderTitle: 'Citizen Peer',
+          title: `New message from @${cleanMsg.senderUsername}`,
+          message: notifSnippet,
+          category: 'message',
+          timestamp: cleanMsg.timestamp,
+          isRead: false,
+          directMessageId: cleanMsg.id,
+        };
+        saveCloudNotification(notif);
+      }
+
+      return res.json({
+        success: true,
+        message: cleanMsg,
+        serverTime: new Date().toISOString(),
+      });
+    } catch (error: any) {
+      console.error("[Server Error] Failed saving direct message:", error);
+      return res.status(500).json({
+        error: "Failed to persist message.",
+        message: error?.message || "Internal server error",
+      });
+    }
+  });
+
+  // Mark conversation messages read
+  app.post("/api/messages/mark-read", (req, res) => {
+    try {
+      const { myUsername, peerUsername } = req.body || {};
+      if (!myUsername || !peerUsername) {
+        return res.status(400).json({ error: "myUsername and peerUsername are required." });
+      }
+      markCloudMessagesRead(myUsername, peerUsername);
+      return res.json({ success: true, message: "Messages marked as read." });
+    } catch (error: any) {
+      console.error("[Server Error] Failed marking messages read:", error);
+      return res.status(500).json({ error: "Failed to update read state." });
+    }
+  });
+
+  // Get notifications from cloud
+  app.get("/api/notifications", (req, res) => {
+    try {
+      const username = req.query.username as string | undefined;
+      const notifications = getCloudNotifications(username);
+      return res.json({
+        success: true,
+        notifications,
+        serverTime: new Date().toISOString(),
+      });
+    } catch (error: any) {
+      console.error("[Server Error] Failed retrieving notifications:", error);
+      return res.status(500).json({ error: "Failed to retrieve notifications." });
+    }
+  });
+
+  // Post notification to cloud
+  app.post("/api/notifications", dataMutationLimiter, (req, res) => {
+    try {
+      const { notification } = req.body;
+      if (!notification || !notification.targetUsername || !notification.title) {
+        return res.status(400).json({ error: "Notification payload is missing required fields." });
+      }
+      saveCloudNotification(notification);
+      return res.json({ success: true, notification });
+    } catch (error: any) {
+      console.error("[Server Error] Failed saving notification:", error);
+      return res.status(500).json({ error: "Failed to save notification." });
+    }
+  });
+
+  // Mark notification read in cloud
+  app.post("/api/notifications/mark-read", (req, res) => {
+    try {
+      const { id } = req.body || {};
+      if (!id) return res.status(400).json({ error: "Notification id is required." });
+      markCloudNotificationRead(id);
+      return res.json({ success: true, id });
+    } catch (error: any) {
+      console.error("[Server Error] Failed marking notification read:", error);
+      return res.status(500).json({ error: "Failed to update notification status." });
+    }
+  });
+
+  // ---------------------------------------------------------------
+  // Supplementary Courses Cloud Backup & Global Sharing APIs
+  // ---------------------------------------------------------------
+
+  // Retrieve all supplementary courses backed up in the cloud
+  app.get("/api/supplementary-courses", (req, res) => {
+    try {
+      const courses = getCloudSupplementaryCourses();
+      return res.json({
+        success: true,
+        courses,
+        serverTime: new Date().toISOString(),
+      });
+    } catch (error: any) {
+      console.error("[Server Error] Failed retrieving supplementary courses:", error);
+      return res.status(500).json({
+        error: "Failed to retrieve supplementary courses.",
+        message: error?.message || "Internal server error",
+      });
+    }
+  });
+
+  // Save/Publish a supplementary course to the cloud for all users
+  app.post("/api/supplementary-courses", dataMutationLimiter, (req, res) => {
+    try {
+      const course = req.body.course || req.body;
+      if (!course || !course.title) {
+        return res.status(400).json({ error: "Supplementary course payload is missing title or details." });
+      }
+
+      const saved = saveCloudSupplementaryCourse(course);
+      return res.json({
+        success: true,
+        course: saved,
+        serverTime: new Date().toISOString(),
+      });
+    } catch (error: any) {
+      console.error("[Server Error] Failed saving supplementary course:", error);
+      return res.status(500).json({
+        error: "Failed to save supplementary course to cloud.",
+        message: error?.message || "Internal server error",
+      });
+    }
+  });
+
+  // ---------------------------------------------------------------
+  // Raham AI Copilot for Administrators & The_Samaritan Omni Engine
+  // ---------------------------------------------------------------
+  app.post("/api/raham/chat", dataMutationLimiter, async (req, res) => {
+    try {
+      const { message, history, adminUsername, adminRole, mode } = req.body;
+      if (!message || typeof message !== "string") {
+        return res.status(400).json({ error: "Message prompt is required." });
+      }
+
+      const response = await handleRahamAdminChat({
+        message,
+        history: Array.isArray(history) ? history : [],
+        adminUsername: adminUsername || "Admin",
+        adminRole: adminRole || "admin",
+        mode,
+      });
+
+      return res.json(response);
+    } catch (error: any) {
+      console.error("[Server Error] Failed processing Raham AI chat:", error);
+      return res.status(500).json({
+        error: "Failed to process Raham AI chat request.",
         message: error?.message || "Internal server error",
       });
     }

@@ -42,6 +42,7 @@ import { KENYA_47_COUNTIES } from '../data/kenyaCounties';
 import { getUserTokenBalance } from '../utils/facilitatorTokenRegistry';
 import { OnlineUsersPresenceBar } from './OnlineUsersPresenceBar';
 import { loginUserWithCrossDeviceSync, syncAndRestoreUserOnLogin, pushAllDataToGoogleSheet } from '../utils/googleSheetSync';
+import { getAllocatedGuestUsername, removeAllocatedGuestSession } from '../utils/userPresence';
 
 export type AuthModalMode = 'login' | 'register' | 'adminSettings' | 'recover' | 'profile';
 
@@ -260,6 +261,7 @@ export const AuthModal: React.FC<AuthModalProps> = ({
       pushAllDataToGoogleSheet().catch((e) => {
         console.log('[AuthModal] Registration background sync notice:', e);
       });
+      removeAllocatedGuestSession();
       setTimeout(() => {
         onLoginSuccess(result.user!);
         onClose();
@@ -279,6 +281,7 @@ export const AuthModal: React.FC<AuthModalProps> = ({
       const result = await loginUserWithCrossDeviceSync(username, password);
       if (result.success && result.user) {
         setSuccessMsg(result.message);
+        removeAllocatedGuestSession();
         setTimeout(() => {
           onLoginSuccess(result.user!);
           onClose();
@@ -598,6 +601,26 @@ export const AuthModal: React.FC<AuthModalProps> = ({
                 >
                   {language === 'en' ? 'Profile' : 'Wasifu'}
                 </button>
+              </div>
+            </div>
+          )}
+
+          {/* Guest User Banner when viewing Login or Register */}
+          {!currentUser && (activeMode === 'login' || activeMode === 'register') && (
+            <div className="p-3 bg-amber-50 dark:bg-amber-950/40 border border-amber-200 dark:border-amber-800 rounded-xl text-xs flex items-center justify-between gap-2 text-amber-950 dark:text-amber-200">
+              <div className="flex items-center gap-2">
+                <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse shrink-0" />
+                <span>
+                  {language === 'en' ? (
+                    <>
+                      You are allocated temporary guest handle <strong className="font-mono text-amber-900 dark:text-amber-100 font-bold">{getAllocatedGuestUsername()} (You)</strong>. When you log in with your account, this guest handle is automatically removed and made offline.
+                    </>
+                  ) : (
+                    <>
+                      Umepewa jina la muda la <strong className="font-mono text-amber-900 dark:text-amber-100 font-bold">{getAllocatedGuestUsername()} (Wewe)</strong>. Ukishaingia na akaunti yako, jina hili la mgeni huondolewa na kufanywa offline.
+                    </>
+                  )}
+                </span>
               </div>
             </div>
           )}

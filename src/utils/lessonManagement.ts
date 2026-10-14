@@ -170,6 +170,17 @@ export function createCustomLesson(
   customLessons.unshift(fullLesson);
   localStorage.setItem(CUSTOM_LESSONS_KEY, JSON.stringify(customLessons));
 
+  // Asynchronously back up supplementary course to cloud for all users
+  if (typeof window !== 'undefined') {
+    fetch('/api/supplementary-courses', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ course: fullLesson }),
+    }).catch((err) => {
+      console.warn('Could not immediately back up supplementary course to cloud:', err);
+    });
+  }
+
   if (typeof window !== 'undefined') {
     window.dispatchEvent(new CustomEvent('civic_lessons_updated', { detail: { lessonId: newId } }));
   }
@@ -206,6 +217,17 @@ export function updateAdminLesson(
         authorAdmin: adminName,
       };
       localStorage.setItem(CUSTOM_LESSONS_KEY, JSON.stringify(customLessons));
+
+      // Push update to cloud
+      if (typeof window !== 'undefined') {
+        fetch('/api/supplementary-courses', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ course: customLessons[customIdx] }),
+        }).catch((err) => {
+          console.warn('Could not update supplementary course in cloud:', err);
+        });
+      }
     } else {
       // Standard or daily lesson override
       const overridesRaw = localStorage.getItem(LESSONS_OVERRIDE_KEY);

@@ -20,8 +20,12 @@ import {
   FileSpreadsheet,
   KeyRound,
   ShieldCheck,
+  Paperclip,
+  FileText,
+  FileCode,
+  X,
 } from 'lucide-react';
-import { Language, AuthUser, BannedUserRecord } from '../types';
+import { Language, AuthUser, BannedUserRecord, MessageAttachment } from '../types';
 import {
   getRegisteredUsers,
   StoredUserRecord,
@@ -38,6 +42,8 @@ import {
   approveAndUnbanUserBySamaritan,
   completelyBanUserBySamaritan,
   sendDirectMessage,
+  detectAttachmentType,
+  formatFileSize,
 } from '../utils/civicMessagingService';
 import { exportDatabaseToExcel } from '../utils/excelDatabase';
 import { pushAllDataToGoogleSheet, getGoogleSheetConfig } from '../utils/googleSheetSync';
@@ -73,7 +79,38 @@ export const MasterCitizenRosterAndIncidents: React.FC<MasterCitizenRosterAndInc
   // Direct Executive Message Modal State
   const [messagingTarget, setMessagingTarget] = useState<string | null>(null);
   const [messageContent, setMessageContent] = useState('');
+  const [pendingAttachment, setPendingAttachment] = useState<MessageAttachment | null>(null);
   const [isSendingMsg, setIsSendingMsg] = useState(false);
+
+  const handleFileSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    if (file.size > 5 * 1024 * 1024) {
+      alert(
+        language === 'en'
+          ? 'File size exceeds 5MB limit. Please attach a lighter document.'
+          : 'Ukubwa wa faili unazidi 5MB. Tafadhali chagua faili dogo.'
+      );
+      e.target.value = '';
+      return;
+    }
+
+    const reader = new FileReader();
+    reader.onload = () => {
+      const detected = detectAttachmentType(file.name, file.type);
+      setPendingAttachment({
+        id: 'att_' + Date.now(),
+        name: file.name,
+        type: detected,
+        mimeType: file.type || 'application/octet-stream',
+        size: file.size,
+        dataUrl: reader.result as string,
+      });
+      e.target.value = '';
+    };
+    reader.readAsDataURL(file);
+  };
 
   const loadData = () => {
     const reg = getRegisteredUsers();
@@ -172,19 +209,26 @@ export const MasterCitizenRosterAndIncidents: React.FC<MasterCitizenRosterAndInc
 
   // Handle Direct Executive Message Send
   const handleSendDirectMessage = async () => {
-    if (!messagingTarget || !messageContent.trim()) return;
+    if (!messagingTarget) return;
+    if (!messageContent.trim() && !pendingAttachment) return;
     setIsSendingMsg(true);
 
     try {
-      const res = await sendDirectMessage(currentUser, messagingTarget, messageContent.trim());
+      const res = await sendDirectMessage(
+        currentUser,
+        messagingTarget,
+        messageContent.trim(),
+        pendingAttachment || undefined
+      );
       if (res.success) {
         showFeedback(
           language === 'en'
-            ? `Executive message dispatched to ${messagingTarget}`
-            : `Ujumbe rasmi umetumwa kwa ${messagingTarget}`,
+            ? `Executive message & documents dispatched to @${messagingTarget}`
+            : `Ujumbe na nyaraka rasmi zimetumwa kwa @${messagingTarget}`,
           'success'
         );
         setMessageContent('');
+        setPendingAttachment(null);
         setMessagingTarget(null);
       } else {
         showFeedback(res.message, 'error');
@@ -978,31 +1022,83 @@ export const MasterCitizenRosterAndIncidents: React.FC<MasterCitizenRosterAndInc
             <textarea
               value={messageContent}
               onChange={(e) => setMessageContent(e.target.value)}
-              rows={4}
+              rows={3}
               placeholder={
-                language === 'en'
-                  ? 'Type your civic directive, guidance, or communication...'
-                  : 'Andika agizo au maelekezo ya kiraia...'
+                pendingAttachment
+                  ? (language === 'en' ? `Add notes for ${pendingAttachment.name}...` : `Maelezo ya ${pendingAttachment.name}...`)
+                  : (language === 'en'
+                    ? 'Type your civic directive, guidance, or communication...'
+                    : 'Andika agizo au maelekezo ya kiraia...')
               }
               className="w-full text-xs p-3 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 text-slate-900 dark:text-slate-100 focus:outline-none focus:ring-2 focus:ring-purple-600"
             />
 
-            <div className="flex items-center justify-end gap-2 pt-2">
-              <button
-                onClick={() => setMessagingTarget(null)}
-                className="px-4 py-2 rounded-xl text-xs font-bold text-slate-600 hover:bg-slate-100 dark:text-slate-400 dark:hover:bg-slate-800"
-              >
-                {language === 'en' ? 'Cancel' : 'Ghairi'}
-              </button>
+            {/* Attached Light Document Preview */}
+            {pendingAttachment && (
+              <div className="flex items-center justify-between p-2.5 rounded-xl bg-purple-50 dark:bg-purple-950/40 border border-purple-200 dark:border-purple-800 text-xs">
+                <div className="flex items-center gap-2 truncate">
+                  {pendingAttachment.type === 'image' && (
+                    <img src={pendingAttachment.dataUrl} alt="preview" className="w-8 h-8 rounded-lg object-cover border" />
+                  )}
+                  {pendingAttachment.type === 'pdf' && <FileText className="w-5 h-5 text-red-600 shrink-0" />}
+                  {pendingAttachment.type === 'excel' && <FileSpreadsheet className="w-5 h-5 text-emerald-600 shrink-0" />}
+                  {pendingAttachment.type === 'doc' && <FileCode className="w-5 h-5 text-blue-600 shrink-0" />}
+                  {pendingAttachment.type === 'file' && <FileText className="w-5 h-5 text-slate-600 shrink-0" />}
+                  <div className="truncate">
+                    <span className="font-bold text-slate-900 dark:text-slate-100 block truncate max-w-[240px]">
+                      {pendingAttachment.name}
+                    </span>
+                    <span className="text-[10px] text-slate-500 font-mono">
+                      {formatFileSize(pendingAttachment.size)} • {pendingAttachment.type.toUpperCase()}
+                    </span>
+                  </div>
+                </div>
+                <button
+                  type="button"
+                  onClick={() => setPendingAttachment(null)}
+                  className="p-1 rounded-lg text-slate-400 hover:text-red-600 hover:bg-slate-200 dark:hover:bg-slate-800 transition-colors cursor-pointer"
+                  title="Remove file"
+                >
+                  <X className="w-4 h-4" />
+                </button>
+              </div>
+            )}
 
-              <button
-                onClick={handleSendDirectMessage}
-                disabled={isSendingMsg || !messageContent.trim()}
-                className="flex items-center gap-2 bg-purple-900 hover:bg-purple-800 disabled:opacity-50 text-white px-5 py-2 rounded-xl text-xs font-black transition-all"
+            <div className="flex items-center justify-between pt-2">
+              <label
+                className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl border border-slate-200 dark:border-slate-700 hover:bg-purple-50 dark:hover:bg-purple-950/30 text-purple-700 dark:text-purple-300 text-xs font-bold cursor-pointer transition-colors"
+                title={language === 'en' ? 'Attach PDF, Word, Excel, or Image (under 5MB)' : 'Ambatisha PDF, Word, Excel au Picha'}
               >
-                <Send className="w-3.5 h-3.5" />
-                <span>{isSendingMsg ? 'Sending...' : language === 'en' ? 'Send Message' : 'Tuma Ujumbe'}</span>
-              </button>
+                <Paperclip className="w-3.5 h-3.5" />
+                <span>{language === 'en' ? 'Attach Document' : 'Ambatisha Waraka'}</span>
+                <input
+                  type="file"
+                  accept=".pdf,.doc,.docx,.xls,.xlsx,.csv,.txt,.rtf,.jpg,.jpeg,.png,.webp"
+                  onChange={handleFileSelect}
+                  className="hidden"
+                />
+              </label>
+
+              <div className="flex items-center gap-2">
+                <button
+                  onClick={() => {
+                    setMessagingTarget(null);
+                    setPendingAttachment(null);
+                  }}
+                  className="px-4 py-2 rounded-xl text-xs font-bold text-slate-600 hover:bg-slate-100 dark:text-slate-400 dark:hover:bg-slate-800 cursor-pointer"
+                >
+                  {language === 'en' ? 'Cancel' : 'Ghairi'}
+                </button>
+
+                <button
+                  onClick={handleSendDirectMessage}
+                  disabled={isSendingMsg || (!messageContent.trim() && !pendingAttachment)}
+                  className="flex items-center gap-2 bg-purple-900 hover:bg-purple-800 disabled:opacity-50 text-white px-5 py-2 rounded-xl text-xs font-black transition-all cursor-pointer shadow-sm"
+                >
+                  <Send className="w-3.5 h-3.5" />
+                  <span>{isSendingMsg ? 'Sending...' : language === 'en' ? 'Send Message' : 'Tuma Ujumbe'}</span>
+                </button>
+              </div>
             </div>
           </div>
         </div>

@@ -407,9 +407,10 @@ export interface UserDirectNotification {
   senderTitle: string;
   title: string;
   message: string;
-  category: 'notice' | 'commendation' | 'appointment' | 'urgent' | 'system_proposal';
+  category: 'notice' | 'commendation' | 'appointment' | 'urgent' | 'system_proposal' | 'message' | 'daily_guidance';
   proposalId?: string;
   proposalType?: 'ui_ux_adaptation' | 'feature_adjustment' | 'policy_update';
+  directMessageId?: string;
   timestamp: string;
   isRead: boolean;
   replies?: NotificationReply[];
@@ -549,4 +550,26 @@ export interface VerificationRequest {
   reviewedAt?: string;
   decisionReason?: string;
   grantedTier?: VerificationBadgeTier;
+}
+
+export interface MessageAttachment {
+  id: string;
+  name: string;
+  type: 'pdf' | 'doc' | 'excel' | 'image' | 'file';
+  mimeType: string;
+  size: number;
+  dataUrl: string;
+}
+
+export interface RahamChatMessage {
+  id: string;
+  sender: 'user' | 'raham';
+  text: string;
+  timestamp: string;
+  model?: string;
+  suggestedActions?: {
+    label: string;
+    actionType: 'create_course' | 'draft_directive' | 'audit_system' | 'copy_text' | 'explore_midmon' | 'grant_tokens';
+    payload?: any;
+  }[];
 }

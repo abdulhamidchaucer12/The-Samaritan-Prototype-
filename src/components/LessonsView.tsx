@@ -27,6 +27,7 @@ import {
   getTodaysNewCourses,
   getTodayDateString,
   addThreeMoreCoursesNow,
+  syncSupplementaryCoursesWithCloud,
 } from '../utils/dailyCourses';
 import { markLessonCompleted, getUserProgress } from '../utils/storage';
 import { CourseQuizAndCertificate } from './CourseQuizAndCertificate';
@@ -126,15 +127,27 @@ export const LessonsView: React.FC<LessonsViewProps> = ({
     };
     loadCourses();
 
+    // Trigger cloud synchronization so supplementary courses created by any user/admin are loaded
+    syncSupplementaryCoursesWithCloud().then(() => {
+      loadCourses();
+    });
+
     const handleUpdate = () => {
       loadCourses();
     };
 
     window.addEventListener('civic_lessons_updated', handleUpdate);
     window.addEventListener('storage', handleUpdate);
+
+    // Periodic background sync for cross-device updates
+    const syncInterval = setInterval(() => {
+      syncSupplementaryCoursesWithCloud().catch(() => {});
+    }, 15000);
+
     return () => {
       window.removeEventListener('civic_lessons_updated', handleUpdate);
       window.removeEventListener('storage', handleUpdate);
+      clearInterval(syncInterval);
     };
   }, []);
 

@@ -14,12 +14,14 @@ import {
   Monitor,
   Smartphone,
   ExternalLink,
+  User,
 } from 'lucide-react';
 import { Language, AuthUser } from '../types';
 import {
   getActiveUserSessions,
   ActiveUserSession,
   subscribeToUserPresence,
+  getAllocatedGuestUsername,
 } from '../utils/userPresence';
 import { UserBadge } from './UserBadge';
 import { getUserCounty, getUserSubCounty } from '../utils/authAndQuestions';
@@ -54,7 +56,8 @@ export const OnlineUsersModal: React.FC<OnlineUsersModalProps> = ({
     return () => unsub();
   }, [isOpen]);
 
-  const myUsername = (currentUser?.username || '').toLowerCase().replace(/^@/, '');
+  const allocatedGuest = getAllocatedGuestUsername();
+  const myUsername = (currentUser?.username || allocatedGuest).toLowerCase().replace(/^@/, '');
   const myCounty = currentUser?.county || (currentUser ? getUserCounty(currentUser.username) : '');
 
   // Extract online sessions
@@ -172,11 +175,23 @@ export const OnlineUsersModal: React.FC<OnlineUsersModalProps> = ({
             </span>
           </div>
         ) : (
-          <div className="px-4 py-2 bg-amber-500/10 dark:bg-amber-950/30 border-b border-amber-200 dark:border-amber-900/50 flex items-center justify-between text-xs text-amber-900 dark:text-amber-200">
-            <span>
+          <div className="px-4 py-2.5 bg-amber-500/15 dark:bg-amber-950/40 border-b border-amber-300 dark:border-amber-800/80 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-2 text-xs text-amber-950 dark:text-amber-200">
+            <div className="flex items-center gap-2 flex-wrap">
+              <span className="relative flex h-2.5 w-2.5">
+                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-amber-400 opacity-75" />
+                <span className="relative inline-flex rounded-full h-2.5 w-2.5 bg-amber-500" />
+              </span>
+              <span className="font-semibold">
+                {language === 'en' ? 'Allocated Guest Username:' : 'Jina la Mgeni Ulilopewa:'}
+              </span>
+              <span className="font-mono font-bold px-2 py-0.5 rounded-md bg-amber-200 dark:bg-amber-900 text-amber-950 dark:text-amber-100 border border-amber-400/60">
+                {allocatedGuest} ({language === 'en' ? 'You' : 'Wewe'})
+              </span>
+            </div>
+            <span className="text-[11px] text-amber-800 dark:text-amber-300">
               {language === 'en'
-                ? 'Browsing as Guest. Log in to connect with peers and access encrypted direct messaging.'
-                : 'Unavinjari kama Mgeni. Ingia ili kuungana na wengine na kutumia ujumbe salama.'}
+                ? 'When you log in with your account, this guest handle is automatically removed and made offline.'
+                : 'Ukishaingia na akaunti yako, jina hili la mgeni huondolewa na kufanywa offline.'}
             </span>
           </div>
         )}
@@ -292,7 +307,9 @@ export const OnlineUsersModal: React.FC<OnlineUsersModalProps> = ({
           ) : (
             <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
               {filteredUsers.map((user) => {
-                const isMe = user.username.toLowerCase().replace(/^@/, '') === myUsername;
+                const isGuestSelf = !currentUser && user.username.toLowerCase().replace(/^@/, '') === allocatedGuest.toLowerCase().replace(/^@/, '');
+                const isRegisteredSelf = Boolean(currentUser && user.username.toLowerCase().replace(/^@/, '') === myUsername);
+                const isMe = isGuestSelf || isRegisteredSelf;
                 const county = user.county || getUserCounty(user.username);
                 const subCounty = user.subCounty || getUserSubCounty(user.username);
                 const isDeviceMobile = user.deviceType === 'mobile';
@@ -301,7 +318,9 @@ export const OnlineUsersModal: React.FC<OnlineUsersModalProps> = ({
                   <div
                     key={user.id}
                     className={`p-3.5 rounded-2xl border transition-all relative flex flex-col justify-between gap-3 ${
-                      isMe
+                      isGuestSelf
+                        ? 'bg-amber-50/80 dark:bg-amber-950/30 border-amber-300 dark:border-amber-700 shadow-xs'
+                        : isRegisteredSelf
                         ? 'bg-emerald-50/70 dark:bg-emerald-950/30 border-emerald-300 dark:border-emerald-700 shadow-xs'
                         : user.role === 'admin'
                         ? 'bg-amber-50/40 dark:bg-amber-950/20 border-amber-200 dark:border-amber-800 hover:border-amber-400'
@@ -324,8 +343,14 @@ export const OnlineUsersModal: React.FC<OnlineUsersModalProps> = ({
                             <UserBadge username={user.username} size="sm" currentUser={currentUser} />
 
                             {isMe && (
-                              <span className="px-1.5 py-0.2 rounded-md text-[10px] font-black bg-emerald-200 dark:bg-emerald-900 text-emerald-900 dark:text-emerald-100">
-                                {language === 'en' ? 'YOU' : 'WEWE'}
+                              <span className={`px-1.5 py-0.2 rounded-md text-[10px] font-black border ${
+                                isGuestSelf
+                                  ? 'bg-amber-200 dark:bg-amber-900 text-amber-950 dark:text-amber-100 border-amber-400'
+                                  : 'bg-emerald-200 dark:bg-emerald-900 text-emerald-900 dark:text-emerald-100 border-emerald-400'
+                              }`}>
+                                {isGuestSelf
+                                  ? (language === 'en' ? 'YOU (GUEST)' : 'WEWE (MGENI)')
+                                  : (language === 'en' ? 'YOU' : 'WEWE')}
                               </span>
                             )}
 
@@ -382,7 +407,23 @@ export const OnlineUsersModal: React.FC<OnlineUsersModalProps> = ({
                     </div>
 
                     {/* Bottom: Action Buttons */}
-                    <div className="flex items-center justify-end gap-2 pt-1">
+                    <div className="flex items-center justify-end gap-2 pt-1 flex-wrap">
+                      {isGuestSelf && (
+                        <button
+                          type="button"
+                          onClick={() => {
+                            onClose();
+                            window.dispatchEvent(
+                              new CustomEvent('the_samaritan_open_auth_modal', { detail: { mode: 'login' } })
+                            );
+                          }}
+                          className="px-3 py-1.5 rounded-xl text-xs font-bold bg-blue-900 hover:bg-blue-950 text-white transition-colors flex items-center gap-1.5 shadow-2xs cursor-pointer"
+                        >
+                          <User className="w-3.5 h-3.5 text-amber-300" />
+                          <span>{language === 'en' ? 'Log In / Register (Claim Account)' : 'Ingia / Jisajili (Chukua Akaunti)'}</span>
+                        </button>
+                      )}
+
                       {!isMe && onOpenDirectChat && (
                         <button
                           type="button"

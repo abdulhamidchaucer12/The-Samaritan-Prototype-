@@ -182,6 +182,8 @@ export function awardTokensToUser(
   };
 }
 
+export const grantFacilitatorTokens = awardTokensToUser;
+
 // ---------------- Token Expenditures & Ledger ---------------- //
 
 export function getAllTokenExpenditures(): TokenExpenditure[] {

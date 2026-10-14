@@ -2037,10 +2037,10 @@ export function getTodayDateString(): string {
   return now.toISOString().slice(0, 10);
 }
 
-const CUSTOM_LESSONS_STORAGE_KEY = 'the_samaritan_custom_lessons_v1';
+export const CUSTOM_LESSONS_STORAGE_KEY = 'the_samaritan_custom_lessons_v1';
 
 /**
- * Retrieves all administrator-created supplementary courses
+ * Retrieves all administrator-created supplementary courses, ensuring full quiz attachments and flags
  */
 export function getSupplementaryCourses(): CivicLesson[] {
   if (typeof window === 'undefined') return [];
@@ -2049,12 +2049,79 @@ export function getSupplementaryCourses(): CivicLesson[] {
     if (!raw) return [];
     const parsed = JSON.parse(raw);
     if (Array.isArray(parsed)) {
-      return parsed.filter((c: any) => c.isPublished !== false);
+      return parsed
+        .filter((c: any) => c.isPublished !== false)
+        .map((c: any) => {
+          const quizzes =
+            c.quizzes && c.quizzes.length >= 10
+              ? c.quizzes
+              : getCourseQuizQuestions(c.id, c.title, c.category);
+          return {
+            ...c,
+            isSupplementary: true,
+            isCustom: true,
+            quizzes,
+          };
+        });
     }
   } catch (err) {
     console.error('Failed to load custom supplementary courses:', err);
   }
   return [];
+}
+
+/**
+ * Fetches and synchronizes all cloud-persisted supplementary courses so every user sees them in real-time
+ */
+export async function syncSupplementaryCoursesWithCloud(): Promise<CivicLesson[]> {
+  if (typeof window === 'undefined') return [];
+  try {
+    const res = await fetch('/api/supplementary-courses');
+    if (!res.ok) return getSupplementaryCourses();
+    const data = await res.json();
+    if (data.success && Array.isArray(data.courses) && data.courses.length > 0) {
+      const local = getSupplementaryCourses();
+      const courseMap = new Map<string, CivicLesson>();
+      local.forEach((c) => courseMap.set(c.id, c));
+
+      let hasNew = false;
+      data.courses.forEach((cloudCourse: any) => {
+        if (!courseMap.has(cloudCourse.id)) {
+          courseMap.set(cloudCourse.id, {
+            ...cloudCourse,
+            isSupplementary: true,
+            isCustom: true,
+            quizzes:
+              cloudCourse.quizzes && cloudCourse.quizzes.length >= 10
+                ? cloudCourse.quizzes
+                : getCourseQuizQuestions(cloudCourse.id, cloudCourse.title, cloudCourse.category),
+          });
+          hasNew = true;
+        } else {
+          const existing = courseMap.get(cloudCourse.id)!;
+          if (cloudCourse.lastUpdated && cloudCourse.lastUpdated !== (existing as any).lastUpdated) {
+            courseMap.set(cloudCourse.id, {
+              ...existing,
+              ...cloudCourse,
+              isSupplementary: true,
+              isCustom: true,
+            });
+            hasNew = true;
+          }
+        }
+      });
+
+      if (hasNew) {
+        const mergedList = Array.from(courseMap.values());
+        localStorage.setItem(CUSTOM_LESSONS_STORAGE_KEY, JSON.stringify(mergedList));
+        window.dispatchEvent(new CustomEvent('civic_lessons_updated'));
+      }
+      return Array.from(courseMap.values());
+    }
+  } catch (err) {
+    // Offline or network transient error - keep local
+  }
+  return getSupplementaryCourses();
 }
 
 /**
@@ -2223,7 +2290,8 @@ export function getAllCivicCourses(): CivicLesson[] {
     }
   }
 
-  return combined;
+  // Ensure consistent ascending order by lessonNumber across foundational, daily, and supplementary
+  return combined.sort((a, b) => a.lessonNumber - b.lessonNumber);
 }
 
 /**

@@ -168,6 +168,8 @@ export const UserNotificationsDrawer: React.FC<UserNotificationsDrawerProps> = (
                           className={`px-2 py-0.5 rounded-md text-[10px] font-black uppercase tracking-wider ${
                             notif.category === 'urgent'
                               ? 'bg-red-100 text-red-800'
+                              : notif.category === 'message'
+                              ? 'bg-teal-100 text-teal-900 border border-teal-300'
                               : notif.category === 'appointment'
                               ? 'bg-blue-100 text-blue-900'
                               : notif.category === 'commendation'
@@ -175,10 +177,14 @@ export const UserNotificationsDrawer: React.FC<UserNotificationsDrawerProps> = (
                               : 'bg-amber-100 text-amber-900'
                           }`}
                         >
-                          {notif.category}
+                          {notif.category === 'message'
+                            ? language === 'en'
+                              ? 'Direct Message'
+                              : 'Ujumbe'
+                            : notif.category}
                         </span>
                         {!notif.isRead && (
-                          <span className="w-2 h-2 rounded-full bg-amber-500 animate-pulse" />
+                          <span className="w-2 h-2 rounded-full bg-teal-500 animate-pulse" />
                         )}
                       </div>
                       <h4 className="font-serif font-bold text-sm text-slate-900 leading-snug">
@@ -192,6 +198,33 @@ export const UserNotificationsDrawer: React.FC<UserNotificationsDrawerProps> = (
                   <p className="text-xs text-slate-700 leading-relaxed font-normal whitespace-pre-wrap">
                     {notif.message}
                   </p>
+
+                  {/* Direct Message Action: Open Chat Directly */}
+                  {notif.category === 'message' && (
+                    <div className="pt-2 flex items-center justify-between border-t border-slate-200">
+                      <button
+                        type="button"
+                        onClick={() => {
+                          handleMarkRead(notif.id);
+                          onClose();
+                          window.dispatchEvent(
+                            new CustomEvent('open_direct_chat_with_peer', { detail: { peer: notif.sentBy } })
+                          );
+                        }}
+                        className="px-3 py-1.5 rounded-xl bg-teal-600 hover:bg-teal-700 text-white font-bold text-xs flex items-center gap-1.5 transition-colors cursor-pointer shadow-xs"
+                      >
+                        <MessageSquare className="w-3.5 h-3.5" />
+                        <span>{language === 'en' ? 'Open Chat & Reply' : 'Fungua Gumzo na Jibu'}</span>
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => handleMarkRead(notif.id)}
+                        className="text-xs text-slate-500 hover:text-slate-800 cursor-pointer"
+                      >
+                        {notif.isRead ? (language === 'en' ? 'Read' : 'Imesomwa') : (language === 'en' ? 'Mark read' : 'Weka imesomwa')}
+                      </button>
+                    </div>
+                  )}
 
                   {/* UI/UX Adaptation Decision Actions for The_Samaritan */}
                   {notif.category === 'system_proposal' && notif.proposalId && (

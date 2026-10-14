@@ -15,7 +15,7 @@ import { getUserVerification } from './userVerificationService';
 
 const BANNED_USERS_KEY = 'the_samaritan_banned_users_v1';
 const APPOINTED_ADMINS_KEY = 'the_samaritan_appointed_admins_v1';
-const USER_NOTIFICATIONS_KEY = 'the_samaritan_user_notifications_v1';
+export const USER_NOTIFICATIONS_KEY = 'the_samaritan_user_notifications_v1';
 export const CIVIC_EVENTS_KEY = 'the_samaritan_civic_events_v1';
 const DEVICE_ID_KEY = 'the_samaritan_device_unique_id_v1';
 const ADMIN_SOUND_PREF_KEY = 'the_samaritan_admin_sound_enabled_v1';

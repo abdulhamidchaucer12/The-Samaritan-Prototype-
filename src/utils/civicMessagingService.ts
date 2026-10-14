@@ -1,5 +1,5 @@
-import { AuthUser } from '../types';
-import { banUser, unbanUser, checkIfUserOrDeviceBanned } from './adminManagement';
+import { AuthUser, UserDirectNotification, MessageAttachment } from '../types';
+import { banUser, unbanUser, checkIfUserOrDeviceBanned, USER_NOTIFICATIONS_KEY } from './adminManagement';
 
 export interface CivicDirectMessage {
   id: string;
@@ -14,6 +14,7 @@ export interface CivicDirectMessage {
   operatorCategory?: string;
   riskScore?: number;
   tokensUsed?: number;
+  attachment?: MessageAttachment;
 }
 
 export interface OperatorFlaggedIncident {
@@ -39,6 +40,51 @@ export interface OperatorFlaggedIncident {
 const DIRECT_MESSAGES_KEY = 'the_samaritan_direct_messages_v1';
 const OPERATOR_INCIDENTS_KEY = 'the_samaritan_operator_incidents_v1';
 
+export function formatFileSize(bytes: number): string {
+  if (!bytes || bytes <= 0) return '0 B';
+  if (bytes < 1024) return bytes + ' B';
+  if (bytes < 1024 * 1024) return (bytes / 1024).toFixed(1) + ' KB';
+  return (bytes / (1024 * 1024)).toFixed(1) + ' MB';
+}
+
+export function detectAttachmentType(fileName: string, mimeType: string = ''): 'pdf' | 'doc' | 'excel' | 'image' | 'file' {
+  const lowerName = (fileName || '').toLowerCase();
+  const lowerMime = (mimeType || '').toLowerCase();
+  if (lowerName.endsWith('.pdf') || lowerMime.includes('pdf')) return 'pdf';
+  if (
+    lowerName.endsWith('.doc') ||
+    lowerName.endsWith('.docx') ||
+    lowerName.endsWith('.txt') ||
+    lowerName.endsWith('.rtf') ||
+    lowerMime.includes('word') ||
+    lowerMime.includes('text/plain')
+  ) {
+    return 'doc';
+  }
+  if (
+    lowerName.endsWith('.xls') ||
+    lowerName.endsWith('.xlsx') ||
+    lowerName.endsWith('.csv') ||
+    lowerMime.includes('excel') ||
+    lowerMime.includes('spreadsheet') ||
+    lowerMime.includes('csv')
+  ) {
+    return 'excel';
+  }
+  if (
+    lowerName.endsWith('.jpg') ||
+    lowerName.endsWith('.jpeg') ||
+    lowerName.endsWith('.png') ||
+    lowerName.endsWith('.webp') ||
+    lowerName.endsWith('.gif') ||
+    lowerName.endsWith('.svg') ||
+    lowerMime.startsWith('image/')
+  ) {
+    return 'image';
+  }
+  return 'file';
+}
+
 export function getAllDirectMessages(): CivicDirectMessage[] {
   if (typeof window === 'undefined') return [];
   try {
@@ -55,6 +101,235 @@ export function saveDirectMessages(messages: CivicDirectMessage[]): void {
     localStorage.setItem(DIRECT_MESSAGES_KEY, JSON.stringify(messages));
     window.dispatchEvent(new CustomEvent('civic_messages_updated'));
   } catch (err) {}
+}
+
+const NOTIFIED_MSG_IDS_KEY = 'the_samaritan_notified_msg_ids_v1';
+
+export function getNotifiedMessageIds(): Set<string> {
+  if (typeof window === 'undefined') return new Set();
+  try {
+    const raw = sessionStorage.getItem(NOTIFIED_MSG_IDS_KEY);
+    return raw ? new Set(JSON.parse(raw)) : new Set();
+  } catch (e) {
+    return new Set();
+  }
+}
+
+export function markMessageIdAsNotified(id: string): void {
+  if (typeof window === 'undefined') return;
+  try {
+    const current = getNotifiedMessageIds();
+    current.add(id);
+    sessionStorage.setItem(NOTIFIED_MSG_IDS_KEY, JSON.stringify(Array.from(current)));
+  } catch (e) {}
+}
+
+/**
+ * Plays a gentle, pleasant dual-tone Web Audio chime when a message is received in real time.
+ */
+export function playMessageNotificationSound(): void {
+  if (typeof window === 'undefined') return;
+  try {
+    const AudioContextClass = window.AudioContext || (window as any).webkitAudioContext;
+    if (!AudioContextClass) return;
+    const ctx = new AudioContextClass();
+    if (ctx.state === 'suspended') {
+      ctx.resume().catch(() => {});
+    }
+    const now = ctx.currentTime;
+
+    // Tone 1: E5 (659.25Hz)
+    const osc1 = ctx.createOscillator();
+    const gain1 = ctx.createGain();
+    osc1.type = 'sine';
+    osc1.frequency.setValueAtTime(659.25, now);
+    gain1.gain.setValueAtTime(0.12, now);
+    gain1.gain.exponentialRampToValueAtTime(0.001, now + 0.28);
+    osc1.connect(gain1);
+    gain1.connect(ctx.destination);
+    osc1.start(now);
+    osc1.stop(now + 0.28);
+
+    // Tone 2: A5 (880Hz)
+    const osc2 = ctx.createOscillator();
+    const gain2 = ctx.createGain();
+    osc2.type = 'sine';
+    osc2.frequency.setValueAtTime(880, now + 0.12);
+    gain2.gain.setValueAtTime(0.15, now + 0.12);
+    gain2.gain.exponentialRampToValueAtTime(0.001, now + 0.45);
+    osc2.connect(gain2);
+    gain2.connect(ctx.destination);
+    osc2.start(now + 0.12);
+    osc2.stop(now + 0.45);
+  } catch (e) {
+    // Non-blocking if audio not permitted
+  }
+}
+
+/**
+ * Ensures an incoming direct message creates or updates an official user direct notification
+ * so that the header notification bell updates its badge counter and the drawer displays it.
+ */
+export function recordDirectMessageNotification(msg: CivicDirectMessage): void {
+  if (typeof window === 'undefined') return;
+  try {
+    const raw = localStorage.getItem(USER_NOTIFICATIONS_KEY);
+    const list: UserDirectNotification[] = raw ? JSON.parse(raw) : [];
+
+    const notifId = 'msg_notif_' + msg.id;
+    const existingIdx = list.findIndex((n) => n.id === notifId || n.directMessageId === msg.id);
+
+    const notif: UserDirectNotification = {
+      id: notifId,
+      targetUsername: msg.recipientUsername,
+      recipientUsername: msg.recipientUsername,
+      sentBy: msg.senderUsername,
+      senderTitle: 'Citizen Peer',
+      title: `Message from @${msg.senderUsername}`,
+      message: msg.content.length > 90 ? msg.content.substring(0, 90) + '...' : msg.content,
+      category: 'message',
+      directMessageId: msg.id,
+      timestamp: msg.timestamp,
+      isRead: msg.isRead,
+      replies: [],
+    };
+
+    if (existingIdx !== -1) {
+      list[existingIdx] = { ...list[existingIdx], ...notif };
+    } else {
+      list.unshift(notif);
+    }
+
+    localStorage.setItem(USER_NOTIFICATIONS_KEY, JSON.stringify(list.slice(0, 100)));
+    window.dispatchEvent(
+      new CustomEvent('the_samaritan_user_notification_received', { detail: notif })
+    );
+    window.dispatchEvent(new CustomEvent('the_samaritan_user_notification_sent'));
+  } catch (e) {
+    console.warn('[Messaging] Failed recording notification for direct message:', e);
+  }
+}
+
+/**
+ * Transmits a direct message to the cloud endpoint so all devices and recipient sessions immediately receive it
+ */
+export async function pushMessageToCloud(msg: CivicDirectMessage): Promise<void> {
+  try {
+    await fetch('/api/messages', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ message: msg }),
+    });
+  } catch (err) {
+    console.warn('[Messaging] Failed to push message to cloud backend:', err);
+  }
+}
+
+/**
+ * Polls the cloud endpoint for real-time messages and notifies the recipient immediately
+ */
+export async function syncDirectMessagesWithCloud(myUsername?: string | null): Promise<CivicDirectMessage[]> {
+  if (typeof window === 'undefined') return [];
+  const cleanMe = (myUsername || '').trim().toLowerCase().replace(/^@/, '');
+
+  try {
+    const query = cleanMe ? `?username=${encodeURIComponent(cleanMe)}` : '';
+    const res = await fetch(`/api/messages${query}`);
+    if (!res.ok) return getAllDirectMessages();
+
+    const data = await res.json();
+    if (!data.success || !Array.isArray(data.messages)) return getAllDirectMessages();
+
+    const cloudMsgs: CivicDirectMessage[] = data.messages;
+    const localMsgs = getAllDirectMessages();
+    const map = new Map<string, CivicDirectMessage>();
+
+    for (const m of localMsgs) {
+      map.set(m.id, m);
+    }
+
+    const notifiedSet = getNotifiedMessageIds();
+    let hasNewIncoming = false;
+    let newlyReceivedMessage: CivicDirectMessage | null = null;
+
+    for (const cm of cloudMsgs) {
+      const existing = map.get(cm.id);
+      if (!existing) {
+        map.set(cm.id, cm);
+        // Check if this is a newly received message addressed to current user
+        const r = (cm.recipientUsername || '').trim().toLowerCase().replace(/^@/, '');
+        const s = (cm.senderUsername || '').trim().toLowerCase().replace(/^@/, '');
+        if (cleanMe && r === cleanMe && s !== cleanMe && !cm.isRead && cm.status === 'delivered') {
+          if (!notifiedSet.has(cm.id)) {
+            hasNewIncoming = true;
+            newlyReceivedMessage = cm;
+            markMessageIdAsNotified(cm.id);
+            recordDirectMessageNotification(cm);
+          }
+        }
+      } else {
+        // Merge latest read/status state
+        map.set(cm.id, {
+          ...existing,
+          ...cm,
+          isRead: existing.isRead || cm.isRead,
+        });
+      }
+    }
+
+    const merged = Array.from(map.values()).sort(
+      (a, b) => new Date(a.timestamp).getTime() - new Date(b.timestamp).getTime()
+    );
+
+    localStorage.setItem(DIRECT_MESSAGES_KEY, JSON.stringify(merged));
+    window.dispatchEvent(new CustomEvent('civic_messages_updated'));
+
+    if (hasNewIncoming && newlyReceivedMessage) {
+      playMessageNotificationSound();
+      window.dispatchEvent(
+        new CustomEvent('the_samaritan_message_received', {
+          detail: { message: newlyReceivedMessage },
+        })
+      );
+    }
+
+    return merged;
+  } catch (err) {
+    return getAllDirectMessages();
+  }
+}
+
+/**
+ * Initializes continuous real-time synchronization between active users
+ */
+export function startRealTimeMessageSync(
+  getCurrentUsername: () => string | null
+): () => void {
+  if (typeof window === 'undefined') return () => {};
+
+  // 1. Initial immediate sync
+  syncDirectMessagesWithCloud(getCurrentUsername());
+
+  // 2. Fast background poll (every 2.5s)
+  const intervalId = setInterval(() => {
+    syncDirectMessagesWithCloud(getCurrentUsername());
+  }, 2500);
+
+  // 3. Instant local cross-tab sync via storage events
+  const handleStorage = (e: StorageEvent) => {
+    if (e.key === DIRECT_MESSAGES_KEY) {
+      window.dispatchEvent(new CustomEvent('civic_messages_updated'));
+    } else if (e.key === USER_NOTIFICATIONS_KEY) {
+      window.dispatchEvent(new CustomEvent('the_samaritan_user_notification_sent'));
+    }
+  };
+
+  window.addEventListener('storage', handleStorage);
+
+  return () => {
+    clearInterval(intervalId);
+    window.removeEventListener('storage', handleStorage);
+  };
 }
 
 export function getDirectMessagesBetween(
@@ -128,6 +403,11 @@ export function markConversationAsRead(myUsername: string, peerUsername: string)
 
   if (modified) {
     saveDirectMessages(all);
+    fetch('/api/messages/mark-read', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ myUsername, peerUsername }),
+    }).catch(() => {});
   }
 }
 
@@ -203,7 +483,8 @@ const FAST_CLIENT_PATTERNS = [
 export async function sendDirectMessage(
   sender: AuthUser,
   recipientUsername: string,
-  content: string
+  content: string,
+  attachment?: MessageAttachment
 ): Promise<{
   success: boolean;
   message: string;
@@ -212,8 +493,8 @@ export async function sendDirectMessage(
   isBanned?: boolean;
 }> {
   const cleanContent = content.trim();
-  if (!cleanContent) {
-    return { success: false, message: 'Message content cannot be empty.' };
+  if (!cleanContent && !attachment) {
+    return { success: false, message: 'Message content or attachment cannot be empty.' };
   }
 
   // 1. Verify Sender is not currently banned
@@ -357,11 +638,15 @@ export async function sendDirectMessage(
     timestamp: new Date().toISOString(),
     isRead: false,
     status: 'delivered',
+    attachment,
   };
 
   const all = getAllDirectMessages();
   all.push(newMsg);
   saveDirectMessages(all);
+
+  // Instantly mirror to cloud backend for real-time delivery to other peers & devices
+  pushMessageToCloud(newMsg).catch(() => {});
 
   return {
     success: true,

@@ -44,6 +44,7 @@ import { FacilitatorTokensModal } from './components/FacilitatorTokensModal';
 import { OnlineUsersModal } from './components/OnlineUsersModal';
 import { LoginOnlineUsersToast } from './components/LoginOnlineUsersToast';
 import { UserProfileView } from './components/UserProfileView';
+import { IncomingMessageToast } from './components/IncomingMessageToast';
 import { Language, AuthUser, UserDirectNotification, Theme } from './types';
 import { officesData } from './data/officesData';
 import { translations } from './data/translations';
@@ -66,7 +67,8 @@ import {
   checkExpiredTemporaryAdminAppointments,
   sendDailyGuidanceNotificationToAdminIfOnline,
 } from './utils/adminManagement';
-import { recordUserHeartbeat, getOtherOnlineUsers } from './utils/userPresence';
+import { recordUserHeartbeat, getOtherOnlineUsers, removeAllocatedGuestSession, getAllocatedGuestUsername } from './utils/userPresence';
+import { startRealTimeMessageSync } from './utils/civicMessagingService';
 import {
   recordUserDailyLogin,
   registerSessionVisitIfLoggedIn,
@@ -76,6 +78,7 @@ import {
   recordInteractionEvent,
 } from './utils/autoLearnEngine';
 import { initGoogleSheetSync, syncAndRestoreUserOnLogin } from './utils/googleSheetSync';
+import { syncSupplementaryCoursesWithCloud } from './utils/dailyCourses';
 
 export default function App() {
   const [currentTab, setCurrentTab] = useState<string>('home');
@@ -141,6 +144,7 @@ export default function App() {
     checkExpiredTemporaryAdminAppointments();
     applyActiveAdaptationStyles();
     initGoogleSheetSync();
+    syncSupplementaryCoursesWithCloud().catch(() => {});
     const handleAdaptationChange = () => {
       applyActiveAdaptationStyles();
     };
@@ -201,6 +205,11 @@ export default function App() {
       setMobileMoreOpen(false);
     };
 
+    const handleOpenAuth = (e: any) => {
+      const mode = e?.detail?.mode || 'login';
+      handleOpenAuthModal(mode);
+    };
+
     window.addEventListener('the_samaritan_user_notification_sent', handleNotifSent);
     window.addEventListener('open_facilitator_tokens_modal', handleOpenTokens);
     window.addEventListener('open_online_users_modal', handleOpenOnlineModal);
@@ -209,6 +218,7 @@ export default function App() {
     window.addEventListener('the_samaritan_county_updated', handleCountyUpdated);
     window.addEventListener('the_samaritan_admin_names_updated', handleAdminNamesUpdated);
     window.addEventListener('navigate_to_profile_tab', handleNavigateToProfileTab);
+    window.addEventListener('the_samaritan_open_auth_modal', handleOpenAuth);
     return () => {
       window.removeEventListener('the_samaritan_user_notification_sent', handleNotifSent);
       window.removeEventListener('open_facilitator_tokens_modal', handleOpenTokens);
@@ -218,6 +228,7 @@ export default function App() {
       window.removeEventListener('the_samaritan_county_updated', handleCountyUpdated);
       window.removeEventListener('the_samaritan_admin_names_updated', handleAdminNamesUpdated);
       window.removeEventListener('navigate_to_profile_tab', handleNavigateToProfileTab);
+      window.removeEventListener('the_samaritan_open_auth_modal', handleOpenAuth);
     };
   }, [currentUser?.username]);
 
@@ -234,6 +245,13 @@ export default function App() {
     }
   }, [currentUser?.username, currentUser?.role]);
 
+  // Continuous real-time peer messaging & notification synchronization
+  useEffect(() => {
+    const getActiveHandle = () => currentUser?.username || getAllocatedGuestUsername();
+    const cleanup = startRealTimeMessageSync(getActiveHandle);
+    return () => cleanup();
+  }, [currentUser?.username]);
+
   const handleOpenAuthModal = (mode: 'login' | 'register' | 'adminSettings' | 'recover' = 'login') => {
     setAuthModalMode(mode);
     setAuthModalOpen(true);
@@ -242,6 +260,8 @@ export default function App() {
   const [offlineSyncNotice, setOfflineSyncNotice] = useState<string | null>(null);
 
   const handleLoginSuccess = (user: AuthUser) => {
+    // Remove the allocated random guest username and set it offline
+    removeAllocatedGuestSession();
     setCurrentUser(user);
     setCurrentAuthUser(user);
     recordUserDailyLogin(user.username);
@@ -951,6 +971,12 @@ export default function App() {
           setOnlineUsersModalOpen(true);
         }}
         otherOnlineUsers={getOtherOnlineUsers(currentUser?.username)}
+      />
+
+      {/* Real-Time Peer Message Received Notification Toast */}
+      <IncomingMessageToast
+        language={language}
+        currentUser={currentUser}
       />
 
       {/* Real-time Multi-Device & Offline Reconnection Toast Notification */}

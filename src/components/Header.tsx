@@ -29,7 +29,7 @@ import { AdminOnlineStatusBadge } from './AdminOnlineStatusBadge';
 import { UserBadge } from './UserBadge';
 import { ThemeToggle } from './ThemeToggle';
 import { getUserTokenBalance } from '../utils/facilitatorTokenRegistry';
-import { getActiveUserSessions, subscribeToUserPresence } from '../utils/userPresence';
+import { getActiveUserSessions, subscribeToUserPresence, getAllocatedGuestUsername } from '../utils/userPresence';
 import { getUserCounty } from '../utils/authAndQuestions';
 import { getAdminPlatformAddressingName } from '../utils/adminAppointments';
 
@@ -80,6 +80,7 @@ export const Header: React.FC<HeaderProps> = ({
   }, []);
 
   const onlineSessionsCount = presenceData.sessions.filter((s) => s.isOnline).length;
+  const allocatedGuestUsername = getAllocatedGuestUsername();
 
   const primaryNavItems = [
     { id: 'home', label: t.nav.home, icon: Layers },
@@ -256,20 +257,27 @@ export const Header: React.FC<HeaderProps> = ({
                   </button>
                 </div>
               ) : (
-                <button
-                  type="button"
-                  onClick={() => onOpenAuthModal('login')}
-                  className="flex items-center gap-1 mt-0.5 text-left cursor-pointer group/login hover:opacity-90 transition-opacity"
-                  title={language === 'en' ? 'Click to Sign In or Access Admin Access' : 'Bonyeza kuingia au kufikia dashibodi ya wasimamizi'}
-                >
-                  <span className="inline-flex items-center gap-1 text-[10px] sm:text-[11px] font-bold text-blue-700 dark:text-blue-300 hover:text-blue-900 dark:hover:text-blue-100 transition-colors">
+                <div className="flex items-center gap-1.5 mt-0.5 flex-wrap">
+                  <div
+                    onClick={() => onOpenAuthModal('login')}
+                    className="inline-flex items-center gap-1.5 px-2 py-0.5 rounded-lg bg-amber-50 dark:bg-amber-950/40 hover:bg-amber-100 dark:hover:bg-amber-900/60 border border-amber-300 dark:border-amber-700/80 text-[10px] text-amber-950 dark:text-amber-200 font-semibold cursor-pointer transition-colors shadow-2xs"
+                    title={language === 'en' ? `Temporary random guest handle allocated to you: ${allocatedGuestUsername} (Click to Sign In)` : `Jina la muda la mgeni ulilopewa: ${allocatedGuestUsername} (Bofya kuingia)`}
+                  >
+                    <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse shrink-0" />
+                    <span>{language === 'en' ? 'Guest (You):' : 'Mgeni (Wewe):'}</span>
+                    <strong className="font-mono text-amber-950 dark:text-amber-100 font-bold">{allocatedGuestUsername}</strong>
+                  </div>
+                  <span className="text-slate-300 dark:text-slate-600 text-[10px]">•</span>
+                  <button
+                    type="button"
+                    onClick={() => onOpenAuthModal('login')}
+                    className="inline-flex items-center gap-1 text-[10px] sm:text-[11px] font-bold text-blue-700 dark:text-blue-300 hover:text-blue-900 dark:hover:text-blue-100 hover:underline cursor-pointer transition-colors"
+                    title={language === 'en' ? 'Click to Sign In or Access Admin Access' : 'Bonyeza kuingia au kufikia dashibodi ya wasimamizi'}
+                  >
                     <User className="w-3 h-3 text-blue-600 dark:text-blue-400 shrink-0" />
                     <span>{language === 'en' ? 'Sign In / Admin' : 'Ingia / Msimamizi'}</span>
-                  </span>
-                  <span className="text-[10px] text-slate-500 dark:text-slate-400 hidden sm:inline truncate max-w-[140px]">
-                    • {language === 'en' ? 'Civic Platform' : 'Elimu ya Uraia'}
-                  </span>
-                </button>
+                  </button>
+                </div>
               )}
             </div>
           </div>
@@ -464,27 +472,44 @@ export const Header: React.FC<HeaderProps> = ({
                   </div>
                 </div>
               ) : (
-                <div className="grid grid-cols-2 gap-2">
-                  <button
+                <div className="space-y-2">
+                  <div
                     onClick={() => {
                       onOpenAuthModal('login');
                       setMobileMenuOpen(false);
                     }}
-                    className="w-full py-2.5 px-2 rounded-xl bg-blue-900 hover:bg-blue-950 text-white text-xs font-bold flex items-center justify-center gap-1.5 min-h-[44px]"
+                    className="p-2.5 rounded-xl bg-amber-50 dark:bg-amber-950/40 border border-amber-300 dark:border-amber-700/80 text-xs flex items-center justify-between text-amber-950 dark:text-amber-200 cursor-pointer hover:bg-amber-100 dark:hover:bg-amber-900/60 transition-colors shadow-2xs"
+                    title={language === 'en' ? 'Click to Sign In with your account' : 'Bofya kuingia na akaunti yako'}
                   >
-                    <User className="w-4 h-4 text-amber-300" />
-                    <span>{language === 'en' ? 'Log In / Admin' : 'Ingia / Admin'}</span>
-                  </button>
-                  <button
-                    onClick={() => {
-                      onOpenAuthModal('register');
-                      setMobileMenuOpen(false);
-                    }}
-                    className="w-full py-2.5 px-2 rounded-xl bg-emerald-700 hover:bg-emerald-800 text-white text-xs font-bold flex items-center justify-center gap-1.5 min-h-[44px]"
-                  >
-                    <Sparkles className="w-4 h-4 text-amber-300" />
-                    <span>{language === 'en' ? 'Citizen Sign Up' : 'Jisajili'}</span>
-                  </button>
+                    <div className="flex items-center gap-2 min-w-0">
+                      <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse shrink-0" />
+                      <span className="truncate">{language === 'en' ? 'Guest Handle (You):' : 'Jina la Mgeni (Wewe):'}</span>
+                      <strong className="font-mono font-bold shrink-0">{allocatedGuestUsername}</strong>
+                    </div>
+                    <span className="text-[10px] text-amber-700 dark:text-amber-400 font-semibold shrink-0">{language === 'en' ? 'Tap to Sign In' : 'Bofya Kuingia'}</span>
+                  </div>
+                  <div className="grid grid-cols-2 gap-2">
+                    <button
+                      onClick={() => {
+                        onOpenAuthModal('login');
+                        setMobileMenuOpen(false);
+                      }}
+                      className="w-full py-2.5 px-2 rounded-xl bg-blue-900 hover:bg-blue-950 text-white text-xs font-bold flex items-center justify-center gap-1.5 min-h-[44px]"
+                    >
+                      <User className="w-4 h-4 text-amber-300" />
+                      <span>{language === 'en' ? 'Log In / Admin' : 'Ingia / Admin'}</span>
+                    </button>
+                    <button
+                      onClick={() => {
+                        onOpenAuthModal('register');
+                        setMobileMenuOpen(false);
+                      }}
+                      className="w-full py-2.5 px-2 rounded-xl bg-emerald-700 hover:bg-emerald-800 text-white text-xs font-bold flex items-center justify-center gap-1.5 min-h-[44px]"
+                    >
+                      <Sparkles className="w-4 h-4 text-amber-300" />
+                      <span>{language === 'en' ? 'Citizen Sign Up' : 'Jisajili'}</span>
+                    </button>
+                  </div>
                 </div>
               )}
             </div>

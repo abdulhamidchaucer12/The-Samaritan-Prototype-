@@ -23,8 +23,15 @@ import {
   Compass,
   ArrowLeft,
   Coins,
+  Paperclip,
+  FileText,
+  FileSpreadsheet,
+  FileCode,
+  Download,
+  Eye,
+  Image as ImageIcon,
 } from 'lucide-react';
-import { Language, AuthUser } from '../types';
+import { Language, AuthUser, MessageAttachment } from '../types';
 import { UserBadge } from './UserBadge';
 import {
   getAllPublicActivities,
@@ -45,6 +52,8 @@ import {
   getUserConversations,
   markConversationAsRead,
   CivicDirectMessage,
+  formatFileSize,
+  detectAttachmentType,
 } from '../utils/civicMessagingService';
 import { checkIfUserOrDeviceBanned } from '../utils/adminManagement';
 
@@ -81,8 +90,11 @@ export const CivicCommunityFeedModal: React.FC<CivicCommunityFeedModalProps> = (
   const [chatInput, setChatInput] = useState('');
   const [isSendingChat, setIsSendingChat] = useState(false);
   const [sentinelAlert, setSentinelAlert] = useState<string | null>(null);
+  const [pendingAttachment, setPendingAttachment] = useState<MessageAttachment | null>(null);
+  const [previewImageModal, setPreviewImageModal] = useState<string | null>(null);
 
   const messagesEndRef = useRef<HTMLDivElement>(null);
+  const fileInputRef = useRef<HTMLInputElement>(null);
 
   const myUsername = currentUser?.username || '';
   const myCounty = currentUser?.county || (currentUser ? getUserCounty(currentUser.username) : 'Kwale') || 'Kwale';
@@ -102,6 +114,47 @@ export const CivicCommunityFeedModal: React.FC<CivicCommunityFeedModalProps> = (
       setDirectMessages(msgs);
       markConversationAsRead(myUsername, activeChatPeer);
     }
+  };
+
+  const handleFileSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    // Light document size limit: max 5MB
+    const MAX_SIZE = 5 * 1024 * 1024;
+    if (file.size > MAX_SIZE) {
+      showNotification(
+        language === 'en'
+          ? 'File too large. Please select a light document (PDF, Doc, Excel, Image) under 5MB.'
+          : 'Faili ni kubwa mno. Tafadhali chagua faili nyepesi (PDF, Word, Excel, Picha) chini ya 5MB.',
+        'error'
+      );
+      if (fileInputRef.current) fileInputRef.current.value = '';
+      return;
+    }
+
+    const reader = new FileReader();
+    reader.onload = () => {
+      const dataUrl = reader.result as string;
+      const detectedType = detectAttachmentType(file.name, file.type);
+      const att: MessageAttachment = {
+        id: 'att_' + Date.now(),
+        name: file.name,
+        type: detectedType,
+        mimeType: file.type || 'application/octet-stream',
+        size: file.size,
+        dataUrl,
+      };
+      setPendingAttachment(att);
+      if (fileInputRef.current) fileInputRef.current.value = '';
+    };
+    reader.onerror = () => {
+      showNotification(
+        language === 'en' ? 'Failed to read file.' : 'Imeshindwa kusoma faili.',
+        'error'
+      );
+    };
+    reader.readAsDataURL(file);
   };
 
   useEffect(() => {
@@ -188,16 +241,17 @@ export const CivicCommunityFeedModal: React.FC<CivicCommunityFeedModalProps> = (
     markConversationAsRead(currentUser.username, peerUsername);
   };
 
-  // Send Direct Message monitored by The Operator AI (Text Only)
+  // Send Direct Message monitored by The Operator AI (Text & Light Documents)
   const handleSendMessage = async () => {
     if (!currentUser) {
       if (onOpenAuthModal) onOpenAuthModal('login');
       return;
     }
     if (!activeChatPeer) return;
-    if (!chatInput.trim()) return;
+    if (!chatInput.trim() && !pendingAttachment) return;
 
     const contentToSend = chatInput.trim();
+    const attachmentToSend = pendingAttachment;
     setIsSendingChat(true);
     setSentinelAlert(null);
 
@@ -205,15 +259,19 @@ export const CivicCommunityFeedModal: React.FC<CivicCommunityFeedModalProps> = (
       const res = await sendDirectMessage(
         currentUser,
         activeChatPeer,
-        contentToSend
+        contentToSend,
+        attachmentToSend || undefined
       );
 
       if (res.success) {
         setChatInput('');
+        setPendingAttachment(null);
         const msgs = getDirectMessagesBetween(currentUser.username, activeChatPeer);
         setDirectMessages(msgs);
         showNotification(
-          language === 'en' ? 'Message sent securely.' : 'Ujumbe umetumwa salama.',
+          language === 'en'
+            ? (attachmentToSend ? 'Document and message sent securely.' : 'Message sent securely.')
+            : (attachmentToSend ? 'Waraka na ujumbe vimetumwa salama.' : 'Ujumbe umetumwa salama.'),
           'success'
         );
       } else {
@@ -823,6 +881,57 @@ export const CivicCommunityFeedModal: React.FC<CivicCommunityFeedModalProps> = (
                               >
                                 {/* Message Content */}
                                 {msg.content && <div>{msg.content}</div>}
+
+                                {/* Message Attachment (PDF, Doc, Excel, Image) */}
+                                {msg.attachment && (
+                                  <div className="mt-1.5 pt-1.5 border-t border-white/20 dark:border-slate-700/60">
+                                    {msg.attachment.type === 'image' ? (
+                                      <div className="space-y-1">
+                                        <img
+                                          src={msg.attachment.dataUrl}
+                                          alt={msg.attachment.name}
+                                          className="rounded-xl max-h-48 max-w-full object-cover cursor-pointer hover:opacity-90 transition-opacity border border-black/10 shadow-xs"
+                                          onClick={() => setPreviewImageModal(msg.attachment!.dataUrl)}
+                                        />
+                                        <div className="flex items-center justify-between text-[10px] opacity-80 pt-0.5">
+                                          <span className="truncate max-w-[140px] font-medium">{msg.attachment.name}</span>
+                                          <a
+                                            href={msg.attachment.dataUrl}
+                                            download={msg.attachment.name}
+                                            className="flex items-center gap-1 hover:underline font-bold text-amber-300 dark:text-amber-400"
+                                          >
+                                            <Download className="w-3 h-3" />
+                                            <span>{formatFileSize(msg.attachment.size)}</span>
+                                          </a>
+                                        </div>
+                                      </div>
+                                    ) : (
+                                      <a
+                                        href={msg.attachment.dataUrl}
+                                        download={msg.attachment.name}
+                                        className={`flex items-center justify-between gap-2.5 p-2 rounded-xl border transition-all ${
+                                          isMine
+                                            ? 'bg-purple-950/70 border-purple-400/40 text-purple-100 hover:bg-purple-950'
+                                            : 'bg-slate-50 dark:bg-slate-900 border-slate-200 dark:border-slate-700 text-slate-900 dark:text-slate-100 hover:border-purple-400'
+                                        }`}
+                                      >
+                                        <div className="flex items-center gap-2 min-w-0">
+                                          {msg.attachment.type === 'pdf' && <FileText className="w-5 h-5 text-red-500 shrink-0" />}
+                                          {msg.attachment.type === 'excel' && <FileSpreadsheet className="w-5 h-5 text-emerald-500 shrink-0" />}
+                                          {msg.attachment.type === 'doc' && <FileCode className="w-5 h-5 text-blue-500 shrink-0" />}
+                                          {msg.attachment.type === 'file' && <FileText className="w-5 h-5 text-slate-400 shrink-0" />}
+                                          <div className="truncate">
+                                            <span className="font-bold text-[11px] block truncate">{msg.attachment.name}</span>
+                                            <span className="text-[9px] opacity-75 font-mono">{formatFileSize(msg.attachment.size)} • {msg.attachment.type.toUpperCase()}</span>
+                                          </div>
+                                        </div>
+                                        <div className="p-1 rounded-md bg-white/10 shrink-0 hover:scale-110 transition-transform">
+                                          <Download className="w-3.5 h-3.5" />
+                                        </div>
+                                      </a>
+                                    )}
+                                  </div>
+                                )}
                               </div>
 
                               <div className="flex items-center gap-1.5 text-[10px] text-slate-400 mt-0.5 px-1 font-mono">
@@ -851,6 +960,32 @@ export const CivicCommunityFeedModal: React.FC<CivicCommunityFeedModalProps> = (
 
                     {/* Message Composer */}
                     <div className="p-3 border-t border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 space-y-2">
+                      {/* Pending Attachment Preview Chip */}
+                      {pendingAttachment && (
+                        <div className="flex items-center justify-between p-2 rounded-xl bg-purple-50 dark:bg-purple-950/40 border border-purple-200 dark:border-purple-800 text-xs">
+                          <div className="flex items-center gap-2 truncate">
+                            {pendingAttachment.type === 'image' && (
+                              <img src={pendingAttachment.dataUrl} alt="preview" className="w-8 h-8 rounded-lg object-cover border" />
+                            )}
+                            {pendingAttachment.type === 'pdf' && <FileText className="w-5 h-5 text-red-600 shrink-0" />}
+                            {pendingAttachment.type === 'excel' && <FileSpreadsheet className="w-5 h-5 text-emerald-600 shrink-0" />}
+                            {pendingAttachment.type === 'doc' && <FileCode className="w-5 h-5 text-blue-600 shrink-0" />}
+                            {pendingAttachment.type === 'file' && <FileText className="w-5 h-5 text-slate-600 shrink-0" />}
+                            <div className="truncate">
+                              <span className="font-bold text-slate-900 dark:text-slate-100 block truncate max-w-[220px]">{pendingAttachment.name}</span>
+                              <span className="text-[10px] text-slate-500 font-mono">{formatFileSize(pendingAttachment.size)} • {pendingAttachment.type.toUpperCase()}</span>
+                            </div>
+                          </div>
+                          <button
+                            type="button"
+                            onClick={() => setPendingAttachment(null)}
+                            className="p-1 rounded-lg text-slate-400 hover:text-red-600 hover:bg-slate-200 dark:hover:bg-slate-800 transition-colors cursor-pointer"
+                          >
+                            <X className="w-4 h-4" />
+                          </button>
+                        </div>
+                      )}
+
                       {myBanCheck.isBanned ? (
                         <div className="p-2.5 rounded-xl bg-red-100 text-red-900 text-xs font-bold text-center">
                           {language === 'en'
@@ -859,6 +994,21 @@ export const CivicCommunityFeedModal: React.FC<CivicCommunityFeedModalProps> = (
                         </div>
                       ) : (
                         <div className="flex items-center gap-2">
+                          {/* File Attachment Button */}
+                          <label
+                            className="p-2 rounded-xl text-slate-500 hover:text-purple-600 hover:bg-slate-100 dark:hover:bg-slate-800 cursor-pointer transition-colors shrink-0"
+                            title={language === 'en' ? 'Attach PDF, Word, Excel, or Image (under 5MB)' : 'Ambatisha PDF, Word, Excel au Picha (chini ya 5MB)'}
+                          >
+                            <Paperclip className="w-4 h-4" />
+                            <input
+                              ref={fileInputRef}
+                              type="file"
+                              accept=".pdf,.doc,.docx,.xls,.xlsx,.csv,.txt,.rtf,.jpg,.jpeg,.png,.webp,.gif"
+                              onChange={handleFileSelect}
+                              className="hidden"
+                            />
+                          </label>
+
                           <input
                             type="text"
                             value={chatInput}
@@ -870,17 +1020,19 @@ export const CivicCommunityFeedModal: React.FC<CivicCommunityFeedModalProps> = (
                               }
                             }}
                             placeholder={
-                              language === 'en'
-                                ? `Message @${activeChatPeer} (Monitored by Operator AI)...`
-                                : `Andika ujumbe kwa @${activeChatPeer}...`
+                              pendingAttachment
+                                ? (language === 'en' ? `Add a caption for ${pendingAttachment.name}...` : `Weka maelezo ya ${pendingAttachment.name}...`)
+                                : (language === 'en'
+                                  ? `Message @${activeChatPeer} (Monitored by Operator AI)...`
+                                  : `Andika ujumbe kwa @${activeChatPeer}...`)
                             }
                             className="grow px-3.5 py-2 text-xs rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 text-slate-900 dark:text-slate-100 focus:outline-none focus:ring-2 focus:ring-purple-600"
                           />
 
                           <button
                             onClick={handleSendMessage}
-                            disabled={isSendingChat || !chatInput.trim()}
-                            className="flex items-center gap-1.5 bg-purple-900 hover:bg-purple-800 disabled:opacity-50 text-white px-4 py-2 rounded-xl text-xs font-bold transition-all shadow-xs shrink-0"
+                            disabled={isSendingChat || (!chatInput.trim() && !pendingAttachment)}
+                            className="flex items-center gap-1.5 bg-purple-900 hover:bg-purple-800 disabled:opacity-50 text-white px-4 py-2 rounded-xl text-xs font-bold transition-all shadow-xs shrink-0 cursor-pointer"
                           >
                             <Send className="w-3.5 h-3.5" />
                             <span>{isSendingChat ? '...' : language === 'en' ? 'Send' : 'Tuma'}</span>
@@ -1021,6 +1173,29 @@ export const CivicCommunityFeedModal: React.FC<CivicCommunityFeedModalProps> = (
           )}
         </div>
       </motion.div>
+
+      {/* Full Image Preview Modal */}
+      {previewImageModal && (
+        <div
+          className="fixed inset-0 z-60 bg-black/80 backdrop-blur-sm flex items-center justify-center p-4"
+          onClick={() => setPreviewImageModal(null)}
+        >
+          <div className="relative max-w-3xl max-h-[90vh] flex flex-col items-center">
+            <button
+              onClick={() => setPreviewImageModal(null)}
+              className="absolute -top-10 right-0 p-2 text-white hover:text-amber-400 cursor-pointer"
+            >
+              <X className="w-6 h-6" />
+            </button>
+            <img
+              src={previewImageModal}
+              alt="Full size attachment"
+              className="max-h-[85vh] max-w-full rounded-2xl object-contain shadow-2xl border border-white/20"
+              onClick={(e) => e.stopPropagation()}
+            />
+          </div>
+        </div>
+      )}
     </div>
   );
 };

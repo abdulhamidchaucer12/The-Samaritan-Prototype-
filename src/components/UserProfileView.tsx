@@ -44,7 +44,8 @@ import {
 import { KENYA_47_COUNTIES } from '../data/kenyaCounties';
 import { AdminNameAllocationConsole } from './AdminNameAllocationConsole';
 import { getAdminPlatformAddressingName } from '../utils/adminAppointments';
-import { getUserTokenBalance } from '../utils/facilitatorTokenRegistry';
+import { getUserTokenBalance, grantFacilitatorTokens } from '../utils/facilitatorTokenRegistry';
+import { MidmonStoriesModal } from './MidmonStoriesModal';
 import { getUserProgress } from '../utils/storage';
 import { isUserOnline, getActiveUserSessions } from '../utils/userPresence';
 import { UserBadge } from './UserBadge';
@@ -117,6 +118,27 @@ export const UserProfileView: React.FC<UserProfileViewProps> = ({
   const [applyNote, setApplyNote] = useState('');
   const [applyFeedback, setApplyFeedback] = useState<{ type: 'success' | 'error'; message: string } | null>(null);
   const [isApplying, setIsApplying] = useState(false);
+
+  // Easter Egg: The World of the Midmons (Requires > 5,000 Tokens)
+  const [midmonModalOpen, setMidmonModalOpen] = useState(false);
+  const [tokenRefreshKey, setTokenRefreshKey] = useState(0);
+
+  const tokenData = currentUser
+    ? getUserTokenBalance(currentUser.username)
+    : { availableBalance: 0, totalAwarded: 0 };
+  const currentTokenBalance = tokenData.availableBalance;
+  const isEasterEggUnlocked = currentTokenBalance > 5000;
+
+  const handleGrantTestTokens = () => {
+    if (!currentUser?.username) return;
+    grantFacilitatorTokens(
+      currentUser.username,
+      5500,
+      'Easter Egg Explorer Grant: Access to The World of the Midmons',
+      'The_Samaritan'
+    );
+    setTokenRefreshKey((k) => k + 1);
+  };
 
   useEffect(() => {
     const handleSyncVerif = () => {
@@ -629,6 +651,147 @@ export const UserProfileView: React.FC<UserProfileViewProps> = ({
             </span>
             <ArrowRight className="w-4 h-4" />
           </button>
+        )}
+      </div>
+
+      {/* EASTER EGG: THE WORLD OF THE MIDMONS (Open World Interactive Stories) */}
+      <div
+        className={`rounded-3xl p-5 sm:p-6 transition-all relative overflow-hidden shadow-lg ${
+          isEasterEggUnlocked
+            ? 'bg-gradient-to-br from-amber-950/70 via-purple-950/60 to-slate-950 border-2 border-amber-400/80 shadow-amber-500/10 text-slate-100'
+            : 'bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-800 text-slate-700 dark:text-slate-300'
+        }`}
+      >
+        {/* Shimmering top banner */}
+        <div className="flex items-center justify-between flex-wrap gap-2 mb-3">
+          <div className="flex items-center gap-2.5">
+            <div
+              className={`w-9 h-9 rounded-2xl flex items-center justify-center shrink-0 shadow-md ${
+                isEasterEggUnlocked
+                  ? 'bg-gradient-to-tr from-amber-500 to-purple-600 text-white border border-amber-300/40 animate-pulse'
+                  : 'bg-slate-200 dark:bg-slate-800 text-slate-500'
+              }`}
+            >
+              <Sparkles className="w-5 h-5" />
+            </div>
+            <div>
+              <div className="flex items-center gap-2 flex-wrap">
+                <span
+                  className={`text-[10px] font-black uppercase tracking-wider px-2 py-0.5 rounded-full ${
+                    isEasterEggUnlocked
+                      ? 'bg-amber-400 text-slate-950 shadow-2xs font-extrabold'
+                      : 'bg-slate-200 dark:bg-slate-800 text-slate-600 dark:text-slate-400'
+                  }`}
+                >
+                  {isEasterEggUnlocked
+                    ? language === 'en'
+                      ? '✨ Secret Easter Egg Unlocked'
+                      : '✨ Zawadi ya Siri Imefunguliwa'
+                    : language === 'en'
+                    ? '🔒 Secret Easter Egg (5,000+ Tokens Required)'
+                    : '🔒 Siri Imefungwa (Ishara 5,000+ Zinahitajika)'}
+                </span>
+                <span
+                  className={`text-[10px] font-bold px-2 py-0.5 rounded-full ${
+                    isEasterEggUnlocked
+                      ? 'bg-purple-900/60 text-purple-200 border border-purple-700'
+                      : 'bg-slate-100 dark:bg-slate-800 text-slate-500'
+                  }`}
+                >
+                  {language === 'en' ? 'Open World Chronicles' : 'Hadithi za Ulimwengu Wazi'}
+                </span>
+              </div>
+              <h3
+                className={`font-serif font-black text-base sm:text-lg mt-0.5 flex items-center gap-1.5 ${
+                  isEasterEggUnlocked ? 'text-amber-200' : 'text-slate-900 dark:text-slate-100'
+                }`}
+              >
+                <span>{language === 'en' ? 'The World of the Midmons' : 'Ulimwengu wa Midmons'}</span>
+                <span className="text-xs font-sans font-normal opacity-90 hidden sm:inline">
+                  • {language === 'en' ? 'Lucy Shallah & Sundiata Keita' : 'Lucy Shallah na Sundiata Keita'}
+                </span>
+              </h3>
+            </div>
+          </div>
+
+          <div className="inline-flex items-center gap-1 px-3 py-1 rounded-full bg-amber-500/10 border border-amber-400/40 text-xs font-black text-amber-500 dark:text-amber-300">
+            <Coins className="w-3.5 h-3.5" />
+            <span>{currentTokenBalance.toLocaleString()} / 5,000 TKNS</span>
+          </div>
+        </div>
+
+        {/* Narrative Teaser */}
+        <p className="text-xs leading-relaxed mb-4 text-slate-300 dark:text-slate-300">
+          {language === 'en'
+            ? 'Based on the Raham Protocol archives: An open-world interactive saga set across the 35-acre golden eagle sanctuary at Sails Point (The Sank), the Tarasaa River basin, and the historic assembly of the Kurukan Fuga. Follow environmental attorney Lucy Shallah and the legendary Lion King Sundiata Keita alongside Miriam Midmon, Commander Kim Midmon, and Agnes Kimberly Midmon as they defeat predatory land developer Kimonge Jr. and toxic polluters using the Public Trust Doctrine and constitutional injunctions.'
+            : 'Kulingana na kumbukumbu za Raham Protocol: Hadithi shirikishi ya ulimwengu wazi inayotokea Sails Point (The Sank), bonde la Mto Tarasaa, na mkataba wa kihistoria wa Kurukan Fuga. Fuatilia wakili Lucy Shallah na Mfalme Sundiata Keita pamoja na familia ya Midmon wakikabili wanyakuzi wa ardhi na uchafuzi wa mazingira.'}
+        </p>
+
+        {isEasterEggUnlocked ? (
+          <div className="space-y-3">
+            <div className="p-3.5 rounded-2xl bg-slate-950/60 border border-amber-500/30 flex items-center justify-between flex-wrap gap-2 text-xs">
+              <div className="flex items-center gap-2">
+                <span className="text-xl">⚖️🦁</span>
+                <div>
+                  <span className="font-bold text-amber-200 block">
+                    {language === 'en' ? 'Key Players & Midmon Allies:' : 'Wahusika Wakuu na Familia ya Midmon:'}
+                  </span>
+                  <span className="text-[11px] text-slate-400">
+                    Lucy Shallah (Environmental Defender) & Sundiata Keita (Kurukan Fuga Sovereign), with Miriam & Kim Midmon
+                  </span>
+                </div>
+              </div>
+              <span className="text-[11px] font-bold text-emerald-400 flex items-center gap-1">
+                <CheckCircle2 className="w-3.5 h-3.5" />
+                <span>{language === 'en' ? 'All 4 Chapters & Multiple Endings Available' : 'Sura Zote 4 na Mwisho Tofauti Ziko Wazi'}</span>
+              </span>
+            </div>
+
+            <button
+              type="button"
+              onClick={() => setMidmonModalOpen(true)}
+              className="w-full py-3 px-4 rounded-2xl bg-gradient-to-r from-amber-500 via-purple-600 to-indigo-600 hover:from-amber-400 hover:via-purple-500 hover:to-indigo-500 text-slate-950 font-black text-xs sm:text-sm flex items-center justify-center gap-2 shadow-lg shadow-amber-500/20 transition-all cursor-pointer transform hover:-translate-y-0.5"
+            >
+              <Sparkles className="w-4 h-4 text-slate-950" />
+              <span>{language === 'en' ? 'Enter the World of the Midmons (Launch Interactive Story)' : 'Ingia Ulimwengu wa Midmons (Anzisha Hadithi)'}</span>
+              <ArrowRight className="w-4 h-4 text-slate-950" />
+            </button>
+          </div>
+        ) : (
+          <div className="space-y-3">
+            {/* Progress bar toward 5000 tokens */}
+            <div className="space-y-1.5">
+              <div className="flex justify-between text-[11px] font-bold text-slate-500 dark:text-slate-400">
+                <span>{language === 'en' ? 'Easter Egg Unlock Progress' : 'Kiwango cha Kufungua Siri'}</span>
+                <span>{Math.min(100, Math.round((currentTokenBalance / 5000) * 100))}%</span>
+              </div>
+              <div className="w-full h-2 rounded-full bg-slate-200 dark:bg-slate-800 overflow-hidden">
+                <div
+                  className="h-full bg-gradient-to-r from-amber-500 to-purple-600 rounded-full transition-all"
+                  style={{ width: `${Math.min(100, (currentTokenBalance / 5000) * 100)}%` }}
+                />
+              </div>
+            </div>
+
+            <div className="flex flex-col sm:flex-row items-center justify-between gap-2 pt-1">
+              <span className="text-[11px] text-slate-500 dark:text-slate-400">
+                {language === 'en'
+                  ? 'Earn tokens through civic quizzes, certificates, and community baraza training.'
+                  : 'Pata ishara kwa majaribio ya kiraia, vyeti, na mafunzo ya mabaraza.'}
+              </span>
+
+              {/* Convenience Demo / Test Unlock shortcut */}
+              <button
+                type="button"
+                onClick={handleGrantTestTokens}
+                className="px-3 py-1.5 rounded-xl bg-amber-100 hover:bg-amber-200 dark:bg-amber-950/70 dark:hover:bg-amber-900 border border-amber-300 dark:border-amber-700 text-amber-900 dark:text-amber-200 text-xs font-bold transition-all cursor-pointer flex items-center gap-1.5 shrink-0"
+                title="Grant 5,500 Test Tokens to preview the Midmon Easter Egg"
+              >
+                <Sparkles className="w-3.5 h-3.5 text-amber-500" />
+                <span>{language === 'en' ? 'Demo Unlock (Grant 5,500 Tokens)' : 'Fungua kwa Jaribio (Pata Ishara 5,500)'}</span>
+              </button>
+            </div>
+          </div>
         )}
       </div>
 
@@ -1270,6 +1433,15 @@ export const UserProfileView: React.FC<UserProfileViewProps> = ({
           <span>{language === 'en' ? 'Close Profile' : 'Funga Wasifu'}</span>
         </button>
       </div>
+
+      {/* The World of the Midmons: Open World Interactive Stories Modal */}
+      <MidmonStoriesModal
+        isOpen={midmonModalOpen}
+        onClose={() => setMidmonModalOpen(false)}
+        language={language}
+        currentUser={currentUser}
+        onTokensUpdated={() => setTokenRefreshKey((k) => k + 1)}
+      />
     </div>
   );
 };

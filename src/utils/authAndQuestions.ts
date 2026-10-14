@@ -906,8 +906,34 @@ export function setCurrentAuthUser(user: AuthUser | null): void {
     if (user.role === 'admin') {
       recordAdminActivity(user.username);
     }
+    // Clean up allocated guest session and make it offline
+    try {
+      const guestKey = 'the_samaritan_allocated_guest_username_v1';
+      const allocatedGuest = sessionStorage.getItem(guestKey);
+      if (allocatedGuest) {
+        sessionStorage.removeItem(guestKey);
+      }
+      const raw = localStorage.getItem('the_samaritan_active_sessions_v1');
+      if (raw) {
+        const sessions = JSON.parse(raw);
+        const filtered = sessions.filter((s: any) => {
+          if (allocatedGuest && s.username && s.username.toLowerCase() === allocatedGuest.toLowerCase()) return false;
+          if (s.role === 'guest' && s.username && s.username.toLowerCase().startsWith('guest_')) return false;
+          return true;
+        });
+        localStorage.setItem('the_samaritan_active_sessions_v1', JSON.stringify(filtered));
+      }
+      if (typeof fetch !== 'undefined' && allocatedGuest) {
+        fetch('/api/cloud-backup/presence/offline', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ username: allocatedGuest }),
+        }).catch(() => {});
+      }
+    } catch (e) {}
   }
   window.dispatchEvent(new CustomEvent('the_samaritan_auth_changed', { detail: { user } }));
+  window.dispatchEvent(new CustomEvent('the_samaritan_presence_updated'));
 }
 
 // ---------------- Admin Online Presence Tracking ---------------- //

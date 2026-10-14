@@ -43,6 +43,7 @@ export interface CivicAuditLogEntry {
 const ACTIVE_SESSIONS_KEY = 'the_samaritan_active_sessions_v1';
 const AUDIT_LOG_KEY = 'the_samaritan_audit_log_v1';
 const SESSION_STORAGE_ID_KEY = 'the_samaritan_session_uuid_v1';
+export const ALLOCATED_GUEST_USERNAME_KEY = 'the_samaritan_allocated_guest_username_v1';
 
 // Get or create unique session ID for current browser tab/window
 export function getCurrentSessionId(): string {
@@ -53,6 +54,76 @@ export function getCurrentSessionId(): string {
     sessionStorage.setItem(SESSION_STORAGE_ID_KEY, id);
   }
   return id;
+}
+
+/**
+ * Returns or allocates a persistent guest username for the current browser session.
+ * Used when a visitor has not yet logged in with their own registered credentials.
+ */
+export function getAllocatedGuestUsername(): string {
+  if (typeof window === 'undefined') return 'Guest_4102';
+  let guest = sessionStorage.getItem(ALLOCATED_GUEST_USERNAME_KEY);
+  if (!guest) {
+    const sessionId = getCurrentSessionId();
+    const suffix = sessionId.substring(5, 9).toUpperCase();
+    guest = `Guest_${suffix}`;
+    sessionStorage.setItem(ALLOCATED_GUEST_USERNAME_KEY, guest);
+  }
+  return guest;
+}
+
+/**
+ * Completely removes the allocated random guest username and makes it offline
+ * once the user logs in with their own registered credentials.
+ */
+export function removeAllocatedGuestSession(): void {
+  if (typeof window === 'undefined') return;
+  try {
+    const allocatedGuest = sessionStorage.getItem(ALLOCATED_GUEST_USERNAME_KEY);
+    const sessionId = getCurrentSessionId();
+
+    // 1. Remove from local active sessions in localStorage
+    const raw = localStorage.getItem(ACTIVE_SESSIONS_KEY);
+    if (raw) {
+      const sessions: ActiveUserSession[] = JSON.parse(raw);
+      const filtered = sessions.filter((s) => {
+        // Exclude guest matching allocated guest username
+        if (allocatedGuest && s.username.toLowerCase() === allocatedGuest.toLowerCase()) {
+          return false;
+        }
+        // Exclude guest matching this session ID
+        if (s.role === 'guest' && s.id === sessionId) {
+          return false;
+        }
+        // Exclude any guest session matching this session ID
+        if (s.role === 'guest' && s.username.toLowerCase().startsWith('guest_') && s.id === sessionId) {
+          return false;
+        }
+        return true;
+      });
+      localStorage.setItem(ACTIVE_SESSIONS_KEY, JSON.stringify(filtered));
+    }
+
+    // 2. Instruct cloud presence endpoint to remove & set offline
+    if (typeof fetch !== 'undefined') {
+      fetch('/api/cloud-backup/presence/offline', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          id: sessionId,
+          username: allocatedGuest || undefined,
+        }),
+      }).catch(() => {});
+    }
+
+    // 3. Clear allocated guest username from sessionStorage
+    sessionStorage.removeItem(ALLOCATED_GUEST_USERNAME_KEY);
+
+    // 4. Dispatch immediate presence update
+    window.dispatchEvent(new CustomEvent('the_samaritan_presence_updated'));
+  } catch (e) {
+    console.warn('[Presence] Error removing allocated guest session:', e);
+  }
 }
 
 // Detect device type based on user agent / screen width
@@ -243,9 +314,23 @@ export function recordUserHeartbeat(
     const twentyMinsAgo = now - 20 * 60 * 1000;
     sessions = sessions.filter((s) => s.lastActive > twentyMinsAgo);
 
+    // Purge any lingering guest session if user is now logged in with their own account
+    if (currentUser) {
+      const allocatedGuest = sessionStorage.getItem(ALLOCATED_GUEST_USERNAME_KEY);
+      if (allocatedGuest) {
+        removeAllocatedGuestSession();
+      }
+      sessions = sessions.filter((s) => {
+        if (s.role === 'guest' && (s.id === sessionId || (allocatedGuest && s.username.toLowerCase() === allocatedGuest.toLowerCase()))) {
+          return false;
+        }
+        return true;
+      });
+    }
+
     // Find current session or insert
     const idx = sessions.findIndex((s) => s.id === sessionId);
-    const username = currentUser ? currentUser.username : `Guest_${sessionId.substring(5, 9)}`;
+    const username = currentUser ? currentUser.username : getAllocatedGuestUsername();
     const role = currentUser?.role === 'admin' ? 'admin' : currentUser ? 'registered' : 'guest';
     const userRegCounty = currentUser ? (currentUser.county || getUserCounty(currentUser.username)) : 'Kwale County';
     const userRegSubCounty = currentUser ? (currentUser.subCounty || getUserSubCounty(currentUser.username)) : 'Coast Region';
@@ -432,6 +517,13 @@ export function getActiveUserSessions(): {
         !s.id.startsWith('duty_the_samaritan')
     );
 
+    // If a user is logged in, purge any guest session for this device
+    const currentLoggedIn = getCurrentAuthUser();
+    if (currentLoggedIn) {
+      const mySessionId = getCurrentSessionId();
+      sessions = sessions.filter((s) => !(s.role === 'guest' && s.id === mySessionId));
+    }
+
     const now = Date.now();
     const fiveMinsAgo = now - 5 * 60 * 1000;
     const fifteenMinsAgo = now - 15 * 60 * 1000;
@@ -488,12 +580,20 @@ export function isUserOnline(username?: string | null): boolean {
 }
 
 /**
- * Retrieves all online users excluding the current user
+ * Retrieves all online users excluding the current user (registered user or allocated guest)
  */
 export function getOtherOnlineUsers(currentUsername?: string | null): ActiveUserSession[] {
   const presence = getActiveUserSessions();
   const clean = (currentUsername || '').trim().toLowerCase().replace(/^@/, '');
-  return presence.sessions.filter(
-    (s) => s.isOnline && (!clean || s.username.toLowerCase().replace(/^@/, '') !== clean)
-  );
+  const guestClean = !currentUsername ? getAllocatedGuestUsername().toLowerCase().replace(/^@/, '') : '';
+  const mySessionId = getCurrentSessionId();
+
+  return presence.sessions.filter((s) => {
+    if (!s.isOnline) return false;
+    if (s.id === mySessionId) return false;
+    const uClean = s.username.toLowerCase().replace(/^@/, '');
+    if (clean && uClean === clean) return false;
+    if (guestClean && uClean === guestClean) return false;
+    return true;
+  });
 }

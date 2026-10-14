@@ -19,7 +19,7 @@ import {
   getUserSubCounty,
   getCurrentAuthUser,
 } from '../utils/authAndQuestions';
-import { isUserOnline, getActiveUserSessions } from '../utils/userPresence';
+import { isUserOnline, getActiveUserSessions, getAllocatedGuestUsername } from '../utils/userPresence';
 import { getUserProgress } from '../utils/storage';
 import { AuthUser } from '../types';
 import {
@@ -94,14 +94,23 @@ export const UserBadge: React.FC<UserBadgeProps> = ({
   const adminProfile = isTargetAdmin ? getAdminAppointedProfile(username) : null;
   const customVerification = getUserVerification(username);
 
-  // Determine if this badge belongs to the current logged-in user
+  // Determine if this badge belongs to the current logged-in user or current allocated guest
   const loggedInUser = currentUser !== undefined ? currentUser : getCurrentAuthUser();
-  const isSelf = Boolean(
+  const isRegisteredSelf = Boolean(
     loggedInUser?.username &&
       username &&
       loggedInUser.username.trim().toLowerCase().replace(/^@/, '') ===
         username.trim().toLowerCase().replace(/^@/, '')
   );
+  const allocatedGuest = !loggedInUser ? getAllocatedGuestUsername() : null;
+  const isGuestSelf = Boolean(
+    !loggedInUser &&
+      allocatedGuest &&
+      username &&
+      allocatedGuest.toLowerCase().replace(/^@/, '') ===
+        username.trim().toLowerCase().replace(/^@/, '')
+  );
+  const isSelf = isRegisteredSelf || isGuestSelf;
 
   // Sizes for the verified icon
   const iconSizes = {
@@ -129,14 +138,14 @@ export const UserBadge: React.FC<UserBadgeProps> = ({
     e.stopPropagation();
     if (disableHoverCard) return;
 
-    if (isSelf) {
-      // By clicking on his/her username, the user must be automatically taken to their profile page.
+    if (isRegisteredSelf) {
+      // By clicking on his/her registered username, the user is taken to their profile page.
       if (onNavigateToProfile) {
         onNavigateToProfile();
       }
       window.dispatchEvent(new CustomEvent('navigate_to_profile_tab'));
     } else {
-      // If a user clicks on another user's username then a summary of user details must appear.
+      // If a user clicks on another user's username or their own guest handle, show summary
       setIsProfileOpen(true);
     }
   };
@@ -185,8 +194,10 @@ export const UserBadge: React.FC<UserBadgeProps> = ({
         } ${className}`}
         title={
           !disableHoverCard
-            ? isSelf
+            ? isRegisteredSelf
               ? 'Click to open your Profile page'
+              : isGuestSelf
+              ? `Temporary guest handle allocated to you: ${username} (Click for details)`
               : `Click to view details summary for ${username}`
             : undefined
         }
@@ -221,6 +232,16 @@ export const UserBadge: React.FC<UserBadgeProps> = ({
             }`}
           >
             {displayHandle}
+          </span>
+        )}
+
+        {/* Guest You Pill */}
+        {isGuestSelf && !hideName && (
+          <span
+            className="px-1.5 py-0.2 rounded-md text-[9px] font-black bg-amber-200 dark:bg-amber-900 text-amber-950 dark:text-amber-100 border border-amber-400 shrink-0"
+            title={`Temporary allocated guest username: ${allocatedGuest} (You)`}
+          >
+            YOU
           </span>
         )}
 
@@ -373,6 +394,33 @@ export const UserBadge: React.FC<UserBadgeProps> = ({
                 </div>
               </div>
 
+              {/* Allocated Guest Notice Card */}
+              {isGuestSelf && (
+                <div className="p-3.5 rounded-2xl bg-amber-50 dark:bg-amber-950/40 border border-amber-300 dark:border-amber-700/80 space-y-2 text-xs">
+                  <div className="flex items-center gap-2 text-amber-950 dark:text-amber-100 font-extrabold">
+                    <span className="w-2.5 h-2.5 rounded-full bg-emerald-500 animate-pulse shrink-0" />
+                    <span>Your Allocated Guest Session (You)</span>
+                  </div>
+                  <p className="text-[11px] text-amber-900/90 dark:text-amber-200 leading-relaxed">
+                    You have not logged in yet. The system has allocated you temporary handle <strong>{allocatedGuest}</strong>. Once you log in or register with your own username, this random guest handle will be completely removed and made offline.
+                  </p>
+                  <button
+                    type="button"
+                    onClick={(e) => {
+                      e.preventDefault();
+                      e.stopPropagation();
+                      setIsProfileOpen(false);
+                      window.dispatchEvent(
+                        new CustomEvent('the_samaritan_open_auth_modal', { detail: { mode: 'login' } })
+                      );
+                    }}
+                    className="w-full py-2 px-3 rounded-xl bg-blue-900 hover:bg-blue-950 text-white font-bold text-xs flex items-center justify-center gap-1.5 cursor-pointer shadow-xs"
+                  >
+                    <span>Sign In / Register With Your Own Username</span>
+                  </button>
+                </div>
+              )}
+
               {/* Location & Status Info */}
               <div className="p-3.5 rounded-2xl bg-slate-50 dark:bg-slate-800/60 border border-slate-100 dark:border-slate-700/60 space-y-2 text-xs">
                 <div className="flex items-center gap-2 text-slate-700 dark:text-slate-300">
@@ -495,21 +543,38 @@ export const UserBadge: React.FC<UserBadgeProps> = ({
 
               {/* Action Buttons for Easy Navigation */}
               <div className="pt-1 flex items-center gap-2">
-                <button
-                  type="button"
-                  onClick={(e) => {
-                    e.preventDefault();
-                    e.stopPropagation();
-                    setIsProfileOpen(false);
-                    window.dispatchEvent(
-                      new CustomEvent('open_direct_chat_with_peer', { detail: { peer: username } })
-                    );
-                  }}
-                  className="flex-1 py-2.5 px-3 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs sm:text-sm flex items-center justify-center gap-1.5 transition-colors cursor-pointer shadow-sm"
-                >
-                  <MessageSquare className="w-4 h-4" />
-                  <span>Send Message</span>
-                </button>
+                {isGuestSelf ? (
+                  <button
+                    type="button"
+                    onClick={(e) => {
+                      e.preventDefault();
+                      e.stopPropagation();
+                      setIsProfileOpen(false);
+                      window.dispatchEvent(
+                        new CustomEvent('the_samaritan_open_auth_modal', { detail: { mode: 'login' } })
+                      );
+                    }}
+                    className="flex-1 py-2.5 px-3 rounded-xl bg-blue-900 hover:bg-blue-950 text-white font-bold text-xs sm:text-sm flex items-center justify-center gap-1.5 transition-colors cursor-pointer shadow-sm"
+                  >
+                    <span>Claim Your Account / Log In</span>
+                  </button>
+                ) : (
+                  <button
+                    type="button"
+                    onClick={(e) => {
+                      e.preventDefault();
+                      e.stopPropagation();
+                      setIsProfileOpen(false);
+                      window.dispatchEvent(
+                        new CustomEvent('open_direct_chat_with_peer', { detail: { peer: username } })
+                      );
+                    }}
+                    className="flex-1 py-2.5 px-3 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs sm:text-sm flex items-center justify-center gap-1.5 transition-colors cursor-pointer shadow-sm"
+                  >
+                    <MessageSquare className="w-4 h-4" />
+                    <span>Send Message</span>
+                  </button>
+                )}
 
                 <button
                   type="button"

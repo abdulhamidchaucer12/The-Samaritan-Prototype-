@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Users, Wifi, ChevronRight, X, Compass, MapPin } from 'lucide-react';
 import { Language, AuthUser } from '../types';
-import { getActiveUserSessions, ActiveUserSession, subscribeToUserPresence } from '../utils/userPresence';
+import { getActiveUserSessions, ActiveUserSession, subscribeToUserPresence, getAllocatedGuestUsername } from '../utils/userPresence';
 import { UserBadge } from './UserBadge';
 import { getUserCounty } from '../utils/authAndQuestions';
 
@@ -31,14 +31,15 @@ export const OnlineUsersPresenceBar: React.FC<OnlineUsersPresenceBarProps> = ({
     return () => unsub();
   }, []);
 
-  const myUsername = (currentUser?.username || '').toLowerCase().replace(/^@/, '');
+  const allocatedGuest = getAllocatedGuestUsername();
+  const myUsername = (currentUser?.username || allocatedGuest).toLowerCase().replace(/^@/, '');
   const onlineSessions = sessionsData.sessions.filter((s) => s.isOnline);
   // Exclude current user from "other online users", but if none other, show helpful note
   const otherOnlineUsers = onlineSessions.filter(
     (s) => s.username.toLowerCase().replace(/^@/, '') !== myUsername
   );
 
-  // If user is not logged in, they can still see all online users
+  // If user is not logged in, they can still see all online users including themselves marked with (You)
   const displayUsers = currentUser ? otherOnlineUsers : onlineSessions;
 
   return (
@@ -76,17 +77,27 @@ export const OnlineUsersPresenceBar: React.FC<OnlineUsersPresenceBarProps> = ({
               </h4>
             </div>
             <p className="text-[11px] text-slate-600 dark:text-slate-400 mt-0.5">
-              {currentUser
-                ? displayUsers.length > 0
-                  ? language === 'en'
-                    ? `You are connected with ${displayUsers.length} other citizen${displayUsers.length > 1 ? 's' : ''} across Kenya`
-                    : `Umeunganishwa na mwananchi ${displayUsers.length} mwingine kote nchini`
-                  : language === 'en'
-                  ? 'You are active online! Other citizens logging in will appear here in real time.'
-                  : 'Uko mtandaoni! Wananchi wengine watakapoingia wataonekana hapa papo hapo.'
-                : language === 'en'
-                ? 'Live citizens learning constitution modules across all 47 counties'
-                : 'Wananchi wanaosoma masomo ya katiba kote katika kaunti 47'}
+              {currentUser ? (
+                displayUsers.length > 0 ? (
+                  language === 'en' ? (
+                    `You are connected with ${displayUsers.length} other citizen${displayUsers.length > 1 ? 's' : ''} across Kenya`
+                  ) : (
+                    `Umeunganishwa na mwananchi ${displayUsers.length} mwingine kote nchini`
+                  )
+                ) : language === 'en' ? (
+                  'You are active online! Other citizens logging in will appear here in real time.'
+                ) : (
+                  'Uko mtandaoni! Wananchi wengine watakapoingia wataonekana hapa papo hapo.'
+                )
+              ) : language === 'en' ? (
+                <span>
+                  Allocated handle: <strong className="font-mono font-bold text-amber-900 dark:text-amber-200 bg-amber-100/90 dark:bg-amber-950/70 px-1.5 py-0.5 rounded border border-amber-300 dark:border-amber-700">{allocatedGuest} (You)</strong> • Log in to use your own username.
+                </span>
+              ) : (
+                <span>
+                  Jina la muda ulilopewa: <strong className="font-mono font-bold text-amber-900 dark:text-amber-200 bg-amber-100/90 dark:bg-amber-950/70 px-1.5 py-0.5 rounded border border-amber-300 dark:border-amber-700">{allocatedGuest} (Wewe)</strong> • Ingia ili kutumia jina lako.
+                </span>
+              )}
             </p>
           </div>
         </div>
@@ -150,10 +161,20 @@ export const OnlineUsersPresenceBar: React.FC<OnlineUsersPresenceBarProps> = ({
                   <div className="max-h-56 sm:max-h-64 overflow-y-auto space-y-2 pr-1">
                     {displayUsers.map((u) => {
                       const county = u.county || getUserCounty(u.username);
+                      const isGuestSelf = !currentUser && u.username.toLowerCase().replace(/^@/, '') === allocatedGuest.toLowerCase().replace(/^@/, '');
+                      const isRegisteredSelf = Boolean(currentUser && u.username.toLowerCase().replace(/^@/, '') === myUsername);
+                      const isMe = isGuestSelf || isRegisteredSelf;
+
                       return (
                         <div
                           key={u.id}
-                          className="p-2 rounded-xl bg-slate-50 dark:bg-slate-800/70 border border-slate-100 dark:border-slate-700/60 flex items-center justify-between gap-2 text-xs"
+                          className={`p-2 rounded-xl flex items-center justify-between gap-2 text-xs transition-colors ${
+                            isGuestSelf
+                              ? 'bg-amber-50/90 dark:bg-amber-950/50 border border-amber-300 dark:border-amber-700 shadow-2xs'
+                              : isRegisteredSelf
+                              ? 'bg-emerald-50/80 dark:bg-emerald-950/40 border border-emerald-300 dark:border-emerald-700 shadow-2xs'
+                              : 'bg-slate-50 dark:bg-slate-800/70 border border-slate-100 dark:border-slate-700/60'
+                          }`}
                         >
                           <div className="flex items-center gap-2 min-w-0">
                             <div className="relative shrink-0">
@@ -161,7 +182,14 @@ export const OnlineUsersPresenceBar: React.FC<OnlineUsersPresenceBarProps> = ({
                               <span className="absolute -bottom-0.5 -right-0.5 w-2 h-2 bg-emerald-500 rounded-full border border-white dark:border-slate-900" />
                             </div>
                             <div className="min-w-0">
-                              <UserBadge username={u.username} size="xs" currentUser={currentUser} />
+                              <div className="flex items-center gap-1">
+                                <UserBadge username={u.username} size="xs" currentUser={currentUser} />
+                                {isMe && (
+                                  <span className="text-[9px] font-black px-1.5 py-0.2 rounded bg-amber-200 dark:bg-amber-900 text-amber-950 dark:text-amber-100 border border-amber-400 shrink-0">
+                                    {isGuestSelf ? (language === 'en' ? 'YOU (GUEST)' : 'WEWE (MGENI)') : (language === 'en' ? 'YOU' : 'WEWE')}
+                                  </span>
+                                )}
+                              </div>
                               <div className="text-[10px] text-slate-500 dark:text-slate-400 flex items-center gap-1 truncate">
                                 <MapPin className="w-2.5 h-2.5 text-emerald-600 shrink-0" />
                                 <span className="truncate">{county}</span>
@@ -265,10 +293,20 @@ export const OnlineUsersPresenceBar: React.FC<OnlineUsersPresenceBarProps> = ({
             <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-2.5 pb-1">
               {displayUsers.map((u) => {
                 const county = u.county || getUserCounty(u.username);
+                const isGuestSelf = !currentUser && u.username.toLowerCase().replace(/^@/, '') === allocatedGuest.toLowerCase().replace(/^@/, '');
+                const isRegisteredSelf = Boolean(currentUser && u.username.toLowerCase().replace(/^@/, '') === myUsername);
+                const isMe = isGuestSelf || isRegisteredSelf;
+
                 return (
                   <div
                     key={u.id}
-                    className="p-2.5 rounded-xl bg-white dark:bg-slate-800/90 border border-slate-200 dark:border-slate-700 flex items-center justify-between gap-2 shadow-2xs hover:border-emerald-400 transition-colors"
+                    className={`p-2.5 rounded-xl border flex items-center justify-between gap-2 shadow-2xs transition-all ${
+                      isGuestSelf
+                        ? 'bg-amber-50/90 dark:bg-amber-950/40 border-amber-300 dark:border-amber-700 hover:border-amber-400'
+                        : isRegisteredSelf
+                        ? 'bg-emerald-50/80 dark:bg-emerald-950/30 border-emerald-300 dark:border-emerald-700 hover:border-emerald-400'
+                        : 'bg-white dark:bg-slate-800/90 border-slate-200 dark:border-slate-700 hover:border-emerald-400'
+                    }`}
                   >
                     <div className="flex items-center gap-2 min-w-0">
                       <div className="relative shrink-0">
@@ -276,7 +314,14 @@ export const OnlineUsersPresenceBar: React.FC<OnlineUsersPresenceBarProps> = ({
                         <span className="absolute -bottom-0.5 -right-0.5 w-2.5 h-2.5 bg-emerald-500 rounded-full border-2 border-white dark:border-slate-800" />
                       </div>
                       <div className="min-w-0">
-                        <UserBadge username={u.username} size="sm" currentUser={currentUser} />
+                        <div className="flex items-center gap-1">
+                          <UserBadge username={u.username} size="sm" currentUser={currentUser} />
+                          {isMe && (
+                            <span className="text-[9px] font-black px-1.5 py-0.2 rounded bg-amber-200 dark:bg-amber-900 text-amber-950 dark:text-amber-100 border border-amber-400 shrink-0">
+                              {isGuestSelf ? (language === 'en' ? 'YOU (GUEST)' : 'WEWE (MGENI)') : (language === 'en' ? 'YOU' : 'WEWE')}
+                            </span>
+                          )}
+                        </div>
                         <div className="text-[10px] text-slate-500 dark:text-slate-400 flex items-center gap-1 truncate">
                           <MapPin className="w-3 h-3 text-emerald-600 shrink-0" />
                           <span className="truncate">{county}</span>
